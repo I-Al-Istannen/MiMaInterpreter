@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
@@ -64,6 +65,9 @@ public class MiMa {
                     currentState.memory().get(currentState.registers().instructionPointer())
                 )
                 .withInstructionPointer(currentState.registers().instructionPointer() + 1)
+                // Reset ALU
+                .withAluInputLeft(0)
+                .withAluInputRight(0)
         );
   }
 
@@ -92,6 +96,8 @@ public class MiMa {
       memory = memory.set(i, combineInstruction);
     }
 
+    System.out.println(memory);
+
     ImmutableState state = ImmutableState.builder()
         .memory(memory)
         .registers(
@@ -103,18 +109,25 @@ public class MiMa {
         .build();
 
     MiMa miMa = new MiMa(state, instructionSet);
-    while (true) {
-      State currentState = miMa.getCurrentState();
 
-      System.out.println("Current instruction address: " + currentState.registers().instructionPointer());
+    try {
+      while (true) {
+        State currentState = miMa.getCurrentState();
 
-      int opcode = MemoryFormat.extractOpcode(currentState.registers().instruction());
-      Optional<Instruction> instruction = instructionSet.forOpcode(opcode);
-      System.out.println("Executing: " + instruction.map(it -> it.name() + ": " + it.opcode()));
-      State step = miMa.step();
-      System.out.println(step.registers());
+        System.out
+            .println(
+                "Current instruction address: " + currentState.registers().instructionPointer());
 
-      System.out.println();
+        int opcode = MemoryFormat.extractOpcode(currentState.registers().instruction());
+        Optional<Instruction> instruction = instructionSet.forOpcode(opcode);
+        System.out.println("Executing: " + instruction.map(it -> it.name() + ": " + it.opcode()));
+        State step = miMa.step();
+        System.out.println(step.registers());
+
+        System.out.println();
+      }
+    } catch (ProgramHaltException e) {
+      System.out.println(e.getMessage());
     }
   }
 

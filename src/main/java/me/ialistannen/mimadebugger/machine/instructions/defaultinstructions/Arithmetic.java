@@ -13,6 +13,8 @@ public class Arithmetic {
           .withRegisters(
               state.registers().copy()
                   .withAccumulator(state.registers().accumulator() + state.memory().get(address))
+                  .withAluInputLeft(state.registers().accumulator())
+                  .withAluInputRight(state.memory().get(address))
           )
       )
       .build();

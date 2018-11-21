@@ -62,7 +62,7 @@ public class MemoryFormat {
    * @throws NumberOverflowException if the number was more than 24 bits wide
    */
   public static int extractOpcode(int value) {
-    return (coerceToValue(value) & 0x00f00000) >>> 20;
+    return (value & 0x00f00000) >>> 20;
   }
 
   /**
@@ -73,7 +73,7 @@ public class MemoryFormat {
    * @throws NumberOverflowException if the number was more than 24 bits wide
    */
   public static int extractArgument(int value) {
-    return coerceToValue(value) & 0x000fffff;
+    return coerceToValue(value & 0x000fffff);
   }
 
   public static int combineInstruction(int opcode, int value) {
