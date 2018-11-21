@@ -1,6 +1,7 @@
 package me.ialistannen.mimadebugger.machine.memory;
 
 import java.util.Map.Entry;
+import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
@@ -23,7 +24,10 @@ public class MainMemory {
    * @return the value at this address. 0 if not initialized
    */
   public int get(int address) {
-    return data.getOrDefault(address, 0);
+    if (!data.containsKey(address)) {
+      throw new MemoryNotInitializedException(address);
+    }
+    return data.get(address);
   }
 
   /**
