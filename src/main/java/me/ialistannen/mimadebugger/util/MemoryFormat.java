@@ -68,12 +68,12 @@ public class MemoryFormat {
   /**
    * Extracts the value from a combined integer.
    *
-   * @param value the value, 24 bits wide
+   * @param value the positive value, 20 bits wide (first 4 are reserved for opcode)
    * @return the extracted value
    * @throws NumberOverflowException if the number was more than 24 bits wide
    */
   public static int extractArgument(int value) {
-    return coerceToValue(value & 0x000fffff);
+    return coerceToAddress(value & 0x000fffff);
   }
 
   public static int combineInstruction(int opcode, int value) {

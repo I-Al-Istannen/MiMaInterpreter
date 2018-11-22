@@ -9,7 +9,7 @@ public class Jump {
 
   public static Instruction JUMP = ImmutableInstruction.builder()
       .opcode(12)
-      .name("JUMP")
+      .name("JMP")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()

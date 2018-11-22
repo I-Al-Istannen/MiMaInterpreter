@@ -48,11 +48,12 @@ public class MainMemory {
     data.entrySet().stream().sorted(Entry.comparingByKey())
         .forEach(entry ->
             stringBuilder.append(String.format(
-                "%24s (%8d)  |  %-24s (%8d)",
+                "%24s (%8d)  |  %24s (%4d %8d)",
                 MemoryFormat.toString(entry.getKey(), 24, true),
                 entry.getKey(),
                 MemoryFormat.toString(entry.getValue(), 24, true),
-                entry.getValue()
+                MemoryFormat.extractOpcode(entry.getValue()),
+                MemoryFormat.extractArgument(entry.getValue())
             ))
                 .append(System.lineSeparator())
         );
@@ -67,13 +68,5 @@ public class MainMemory {
    */
   public static MainMemory create() {
     return new MainMemory(HashTreePMap.empty());
-  }
-
-  public static void main(String[] args) {
-    System.out.println(MainMemory.create()
-        .set(20, 20)
-        .set(50, 12)
-        .set(30, -(int) (Math.pow(2, 23) - 0))
-    );
   }
 }

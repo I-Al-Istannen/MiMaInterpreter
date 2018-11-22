@@ -39,6 +39,7 @@ public class MiMa {
    * @return the new state
    */
   public State step() {
+    currentState = fetchNextInstruction();
     int currentInstruction = currentState.registers().instruction();
 
     int opcode = MemoryFormat.extractOpcode(currentInstruction);
@@ -47,17 +48,16 @@ public class MiMa {
     Instruction instruction = instructionSet.forOpcode(opcode)
         .orElseThrow(() -> new InstructionNotFoundException(opcode));
 
-    // TODO: Make nicer
     if (instruction.name().equalsIgnoreCase("HALT")) {
-      throw new RuntimeException("Program exit!");
+      throw new ProgramHaltException();
     }
 
-    currentState = fetchNextInstruction();
+    currentState = fetchNextInstructionPointer();
 
     return currentState = instruction.apply(currentState, argument);
   }
 
-  private State fetchNextInstruction() {
+  private State fetchNextInstructionPointer() {
     return currentState.copy()
         .withRegisters(
             currentState.registers().copy()
@@ -68,6 +68,16 @@ public class MiMa {
                 // Reset ALU
                 .withAluInputLeft(0)
                 .withAluInputRight(0)
+        );
+  }
+
+  private State fetchNextInstruction() {
+    return currentState.copy()
+        .withRegisters(
+            currentState.registers().copy()
+                .withInstruction(
+                    currentState.memory().get(currentState.registers().instructionPointer())
+                )
         );
   }
 
@@ -102,8 +112,6 @@ public class MiMa {
         .memory(memory)
         .registers(
             ImmutableRegisters.builder()
-                .instruction(memory.get(0))
-                .instructionPointer(1)
                 .build()
         )
         .build();
@@ -114,19 +122,25 @@ public class MiMa {
       while (true) {
         State currentState = miMa.getCurrentState();
 
-        System.out
-            .println(
-                "Current instruction address: " + currentState.registers().instructionPointer());
+        System.out.println(
+            "Current instruction address: " + currentState.registers().instructionPointer()
+        );
 
-        int opcode = MemoryFormat.extractOpcode(currentState.registers().instruction());
+        int opcode = MemoryFormat.extractOpcode(
+            currentState.memory().get(currentState.registers().instructionPointer())
+        );
         Optional<Instruction> instruction = instructionSet.forOpcode(opcode);
+
         System.out.println("Executing: " + instruction.map(it -> it.name() + ": " + it.opcode()));
+
         State step = miMa.step();
         System.out.println(step.registers());
 
         System.out.println();
       }
     } catch (ProgramHaltException e) {
+      System.out.println();
+      System.out.println("## System Message ##");
       System.out.println(e.getMessage());
     }
   }
