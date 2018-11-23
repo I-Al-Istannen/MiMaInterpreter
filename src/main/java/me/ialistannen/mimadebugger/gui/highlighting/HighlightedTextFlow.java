@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.gui.highlighting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -14,6 +15,13 @@ public class HighlightedTextFlow extends TextFlow {
 
   public HighlightedTextFlow(EncodedInstructionCall call) {
     super(getTextsForCall(call));
+
+    // Update on first pulse after this component is visible
+    Platform.runLater(() -> setPrefHeight(computeMinHeight(getWidth())));
+
+    widthProperty().addListener((observable, oldValue, newValue) ->
+        setPrefHeight(computeMinHeight(newValue.doubleValue()))
+    );
   }
 
   private static Text[] getTextsForCall(EncodedInstructionCall encodedInstructionCall) {

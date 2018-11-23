@@ -3,16 +3,17 @@ package me.ialistannen.mimadebugger.gui;
 import static me.ialistannen.mimadebugger.machine.MiMa.readResource;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import me.ialistannen.mimadebugger.gui.state.EncodedInstructionCall;
-import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
 import me.ialistannen.mimadebugger.gui.state.MemoryView;
+import me.ialistannen.mimadebugger.gui.text.ProgramTextPane;
+import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
+import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 import me.ialistannen.mimadebugger.machine.program.ProgramParser;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 
@@ -24,30 +25,35 @@ public class MiMaGui extends Application {
 
     MemoryView memoryView = new MemoryView();
 
-    ProgramParser parser = new ProgramParser(new InstructionSet());
+    InstructionSet instructionSet = new InstructionSet();
+
+    memoryView.setMemoryDecoder(integer -> ImmutableInstructionCall.builder()
+        .command(instructionSet.forOpcode(MemoryFormat.extractOpcode(integer)).get())
+        .argument(MemoryFormat.extractArgument(integer))
+        .build()
+    );
+
+    ProgramParser parser = new ProgramParser(instructionSet);
     List<InstructionCall> calls = parser.parseFromNames(readResource("/AddOne.mima"));
 
-    List<EncodedInstructionCall> instructions = calls.stream()
-        .map(call -> ImmutableEncodedInstructionCall.builder()
-            .instructionCall(call)
-            .representation(
-                MemoryFormat.toString(
-                    MemoryFormat.combineInstruction(call.command().opcode(), call.argument()),
-                    24,
-                    false
-                )
-            )
-            .build()
-        )
-        .collect(Collectors.toList());
+    MainMemory memory = MainMemory.create();
 
-    memoryView.setMemory(instructions);
+    for (int i = 0; i < calls.size(); i++) {
+      InstructionCall call = calls.get(i);
+      memory = memory.set(
+          i,
+          MemoryFormat.combineInstruction(call.command().opcode(), call.argument())
+      );
+    }
 
-    root.setCenter(memoryView);
+    memoryView.setMemory(memory);
+
+    SplitPane split = new SplitPane(new ProgramTextPane(), memoryView);
+    split.setDividerPositions(.8);
+    root.setCenter(split);
 
     primaryStage.setScene(new Scene(root));
-    primaryStage.setWidth(500);
-    primaryStage.setHeight(500);
+    primaryStage.sizeToScene();
     primaryStage.centerOnScreen();
     primaryStage.show();
   }

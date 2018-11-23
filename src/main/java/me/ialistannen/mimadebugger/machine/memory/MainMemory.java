@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.machine.memory;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
@@ -39,6 +40,10 @@ public class MainMemory {
    */
   public MainMemory set(int address, int value) {
     return new MainMemory(data.plus(address, value));
+  }
+
+  public Map<Integer, Integer> getMemory() {
+    return data;
   }
 
   @Override

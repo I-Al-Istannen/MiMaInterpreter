@@ -1,22 +1,31 @@
 package me.ialistannen.mimadebugger.gui.state;
 
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXListView;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightedTextFlow;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
+import me.ialistannen.mimadebugger.machine.memory.MainMemory;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class MemoryView extends BorderPane {
 
   @FXML
-  private JFXListView<EncodedInstructionCall> memoryList;
+  private TableView<EncodedInstructionCall> memoryTable;
 
   private ObservableList<EncodedInstructionCall> memory;
+
+  private Function<Integer, InstructionCall> memoryDecoder;
 
   public MemoryView() {
     this.memory = FXCollections.observableArrayList();
@@ -35,23 +44,39 @@ public class MemoryView extends BorderPane {
 
   @FXML
   private void initialize() {
-    memoryList.setCellFactory(param -> new JFXListCell<EncodedInstructionCall>() {
-      @Override
-      protected void updateItem(EncodedInstructionCall item, boolean empty) {
-        super.updateItem(item, empty);
+    TableColumn<EncodedInstructionCall, Number> addressColumn = new TableColumn<>("Address");
+    addressColumn
+        .setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().address()));
 
-        setText(null);
+    TableColumn<EncodedInstructionCall, EncodedInstructionCall> valueColumn
+        = new TableColumn<>("Value");
+    valueColumn
+        .setCellFactory(param -> new TableCell<EncodedInstructionCall, EncodedInstructionCall>() {
+          @Override
+          protected void updateItem(EncodedInstructionCall item, boolean empty) {
+            super.updateItem(item, empty);
 
-        if (item == null || empty) {
-          setGraphic(null);
-          return;
-        }
+            if (item == null || empty) {
+              setGraphic(null);
+              setText(null);
+              return;
+            }
 
-        setGraphic(new HighlightedTextFlow(item));
-      }
-    });
+            HighlightedTextFlow value = new HighlightedTextFlow(item);
+            setGraphic(value);
+          }
+        });
+    valueColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
 
-    memoryList.setItems(memory);
+    memoryTable.getColumns().add(addressColumn);
+    memoryTable.getColumns().add(valueColumn);
+
+    memoryTable.setItems(memory);
+    memoryTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+  }
+
+  public void setMemoryDecoder(Function<Integer, InstructionCall> memoryDecoder) {
+    this.memoryDecoder = memoryDecoder;
   }
 
   /**
@@ -59,7 +84,18 @@ public class MemoryView extends BorderPane {
    *
    * @param memory the memory the pane displays
    */
-  public void setMemory(List<EncodedInstructionCall> memory) {
-    this.memory.setAll(memory);
+  public void setMemory(MainMemory memory) {
+    this.memory.clear();
+
+    for (Entry<Integer, Integer> entry : memory.getMemory().entrySet()) {
+      InstructionCall call = memoryDecoder.apply(entry.getValue());
+      this.memory.add(
+          ImmutableEncodedInstructionCall.builder()
+              .instructionCall(call)
+              .representation(MemoryFormat.toString(entry.getValue(), 24, false))
+              .address(entry.getKey())
+              .build()
+      );
+    }
   }
 }
