@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
+import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -29,6 +30,6 @@ public class Store {
       .build();
 
   public static List<Instruction> getInstructions() {
-    return List.of(STORE, STORE_INDIRECT);
+    return Arrays.asList(STORE, STORE_INDIRECT);
   }
 }

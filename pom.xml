@@ -18,7 +18,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-          <release>11</release>
+          <target>8</target>
+          <source>8</source>
         </configuration>
       </plugin>
 
@@ -48,18 +49,6 @@
 
   <dependencies>
 
-    <!--JAVAFX-->
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-base</artifactId>
-      <version>11-ea+25</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>11-ea+25</version>
-    </dependency>
-
     <!--VALUE CLASSES-->
     <dependency>
       <groupId>org.immutables</groupId>
@@ -73,6 +62,12 @@
       <groupId>org.pcollections</groupId>
       <artifactId>pcollections</artifactId>
       <version>3.0.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jfoenix</groupId>
+      <artifactId>jfoenix</artifactId>
+      <version>8.0.7</version>
     </dependency>
 
     <!--TEST-->

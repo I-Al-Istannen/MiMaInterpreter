@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
+import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -35,7 +36,7 @@ public class Jump {
 
 
   public static List<Instruction> getInstructions() {
-    return List.of(JUMP, JUMP_IF_NEGATIVE);
+    return Arrays.asList(JUMP, JUMP_IF_NEGATIVE);
   }
 
 }

@@ -145,7 +145,7 @@ public class MiMa {
     }
   }
 
-  private static List<String> readResource(String path) {
+  public static List<String> readResource(String path) {
     try (InputStream inputStream = MiMa.class.getResourceAsStream(path);
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         BufferedReader reader = new BufferedReader(inputStreamReader)) {

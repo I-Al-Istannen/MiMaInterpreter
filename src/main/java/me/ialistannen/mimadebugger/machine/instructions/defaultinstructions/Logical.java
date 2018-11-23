@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
+import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -59,6 +60,6 @@ public class Logical {
 
 
   public static List<Instruction> getInstructions() {
-    return List.of(AND, OR, XOR);
+    return Arrays.asList(AND, OR, XOR);
   }
 }

@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
+import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -40,6 +41,6 @@ public class Load {
       .build();
 
   public static List<Instruction> getInstructions() {
-    return List.of(LOAD_CONSTANT, LOAD_FROM_ADDRESS, LOAD_INDIRECT_FROM_ADDRESS);
+    return Arrays.asList(LOAD_CONSTANT, LOAD_FROM_ADDRESS, LOAD_INDIRECT_FROM_ADDRESS);
   }
 }
