@@ -6,12 +6,13 @@ import static me.ialistannen.mimadebugger.machine.MiMa.readResource;
 import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import me.ialistannen.mimadebugger.gui.execution.ExecutionControls;
 import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
-import me.ialistannen.mimadebugger.gui.state.MemoryView;
+import me.ialistannen.mimadebugger.gui.state.StateView;
 import me.ialistannen.mimadebugger.gui.text.ProgramTextPane;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.MiMa;
@@ -30,11 +31,11 @@ public class MiMaGui extends Application {
   public void start(Stage primaryStage) {
     BorderPane root = new BorderPane();
 
-    MemoryView memoryView = new MemoryView();
+    StateView stateView = new StateView();
 
     InstructionSet instructionSet = new InstructionSet();
 
-    memoryView.setMemoryValueDecoder((address, value) -> ImmutableEncodedInstructionCall.builder()
+    stateView.setMemoryValueDecoder((address, value) -> ImmutableEncodedInstructionCall.builder()
         .address(address)
         .representation(MemoryFormat.toString(value, 24, false))
         .instructionCall(instructionSet.forEncodedValue(value))
@@ -54,18 +55,18 @@ public class MiMaGui extends Application {
       );
     }
 
-    memoryView.setMemory(memory);
-
-    SplitPane split = new SplitPane(
-        new ProgramTextPane(
-            instructionSet.getAll().stream()
-                .map(Instruction::name)
-                .collect(toList())
-        ),
-        memoryView
+    ProgramTextPane programTextPane = new ProgramTextPane(
+        instructionSet.getAll().stream()
+            .map(Instruction::name)
+            .collect(toList())
     );
-    split.setDividerPositions(0.8);
-    root.setCenter(split);
+    HBox hbox = new HBox(
+        programTextPane,
+        stateView
+    );
+    hbox.setFillHeight(true);
+    HBox.setHgrow(programTextPane, Priority.ALWAYS);
+    root.setCenter(hbox);
 
     ExecutionControls executionControls = new ExecutionControls();
     MiMaRunner runner = new MiMaRunner(
@@ -83,14 +84,15 @@ public class MiMaGui extends Application {
 
     executionControls.setRunner(runner);
 
-    executionControls.setStateConsumer(state -> memoryView.setMemory(state.memory()));
+    executionControls.setStateConsumer(stateView::setState);
 
     root.setLeft(executionControls);
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add("/css/Base.css");
     primaryStage.setScene(scene);
-    primaryStage.sizeToScene();
+    primaryStage.setHeight(500);
+    primaryStage.setWidth(1000);
     primaryStage.centerOnScreen();
     primaryStage.show();
   }
