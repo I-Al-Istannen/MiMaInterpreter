@@ -70,6 +70,12 @@
       <version>8.0.7</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.fxmisc.richtext</groupId>
+      <artifactId>richtextfx</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+
     <!--TEST-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

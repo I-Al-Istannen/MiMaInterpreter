@@ -1,31 +1,66 @@
 package me.ialistannen.mimadebugger.gui.text;
 
-import com.jfoenix.controls.JFXTextArea;
-import java.io.IOException;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.scene.layout.BorderPane;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 public class ProgramTextPane extends BorderPane {
 
-  @FXML
-  private JFXTextArea textArea;
+  private CodeArea codeArea;
 
-  public ProgramTextPane() {
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/text/ProgramTextPane.fxml"));
+  private Pattern pattern;
 
-    loader.setRoot(this);
-    loader.setController(this);
+  public ProgramTextPane(Collection<String> instructions) {
+    this.codeArea = new CodeArea();
+    getStylesheets().add("/css/Highlight.css");
 
-    try {
-      loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Pattern insructionPattern = Pattern.compile("\\b" + String.join("|", instructions) + "\\b");
+    Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
+    Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
+
+    pattern = Pattern.compile(
+        "(?<INSTRUCTION>" + insructionPattern + ")"
+            + "|(?<ARGUMENT>" + argumentPattern + ")"
+            + "|(?<BINARY>" + binaryValuePattern + ")"
+    );
+
+    codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+
+    codeArea.multiPlainChanges()
+        .successionEnds(Duration.ofMillis(100))
+        .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+
+    setCenter(codeArea);
   }
 
-  @FXML
-  private void initialize() {
-    textArea.appendText("Hello world");
+  private StyleSpans<Collection<String>> computeHighlighting(String text) {
+    Matcher matcher = pattern.matcher(text);
+    int lastKwEnd = 0;
+    StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+
+    while (matcher.find()) {
+      String styleClass =
+          matcher.group("INSTRUCTION") != null
+              ? "highlight-instruction"
+              : matcher.group("BINARY") != null
+                  ? "highlight-binary"
+                  : matcher.group("ARGUMENT") != null
+                      ? "highlight-value"
+                      : null; /* never happens */
+      assert styleClass != null;
+
+      spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
+      spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
+      lastKwEnd = matcher.end();
+    }
+    spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
+    return spansBuilder.create();
   }
 }

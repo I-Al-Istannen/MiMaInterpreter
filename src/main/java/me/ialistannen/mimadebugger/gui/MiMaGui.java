@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.gui;
 
+import static java.util.stream.Collectors.toList;
 import static me.ialistannen.mimadebugger.machine.MiMa.readResource;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import me.ialistannen.mimadebugger.gui.text.ProgramTextPane;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.MiMa;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
+import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
@@ -54,7 +56,14 @@ public class MiMaGui extends Application {
 
     memoryView.setMemory(memory);
 
-    SplitPane split = new SplitPane(new ProgramTextPane(), memoryView);
+    SplitPane split = new SplitPane(
+        new ProgramTextPane(
+            instructionSet.getAll().stream()
+                .map(Instruction::name)
+                .collect(toList())
+        ),
+        memoryView
+    );
     split.setDividerPositions(0.8);
     root.setCenter(split);
 

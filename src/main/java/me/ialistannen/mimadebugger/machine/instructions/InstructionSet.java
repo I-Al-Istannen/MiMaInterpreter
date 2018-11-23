@@ -1,6 +1,8 @@
 package me.ialistannen.mimadebugger.machine.instructions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Arithmetic;
@@ -87,5 +89,9 @@ public class InstructionSet {
             .command(instruction)
             .build()
     );
+  }
+
+  public List<Instruction> getAll() {
+    return new ArrayList<>(instructionMap.values());
   }
 }
