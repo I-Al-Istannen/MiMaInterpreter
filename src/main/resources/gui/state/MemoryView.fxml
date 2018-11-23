@@ -7,6 +7,10 @@
   xmlns:fx="http://javafx.com/fxml/1">
    <center>
      <TableView fx:id="memoryTable" maxHeight="1.7976931348623157E308"
-       maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER"/>
+       maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+       <columnResizePolicy>
+         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+       </columnResizePolicy>
+     </TableView>
    </center>
 </fx:root>

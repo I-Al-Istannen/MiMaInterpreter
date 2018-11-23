@@ -1,0 +1,28 @@
+* {
+  -fx-color-base: #E8EAF6;
+  -fx-color-100: #C5CAE9;
+  -fx-color-200: #9FA8DA;
+  -fx-color-300: #7986CB;
+  -fx-color-400: #5C6BC0;
+  -fx-color-500: #3F51B5;
+  -fx-color-600: #3949AB;
+  -fx-color-700: #303F9F;
+  -fx-color-800: #283593;
+  -fx-color-900: #1A237E;
+  -fx-color-A100: #8C9EFF;
+  -fx-color-A200: #536DFE;
+  -fx-color-A400: #3D5AFE;
+  -fx-color-A700: #304FFE;
+
+  -fx-color-primary: -fx-color-A400;
+  -fx-color-text: white;
+}
+
+.root, .border-pane, VBox, .jfx-text-area {
+  -fx-background-color: white;
+}
+
+.button {
+  -fx-background-color: -fx-color-primary;
+  -fx-text-fill: -fx-color-text;
+}

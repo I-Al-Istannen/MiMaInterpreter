@@ -78,7 +78,9 @@ public class MiMaGui extends Application {
 
     root.setLeft(executionControls);
 
-    primaryStage.setScene(new Scene(root));
+    Scene scene = new Scene(root);
+    scene.getStylesheets().add("/css/Base.css");
+    primaryStage.setScene(scene);
     primaryStage.sizeToScene();
     primaryStage.centerOnScreen();
     primaryStage.show();

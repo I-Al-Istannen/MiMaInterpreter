@@ -45,6 +45,7 @@ public class MemoryView extends BorderPane {
     getStylesheets().add("/css/Highlight.css");
 
     TableColumn<MemoryValue, Number> addressColumn = column("Address", MemoryValue::address);
+    addressColumn.setPrefWidth(90);
 
     TableColumn<MemoryValue, MemoryValue> valueColumn = column("Value", x -> x);
     valueColumn.setCellFactory(
@@ -52,19 +53,13 @@ public class MemoryView extends BorderPane {
             (value, cell) -> cell.setGraphic(new HighlightedMemoryValue(value))
         )
     );
-
-    valueColumn.prefWidthProperty().bind(
-        memoryTable.widthProperty()
-            .subtract(addressColumn.widthProperty())
-            .subtract(2)
-    );
+    valueColumn.setPrefWidth(280);
 
     memoryTable.getColumns().add(addressColumn);
     memoryTable.getColumns().add(valueColumn);
 
     memoryTable.setItems(memory);
-    // prevent resizing
-    memoryTable.setColumnResizePolicy(param -> true);
+    memoryTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
   }
 
   public void setMemoryValueDecoder(BiFunction<Integer, Integer, MemoryValue> decoder) {
