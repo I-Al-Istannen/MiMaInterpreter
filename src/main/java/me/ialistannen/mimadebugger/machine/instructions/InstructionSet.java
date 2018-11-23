@@ -10,6 +10,7 @@ import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Logical;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Special;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Store;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 /**
  * Contains all {@link Instruction}s the MiMa knows about.
@@ -63,5 +64,28 @@ public class InstructionSet {
    */
   public Optional<Instruction> forOpcode(int opcode) {
     return Optional.ofNullable(instructionMap.get(opcode));
+  }
+
+  /**
+   * Returns the {@link InstructionCall} for an encoded value.
+   *
+   * @param value the encoded value
+   * @return the instruction call or an empty optional, if the opcode was not found
+   */
+  public Optional<InstructionCall> forEncodedValue(int value) {
+    int opcode = MemoryFormat.extractOpcode(value);
+
+    if (!instructionMap.containsKey(opcode)) {
+      return Optional.empty();
+    }
+
+    Instruction instruction = instructionMap.get(opcode);
+
+    return Optional.of(
+        ImmutableInstructionCall.builder()
+            .argument(MemoryFormat.extractArgument(value))
+            .command(instruction)
+            .build()
+    );
   }
 }

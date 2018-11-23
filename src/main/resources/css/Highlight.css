@@ -1,0 +1,11 @@
+.highlight-instruction {
+  -fx-fill: tomato;
+}
+
+.highlight-value {
+  -fx-fill: royalblue;
+}
+
+.highlight-binary {
+  -fx-fill: black;
+}

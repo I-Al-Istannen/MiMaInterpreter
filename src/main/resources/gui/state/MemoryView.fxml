@@ -6,11 +6,7 @@
   minWidth="-Infinity" type="BorderPane" xmlns="http://javafx.com/javafx/8.0.162-ea"
   xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <TableView fx:id="memoryTable" maxHeight="1.7976931348623157E308"
-        maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
-         <columnResizePolicy>
-            <TableView fx:constant="UNCONSTRAINED_RESIZE_POLICY"/>
-         </columnResizePolicy>
-      </TableView>
+     <TableView fx:id="memoryTable" maxHeight="1.7976931348623157E308"
+       maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER"/>
    </center>
 </fx:root>

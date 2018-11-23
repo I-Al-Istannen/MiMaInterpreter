@@ -1,31 +1,29 @@
 package me.ialistannen.mimadebugger.gui.state;
 
+import static me.ialistannen.mimadebugger.gui.util.TableHelper.cell;
+import static me.ialistannen.mimadebugger.gui.util.TableHelper.column;
+
 import java.io.IOException;
 import java.util.Map.Entry;
-import java.util.function.Function;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import java.util.function.BiFunction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-import me.ialistannen.mimadebugger.gui.highlighting.HighlightedTextFlow;
-import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
+import me.ialistannen.mimadebugger.gui.highlighting.HighlightedMemoryValue;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
-import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class MemoryView extends BorderPane {
 
   @FXML
-  private TableView<EncodedInstructionCall> memoryTable;
+  private TableView<MemoryValue> memoryTable;
 
-  private ObservableList<EncodedInstructionCall> memory;
+  private ObservableList<MemoryValue> memory;
 
-  private Function<Integer, InstructionCall> memoryDecoder;
+  private BiFunction<Integer, Integer, MemoryValue> memoryValueDecoder;
 
   public MemoryView() {
     this.memory = FXCollections.observableArrayList();
@@ -44,39 +42,33 @@ public class MemoryView extends BorderPane {
 
   @FXML
   private void initialize() {
-    TableColumn<EncodedInstructionCall, Number> addressColumn = new TableColumn<>("Address");
-    addressColumn
-        .setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().address()));
+    getStylesheets().add("/css/Highlight.css");
 
-    TableColumn<EncodedInstructionCall, EncodedInstructionCall> valueColumn
-        = new TableColumn<>("Value");
-    valueColumn
-        .setCellFactory(param -> new TableCell<EncodedInstructionCall, EncodedInstructionCall>() {
-          @Override
-          protected void updateItem(EncodedInstructionCall item, boolean empty) {
-            super.updateItem(item, empty);
+    TableColumn<MemoryValue, Number> addressColumn = column("Address", MemoryValue::address);
 
-            if (item == null || empty) {
-              setGraphic(null);
-              setText(null);
-              return;
-            }
+    TableColumn<MemoryValue, MemoryValue> valueColumn = column("Value", x -> x);
+    valueColumn.setCellFactory(
+        param -> cell(
+            (value, cell) -> cell.setGraphic(new HighlightedMemoryValue(value))
+        )
+    );
 
-            HighlightedTextFlow value = new HighlightedTextFlow(item);
-            setGraphic(value);
-          }
-        });
-    valueColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+    valueColumn.prefWidthProperty().bind(
+        memoryTable.widthProperty()
+            .subtract(addressColumn.widthProperty())
+            .subtract(2)
+    );
 
     memoryTable.getColumns().add(addressColumn);
     memoryTable.getColumns().add(valueColumn);
 
     memoryTable.setItems(memory);
-    memoryTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    // prevent resizing
+    memoryTable.setColumnResizePolicy(param -> true);
   }
 
-  public void setMemoryDecoder(Function<Integer, InstructionCall> memoryDecoder) {
-    this.memoryDecoder = memoryDecoder;
+  public void setMemoryValueDecoder(BiFunction<Integer, Integer, MemoryValue> decoder) {
+    this.memoryValueDecoder = decoder;
   }
 
   /**
@@ -87,15 +79,13 @@ public class MemoryView extends BorderPane {
   public void setMemory(MainMemory memory) {
     this.memory.clear();
 
-    for (Entry<Integer, Integer> entry : memory.getMemory().entrySet()) {
-      InstructionCall call = memoryDecoder.apply(entry.getValue());
-      this.memory.add(
-          ImmutableEncodedInstructionCall.builder()
-              .instructionCall(call)
-              .representation(MemoryFormat.toString(entry.getValue(), 24, false))
-              .address(entry.getKey())
-              .build()
-      );
+    for (Entry<Integer, Integer> memoryEntry : memory.getMemory().entrySet()) {
+      int address = memoryEntry.getKey();
+      int value = memoryEntry.getValue();
+
+      MemoryValue storedValue = memoryValueDecoder.apply(address, value);
+
+      this.memory.add(storedValue);
     }
   }
 }
