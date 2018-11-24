@@ -69,20 +69,4 @@ public class MiMaRunner {
     return !previousStates.isEmpty();
   }
 
-//  private void printState() {
-//    System.out.println("Current: " + current.registers().instructionPointer());
-//    String previous = previousStates.stream()
-//        .map(State::registers)
-//        .map(Registers::instructionPointer)
-//        .map(String::valueOf)
-//        .collect(joining(", "));
-//    String next = nextStates.stream()
-//        .map(State::registers)
-//        .map(Registers::instructionPointer)
-//        .map(String::valueOf)
-//        .collect(joining(", "));
-//
-//    System.out.println("Previous: " + previous);
-//    System.out.println("Next: " + next);
-//  }
 }
