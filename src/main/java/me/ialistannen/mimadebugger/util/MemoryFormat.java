@@ -1,6 +1,7 @@
 package me.ialistannen.mimadebugger.util;
 
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 
 public class MemoryFormat {
 
@@ -76,11 +77,29 @@ public class MemoryFormat {
     return coerceToAddress(value & 0x000fffff);
   }
 
-  public static int combineInstruction(int opcode, int value) {
+  /**
+   * Combines the given opcode and its argument to a single integer that can be stored in the
+   * memory.
+   *
+   * @param opcode the opcode
+   * @param argument the argument for it
+   * @return the combined instruction
+   */
+  public static int combineInstruction(int opcode, int argument) {
     int result = opcode << 20;
-    result = result | value;
+    result = result | argument;
 
     return result;
+  }
+
+  /**
+   * Combines the given instruction in a single integer that can be stored in the memory.
+   *
+   * @param call the
+   * @return the combined instruction
+   */
+  public static int combineInstruction(InstructionCall call) {
+    return combineInstruction(call.command().opcode(), call.argument());
   }
 
   /**

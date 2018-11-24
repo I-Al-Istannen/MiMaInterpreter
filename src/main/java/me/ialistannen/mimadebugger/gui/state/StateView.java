@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import me.ialistannen.mimadebugger.machine.State;
+import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 
 public class StateView extends VBox {
 
@@ -42,8 +43,18 @@ public class StateView extends VBox {
     memoryView.setMemoryValueDecoder(decoder);
   }
 
+  /**
+   * The state to display in this view.
+   *
+   * @param state the state to display, null for nothing
+   */
   public void setState(State state) {
-    memoryView.setMemory(state.memory());
-    registerView.setRegisters(state.registers());
+    if (state == null) {
+      memoryView.setMemory(MainMemory.create());
+      registerView.clearDisplay();
+    } else {
+      memoryView.setMemory(state.memory());
+      registerView.setRegisters(state.registers());
+    }
   }
 }

@@ -11,12 +11,19 @@
     <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0"
       BorderPane.alignment="CENTER">
       <children>
-        <JFXButton buttonType="RAISED" maxHeight="1.7976931348623157E308"
+        <JFXButton fx:id="prevStepButton" buttonType="RAISED" maxHeight="1.7976931348623157E308"
           maxWidth="1.7976931348623157E308" onAction="#onPrevious" text="Previous Step"/>
-        <JFXButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-          onAction="#onNext" text="Next Step"/>
-        <JFXButton maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-          onAction="#onExecute" text="Execute"/>
+        <JFXButton fx:id="nextStepButton" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" onAction="#onNext" text="Next Step"/>
+        <JFXButton fx:id="executeButton" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" onAction="#onExecute" text="Execute"/>
+        <JFXButton fx:id="loadProgramIntoMemory" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" onAction="#onLoadProgram"
+          text="Load Program into memory">
+          <VBox.margin>
+            <Insets top="40.0"/>
+          </VBox.margin>
+        </JFXButton>
       </children>
       <BorderPane.margin>
         <Insets bottom="20.0" left="5.0" right="5.0" top="20.0"/>

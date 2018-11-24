@@ -49,6 +49,11 @@ public class RegisterView extends BorderPane {
     tableView.setItems(registers);
   }
 
+  /**
+   * Sets the {@link Registers} to display
+   *
+   * @param registers the registers to display
+   */
   public void setRegisters(Registers registers) {
     this.registers.clear();
 
@@ -61,10 +66,18 @@ public class RegisterView extends BorderPane {
         "Accumulator",
         registers.accumulator()
     ));
-
-    System.out.println("Added: " + registers);
   }
 
+  /**
+   * Clears this register display, to indicate that nothing is being displayed.
+   */
+  public void clearDisplay() {
+    this.registers.clear();
+  }
+
+  /**
+   * A single value of a single register.
+   */
   private static class RegisterValue {
 
     private String name;

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.BorderPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -62,5 +63,14 @@ public class ProgramTextPane extends BorderPane {
     }
     spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
     return spansBuilder.create();
+  }
+
+  public void setCode(String code) {
+    codeArea.clear();
+    codeArea.appendText(code);
+  }
+
+  public ObservableValue<String> codeProperty() {
+    return codeArea.textProperty();
   }
 }
