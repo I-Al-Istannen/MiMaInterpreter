@@ -11,10 +11,12 @@ public class MiMaRunner {
   private Deque<State> previousStates;
   private Deque<State> nextStates;
   private State current;
+  private State initial;
 
   public MiMaRunner(MiMa miMa) {
     this.miMa = miMa;
     this.current = miMa.getCurrentState();
+    this.initial = miMa.getCurrentState();
 
     this.nextStates = new ArrayDeque<>();
     this.previousStates = new ArrayDeque<>();
@@ -30,7 +32,9 @@ public class MiMaRunner {
    */
   public State nextStep() {
     if (!nextStates.isEmpty()) {
+      previousStates.push(current);
       current = nextStates.pop();
+
       return current;
     }
 
@@ -39,6 +43,7 @@ public class MiMaRunner {
     previousStates.push(current);
 
     current = nextStep;
+
     return current;
   }
 
@@ -67,6 +72,32 @@ public class MiMaRunner {
    */
   public boolean hasPreviousStep() {
     return !previousStates.isEmpty();
+  }
+
+  /**
+   * Resets the runner to the initial state, before any call to {@link #nextStep()} was made.
+   */
+  public void reset() {
+    current = initial;
+    previousStates.clear();
+    nextStates.clear();
+
+    miMa = miMa.copy(current);
+  }
+
+  /**
+   * Checks whether the program is finished.
+   *
+   * @return true if the program has finished executing
+   */
+  public boolean isFinished() {
+    try {
+      miMa.step();
+      miMa = miMa.copy(current);
+      return false;
+    } catch (ProgramHaltException e) {
+      return true;
+    }
   }
 
 }

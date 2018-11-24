@@ -183,6 +183,10 @@ public class ExecutionControls extends BorderPane {
 
   @FXML
   private void onExecute() {
+    if (runner.get().isFinished()) {
+      runner.get().reset();
+    }
+
     try {
       while (true) {
         // runner.nextStep will throw an exception when the program is finished
