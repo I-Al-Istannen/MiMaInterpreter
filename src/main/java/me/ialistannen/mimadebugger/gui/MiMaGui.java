@@ -24,9 +24,8 @@ public class MiMaGui extends Application {
   public void start(Stage primaryStage) {
     BorderPane root = new BorderPane();
 
-    StateView stateView = new StateView();
-
     InstructionSet instructionSet = new InstructionSet();
+    StateView stateView = new StateView();
 
     stateView.setMemoryValueDecoder((address, value) -> ImmutableEncodedInstructionCall.builder()
         .address(address)
@@ -37,8 +36,6 @@ public class MiMaGui extends Application {
 
     ExecutionControls executionControls = new ExecutionControls(instructionSet);
     executionControls.setStateConsumer(stateView::setState);
-
-    root.setLeft(executionControls);
 
     ProgramTextPane programTextPane = new ProgramTextPane(
         instructionSet.getAll().stream()
@@ -53,18 +50,16 @@ public class MiMaGui extends Application {
         executionControls.removeBreakpoint(change.getElementRemoved());
       }
     });
-
     executionControls.programTextPropertyProperty().bind(programTextPane.codeProperty());
 
     Menubar menubar = new Menubar(strings -> programTextPane.setCode(String.join("\n", strings)));
-    root.setTop(menubar);
 
-    HBox mainPane = new HBox(
-        programTextPane,
-        stateView
-    );
+    HBox mainPane = new HBox(programTextPane, stateView);
     HBox.setHgrow(programTextPane, Priority.ALWAYS);
+
+    root.setTop(menubar);
     root.setCenter(mainPane);
+    root.setLeft(executionControls);
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add("/css/Base.css");

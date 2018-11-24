@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <fx:root maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0"
@@ -17,11 +18,28 @@
           maxWidth="1.7976931348623157E308" onAction="#onNext" text="Next Step"/>
         <JFXButton fx:id="executeButton" maxHeight="1.7976931348623157E308"
           maxWidth="1.7976931348623157E308" onAction="#onExecute" text="Execute"/>
+        <Separator prefWidth="200.0">
+          <VBox.margin>
+            <Insets/>
+          </VBox.margin>
+        </Separator>
+        <JFXButton fx:id="resetButton" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" onAction="#onReset"
+          styleClass="destructive-action-button" text="Reset">
+          <VBox.margin>
+            <Insets/>
+          </VBox.margin>
+        </JFXButton>
+        <Separator prefWidth="200.0">
+          <VBox.margin>
+            <Insets top="40.0"/>
+          </VBox.margin>
+        </Separator>
         <JFXButton fx:id="loadProgramIntoMemory" maxHeight="1.7976931348623157E308"
           maxWidth="1.7976931348623157E308" onAction="#onLoadProgram"
           text="Load Program into memory">
           <VBox.margin>
-            <Insets top="40.0"/>
+            <Insets/>
           </VBox.margin>
         </JFXButton>
       </children>

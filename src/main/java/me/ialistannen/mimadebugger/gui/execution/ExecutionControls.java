@@ -41,6 +41,8 @@ public class ExecutionControls extends BorderPane {
   private Button executeButton;
   @FXML
   private Button loadProgramIntoMemory;
+  @FXML
+  private Button resetButton;
 
   private InstructionSet instructionSet;
   private Consumer<State> stateConsumer;
@@ -86,6 +88,7 @@ public class ExecutionControls extends BorderPane {
     nextStepButton.disableProperty().bind(disableStepButtons);
     prevStepButton.disableProperty().bind(disableStepButtons.or(noPreviousStep));
     executeButton.disableProperty().bind(disableStepButtons);
+    resetButton.disableProperty().bind(disableStepButtons);
 
     programTextProperty.addListener((observable, oldValue, newValue) -> programOutOfDate.set(true));
 
@@ -181,10 +184,20 @@ public class ExecutionControls extends BorderPane {
     noPreviousStep.set(!runner.get().hasPreviousStep());
   }
 
+
+  @FXML
+  private void onReset() {
+    reset();
+  }
+
+  private void reset() {
+    stateConsumer.accept(runner.get().reset());
+  }
+
   @FXML
   private void onExecute() {
     if (runner.get().isFinished()) {
-      runner.get().reset();
+      reset();
     }
 
     try {

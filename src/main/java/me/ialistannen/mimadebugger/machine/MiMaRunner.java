@@ -76,13 +76,17 @@ public class MiMaRunner {
 
   /**
    * Resets the runner to the initial state, before any call to {@link #nextStep()} was made.
+   *
+   * @return the initial state that it was reset to
    */
-  public void reset() {
+  public State reset() {
     current = initial;
     previousStates.clear();
     nextStates.clear();
 
     miMa = miMa.copy(current);
+
+    return current;
   }
 
   /**

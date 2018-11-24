@@ -26,3 +26,7 @@
   -fx-background-color: -fx-color-primary;
   -fx-text-fill: -fx-color-text;
 }
+
+.destructive-action-button {
+  -fx-background-color: #FF0266;
+}
