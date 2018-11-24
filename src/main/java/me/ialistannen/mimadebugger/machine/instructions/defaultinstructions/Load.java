@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Load {
 
@@ -13,7 +14,7 @@ public class Load {
       .action((state, argument) -> state.copy()
           .withRegisters(
               state.registers().copy()
-                  .withAccumulator(argument)
+                  .withAccumulator(MemoryFormat.coerceToAddress(argument))
           )
       )
       .build();

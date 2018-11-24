@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.machine.memory;
 import java.util.Map;
 import java.util.Map.Entry;
 import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
@@ -23,12 +24,16 @@ public class MainMemory {
    *
    * @param address the address to read from
    * @return the value at this address. 0 if not initialized
+   * @throws MemoryNotInitializedException if the memory is not yet initialized
+   * @throws NumberOverflowException if the value does not fit into an address
    */
   public int get(int address) {
-    if (!data.containsKey(address)) {
-      throw new MemoryNotInitializedException(address);
+    int fixedLengthAddress = MemoryFormat.coerceToAddress(address);
+
+    if (!data.containsKey(fixedLengthAddress)) {
+      throw new MemoryNotInitializedException(fixedLengthAddress);
     }
-    return data.get(address);
+    return data.get(fixedLengthAddress);
   }
 
   /**
@@ -37,9 +42,13 @@ public class MainMemory {
    * @param address the address to write to
    * @param value the value to write
    * @return the resulting MainMemory object.
+   * @throws MemoryNotInitializedException if the memory is not yet initialized
+   * @throws NumberOverflowException if the value does not fit into an address
    */
   public MainMemory set(int address, int value) {
-    return new MainMemory(data.plus(address, value));
+    int fixedLengthAddress = MemoryFormat.coerceToAddress(address);
+
+    return new MainMemory(data.plus(fixedLengthAddress, MemoryFormat.coerceToValue(value)));
   }
 
   public Map<Integer, Integer> getMemory() {

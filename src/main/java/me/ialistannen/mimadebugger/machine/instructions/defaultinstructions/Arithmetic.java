@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Arithmetic {
 
@@ -13,7 +14,12 @@ public class Arithmetic {
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()
-                  .withAccumulator(state.registers().accumulator() + state.memory().get(address))
+                  .withAccumulator(
+                      // Underflow properly
+                      MemoryFormat.coerceToValue(
+                          state.registers().accumulator() + state.memory().get(address)
+                      )
+                  )
                   .withAluInputLeft(state.registers().accumulator())
                   .withAluInputRight(state.memory().get(address))
           )

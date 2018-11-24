@@ -8,7 +8,7 @@ public class MemoryFormat {
   public static final int ADDRESS_LENGTH = 20;
   public static final int VALUE_LENGTH = 24;
   public static final int VALUE_MAXIMUM = (int) (Math.pow(2, 24 - 1) - 1);
-  public static final int VALUE_MINIMUM = (int) -Math.pow(2, 24);
+  public static final int VALUE_MINIMUM = (int) -(Math.pow(2, 24 - 1));
 
   /**
    * Coerces the value to the size of an address ({@value ADDRESS_LENGTH}).
@@ -31,28 +31,36 @@ public class MemoryFormat {
   }
 
   /**
-   * Coarces the value to the size of a value ({@value VALUE_LENGTH}).
+   * Coerces the value to the size of a value ({@value VALUE_LENGTH}), calculating what the overflow
+   * would be, if necessary.
    *
    * @param value the value
-   * @return the value with all leading bits set to zeros or ones (depending on the sign)
-   * @throws NumberOverflowException if the number overflows
+   * @return the value
    */
   public static int coerceToValue(int value) {
-    // cut off first 8 bits
-    int masked = value & 0x00ffffff;
-
-    if (value > VALUE_MAXIMUM || value < VALUE_MINIMUM) {
-      throw new NumberOverflowException(value, VALUE_LENGTH);
+    if (value <= VALUE_MAXIMUM && value >= VALUE_MINIMUM) {
+      return value;
     }
 
-    if (value >= 0) {
-      return masked;
+    int fixed = value & 0x00ffffff;
+
+    if (getBit(fixed, VALUE_LENGTH - 1) == 0) {
+      return fixed;
     }
 
-    // sign expansion on first 8 bits
-    masked = masked | 0xff000000;
+    return fixed | 0xff000000;
+  }
 
-    return masked;
+  /**
+   * Mask the given value by cutting off all leading 8 bits.
+   *
+   * @param value the value to mask
+   * @return the masked value
+   */
+  public static int maskToValue(int value) {
+    int mask = 0x00ffffff;
+
+    return value & mask;
   }
 
   /**

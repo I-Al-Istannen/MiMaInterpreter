@@ -1,6 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -23,7 +23,7 @@ public class Equality {
 
 
   public static List<Instruction> getInstructions() {
-    return Arrays.asList(EQUAL);
+    return Collections.singletonList(EQUAL);
   }
 
 }

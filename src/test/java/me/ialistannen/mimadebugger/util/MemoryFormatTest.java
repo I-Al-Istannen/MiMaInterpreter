@@ -156,9 +156,41 @@ class MemoryFormatTest {
 
   @Test
   void testCoerceBiggerNumberToValue() {
-    assertThrows(
-        NumberOverflowException.class,
-        () -> MemoryFormat.coerceToValue((int) (Math.pow(2, MemoryFormat.VALUE_LENGTH) + 1))
+    assertThat(
+        MemoryFormat.coerceToValue(2 << MemoryFormat.VALUE_LENGTH + 1),
+        is(Math.floorMod(2 << MemoryFormat.VALUE_LENGTH + 1, 2 << MemoryFormat.VALUE_LENGTH))
+    );
+  }
+
+  @Test
+  void testCoerceMaxPlusOne() {
+    assertThat(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1),
+        is(MemoryFormat.VALUE_MINIMUM)
+    );
+  }
+
+  @Test
+  void testCoerceMinMinusOne() {
+    assertThat(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM - 1),
+        is(MemoryFormat.VALUE_MAXIMUM)
+    );
+  }
+
+  @Test
+  void testCoerceAddMinimum() {
+    assertThat(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM + MemoryFormat.VALUE_MINIMUM),
+        is(0)
+    );
+  }
+
+  @Test
+  void testCoerceAddMaximum() {
+    assertThat(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + MemoryFormat.VALUE_MAXIMUM),
+        is(-2)
     );
   }
 
@@ -274,4 +306,6 @@ class MemoryFormatTest {
         is(input)
     );
   }
+
+
 }

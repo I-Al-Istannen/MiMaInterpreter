@@ -54,11 +54,22 @@ public class Logical {
       .action((state, ignored) -> state.copy()
           .withRegisters(
               state.registers().copy()
-                  .withAccumulator(MemoryFormat.coerceToValue(~state.registers().accumulator()))
+                  .withAccumulator(not(state.registers().accumulator()))
           )
       )
       .build();
 
+
+  private static int not(int value) {
+    int masked = MemoryFormat.maskToValue(~value);
+
+    // expand the sign if the complement is negative, to preserve it on 32 bits
+    if (MemoryFormat.getBit(masked, MemoryFormat.VALUE_LENGTH - 1) == 0) {
+      return MemoryFormat.coerceToValue(masked);
+    }
+
+    return MemoryFormat.coerceToValue(~value);
+  }
 
   public static List<Instruction> getInstructions() {
     return Arrays.asList(AND, OR, XOR, NOT);
