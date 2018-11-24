@@ -31,7 +31,6 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class ExecutionControls extends BorderPane {
 
-
   @FXML
   private Button prevStepButton;
   @FXML
@@ -47,6 +46,7 @@ public class ExecutionControls extends BorderPane {
 
   private ObjectProperty<MiMaRunner> runner;
   private BooleanProperty programOutOfDate;
+  private BooleanProperty noPreviousStep;
   private SimpleStringProperty programTextProperty;
 
   public ExecutionControls(InstructionSet instructionSet) {
@@ -57,6 +57,7 @@ public class ExecutionControls extends BorderPane {
     this.runner = new SimpleObjectProperty<>();
     this.programOutOfDate = new SimpleBooleanProperty(false);
     this.programTextProperty = new SimpleStringProperty("");
+    this.noPreviousStep = new SimpleBooleanProperty(true);
 
     FXMLLoader loader = new FXMLLoader(
         getClass().getResource("/gui/execution/ExecutionControls.fxml")
@@ -78,7 +79,7 @@ public class ExecutionControls extends BorderPane {
     BooleanBinding disableStepButtons = programOutOfDate.or(runner.isNull());
 
     nextStepButton.disableProperty().bind(disableStepButtons);
-    prevStepButton.disableProperty().bind(disableStepButtons);
+    prevStepButton.disableProperty().bind(disableStepButtons.or(noPreviousStep));
     executeButton.disableProperty().bind(disableStepButtons);
 
     programTextProperty.addListener((observable, oldValue, newValue) -> programOutOfDate.set(true));
@@ -141,11 +142,18 @@ public class ExecutionControls extends BorderPane {
   @FXML
   private void onNext() {
     stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
+    noPreviousStep.set(false);
   }
 
   @FXML
   private void onPrevious() {
     stepGuardException(() -> stateConsumer.accept(runner.get().previousStep()));
+
+    if (!runner.get().hasPreviousStep()) {
+      noPreviousStep.set(true);
+    } else {
+      noPreviousStep.set(false);
+    }
   }
 
   @FXML
@@ -158,6 +166,7 @@ public class ExecutionControls extends BorderPane {
     try {
       while (true) {
         stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
+        noPreviousStep.set(false);
       }
     } catch (ProgramHaltException ignored) {
     }
