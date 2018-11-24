@@ -15,7 +15,7 @@ mostly ignoring how the machine is actually implemented in hardware.
 * Execute a program step by step (forwards and backwards) at any point in time
   (So after hitting a breakpoint or just from the beginning / end)
 
-* Loading programs from disk (though not writing as of now
+* Loading programs from disk (though not writing as of now)
 
 ## Screenshots
 ![Program screenshot](/images/Main_screen.jpg?raw=true "The main program screen")
