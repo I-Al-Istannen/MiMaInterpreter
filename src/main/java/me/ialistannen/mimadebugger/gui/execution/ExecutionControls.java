@@ -12,8 +12,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.MiMa;
@@ -137,12 +140,12 @@ public class ExecutionControls extends BorderPane {
 
   @FXML
   private void onNext() {
-    stateConsumer.accept(runner.get().nextStep());
+    stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
   }
 
   @FXML
   private void onPrevious() {
-    stateConsumer.accept(runner.get().previousStep());
+    stepGuardException(() -> stateConsumer.accept(runner.get().previousStep()));
   }
 
   @FXML
@@ -154,9 +157,25 @@ public class ExecutionControls extends BorderPane {
   private void onExecute() {
     try {
       while (true) {
-        stateConsumer.accept(runner.get().nextStep());
+        stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
       }
     } catch (ProgramHaltException ignored) {
+    }
+  }
+
+  private void stepGuardException(Runnable runnable) {
+    try {
+      runnable.run();
+    } catch (ProgramHaltException e) {
+      Alert alert = new Alert(AlertType.INFORMATION);
+      alert.setTitle("Program exited");
+      alert.setHeaderText("Program halted normally!");
+      alert.show();
+    } catch (MiMaException e) {
+      Alert alert = new Alert(AlertType.ERROR);
+      alert.setTitle("Error executing program");
+      alert.setHeaderText(e.getMessage());
+      alert.show();
     }
   }
 }
