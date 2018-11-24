@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightedMemoryValue;
@@ -24,6 +25,7 @@ public class MemoryView extends BorderPane {
   private ObservableList<MemoryValue> memory;
 
   private BiFunction<Integer, Integer, MemoryValue> memoryValueDecoder;
+  private int instructionPointerAddress = -1;
 
   public MemoryView() {
     this.memory = FXCollections.observableArrayList();
@@ -42,8 +44,6 @@ public class MemoryView extends BorderPane {
 
   @FXML
   private void initialize() {
-    getStylesheets().add("/css/Highlight.css");
-
     TableColumn<MemoryValue, Number> addressColumn = column("Address", MemoryValue::address);
     addressColumn.setPrefWidth(90);
 
@@ -54,6 +54,22 @@ public class MemoryView extends BorderPane {
         )
     );
     valueColumn.setPrefWidth(280);
+
+    memoryTable.setRowFactory(param -> new TableRow<MemoryValue>() {
+      @Override
+      protected void updateItem(MemoryValue item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if (item == null || empty || item.address() != instructionPointerAddress) {
+          getStyleClass().remove("current-instruction-pointer-address");
+          return;
+        }
+
+        if (item.address() == instructionPointerAddress) {
+          getStyleClass().add("current-instruction-pointer-address");
+        }
+      }
+    });
 
     memoryTable.getColumns().add(addressColumn);
     memoryTable.getColumns().add(valueColumn);
@@ -82,5 +98,14 @@ public class MemoryView extends BorderPane {
 
       this.memory.add(storedValue);
     }
+  }
+
+  /**
+   * Sets the current address of the instruction pointer.
+   *
+   * @param address the current address of the instruction pointer
+   */
+  public void setCurrentInstructionPointerAddress(int address) {
+    this.instructionPointerAddress = address;
   }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
 <fx:root maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
@@ -13,4 +14,8 @@
        </columnResizePolicy>
      </TableView>
    </center>
+  <stylesheets>
+    <URL value="@../../css/MemoryView.css"/>
+    <URL value="@../../css/Highlight.css"/>
+  </stylesheets>
 </fx:root>

@@ -57,9 +57,11 @@ public class StateView extends VBox {
   public void setState(State state) {
     if (state == null) {
       memoryView.setMemory(MainMemory.create());
+      memoryView.setCurrentInstructionPointerAddress(-1);
       registerView.clearDisplay();
     } else {
       memoryView.setMemory(state.memory());
+      memoryView.setCurrentInstructionPointerAddress(state.registers().instructionPointer());
       registerView.setRegisters(state.registers());
     }
   }
