@@ -165,23 +165,20 @@ public class ExecutionControls extends BorderPane {
   @FXML
   private void onNext() {
     stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
-    noPreviousStep.set(false);
+    noPreviousStep.set(!runner.get().hasPreviousStep());
   }
 
   @FXML
   private void onPrevious() {
     stepGuardException(() -> stateConsumer.accept(runner.get().previousStep()));
 
-    if (!runner.get().hasPreviousStep()) {
-      noPreviousStep.set(true);
-    } else {
-      noPreviousStep.set(false);
-    }
+    noPreviousStep.set(!runner.get().hasPreviousStep());
   }
 
   @FXML
   private void onLoadProgram() {
     setProgram(Arrays.asList(programTextProperty.get().split("\\n")));
+    noPreviousStep.set(!runner.get().hasPreviousStep());
   }
 
   @FXML
@@ -191,7 +188,7 @@ public class ExecutionControls extends BorderPane {
         // runner.nextStep will throw an exception when the program is finished
         State step = runner.get().nextStep();
         stateConsumer.accept(step);
-        noPreviousStep.set(false);
+        noPreviousStep.set(!runner.get().hasPreviousStep());
 
         if (breakpoints.contains(step.registers().instructionPointer())) {
           displayMessageBreakpointHit(step.registers().instructionPointer());
