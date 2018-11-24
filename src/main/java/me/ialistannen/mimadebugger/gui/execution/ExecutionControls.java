@@ -165,22 +165,30 @@ public class ExecutionControls extends BorderPane {
   private void onExecute() {
     try {
       while (true) {
-        stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
+        // runner.nextStep will throw an exception when the program is finished
+        stateConsumer.accept(runner.get().nextStep());
         noPreviousStep.set(false);
       }
-    } catch (ProgramHaltException ignored) {
+    } catch (MiMaException e) {
+      displayError(e);
     }
   }
 
   private void stepGuardException(Runnable runnable) {
     try {
       runnable.run();
-    } catch (ProgramHaltException e) {
+    } catch (MiMaException e) {
+      displayError(e);
+    }
+  }
+
+  private void displayError(MiMaException e) {
+    if (e instanceof ProgramHaltException) {
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Program exited");
       alert.setHeaderText("Program halted normally!");
       alert.show();
-    } catch (MiMaException e) {
+    } else {
       Alert alert = new Alert(AlertType.ERROR);
       alert.setTitle("Error executing program");
       alert.setHeaderText(e.getMessage());
