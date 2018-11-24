@@ -31,7 +31,6 @@ public class ProgramTextPane extends BorderPane {
             + "|(?<ARGUMENT>" + argumentPattern + ")"
             + "|(?<BINARY>" + binaryValuePattern + ")"
     );
-    System.out.println(pattern);
 
     codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
