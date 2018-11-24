@@ -97,16 +97,13 @@ public class ExecutionControls extends BorderPane {
     this.stateConsumer = stateConsumer;
   }
 
-  public String getProgramTextProperty() {
-    return programTextProperty.get();
-  }
-
+  /**
+   * Returns the property holding the text of the program.
+   *
+   * @return the program text property
+   */
   public SimpleStringProperty programTextPropertyProperty() {
     return programTextProperty;
-  }
-
-  public void setProgramTextProperty(String programTextProperty) {
-    this.programTextProperty.set(programTextProperty);
   }
 
   /**

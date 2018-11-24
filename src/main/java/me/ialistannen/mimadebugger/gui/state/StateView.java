@@ -39,6 +39,12 @@ public class StateView extends VBox {
     setPadding(new Insets(10));
   }
 
+  /**
+   * The decoder vor memory values. It receives an address and the value at this address and returns
+   * a {@link MemoryValue}.
+   *
+   * @param decoder the decoder
+   */
   public void setMemoryValueDecoder(BiFunction<Integer, Integer, MemoryValue> decoder) {
     memoryView.setMemoryValueDecoder(decoder);
   }

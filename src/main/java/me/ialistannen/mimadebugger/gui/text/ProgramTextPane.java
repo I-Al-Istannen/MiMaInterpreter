@@ -22,15 +22,16 @@ public class ProgramTextPane extends BorderPane {
     this.codeArea = new CodeArea();
     getStylesheets().add("/css/Highlight.css");
 
-    Pattern insructionPattern = Pattern.compile("\\b" + String.join("|", instructions) + "\\b");
+    Pattern instructionPattern = Pattern.compile("\\b(" + String.join("|", instructions) + ")\\b");
     Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
     Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
 
     pattern = Pattern.compile(
-        "(?<INSTRUCTION>" + insructionPattern + ")"
+        "(?<INSTRUCTION>" + instructionPattern + ")"
             + "|(?<ARGUMENT>" + argumentPattern + ")"
             + "|(?<BINARY>" + binaryValuePattern + ")"
     );
+    System.out.println(pattern);
 
     codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
@@ -65,11 +66,21 @@ public class ProgramTextPane extends BorderPane {
     return spansBuilder.create();
   }
 
+  /**
+   * Sets the code to display in this pane.
+   *
+   * @param code the code to display
+   */
   public void setCode(String code) {
-    codeArea.clear();
+    codeArea.textProperty();
     codeArea.appendText(code);
   }
 
+  /**
+   * Returns the code in this pane.
+   *
+   * @return the code in this pane
+   */
   public ObservableValue<String> codeProperty() {
     return codeArea.textProperty();
   }
