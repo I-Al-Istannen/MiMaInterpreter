@@ -48,15 +48,27 @@ public class ProgramParser {
   }
 
   private InstructionCall parseInstructionWithName(String[] nameAndArg) {
-    if (nameAndArg.length < 2) {
+    if (nameAndArg.length < 1) {
       throw new InstructionArgumentInvalidFormatException(
-          Arrays.toString(nameAndArg), "Not enough args"
+          Arrays.toString(nameAndArg), "Not enough arguments, array is empty"
       );
     }
 
     String instructionName = nameAndArg[0];
     Instruction instruction = instructionSet.forName(instructionName)
         .orElseThrow(() -> new InstructionNotFoundException(instructionName));
+
+    if (!instruction.hasArgument()) {
+      return ImmutableInstructionCall.builder()
+          .command(instruction)
+          .build();
+    }
+
+    if (nameAndArg.length != 2) {
+      throw new InstructionArgumentInvalidFormatException(
+          Arrays.toString(nameAndArg), "Not enough arguments, needed 2"
+      );
+    }
 
     int argument;
     try {

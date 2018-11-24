@@ -132,7 +132,29 @@ public class MemoryFormat {
     return result.toString();
   }
 
-  private static byte getBit(int input, int bitNumber) {
-    return (byte) (input >>> bitNumber & 1);
+  /**
+   * Returns the bit at the given position, counting from the least to the most significant.
+   *
+   * @param input the input number
+   * @param position the position of the bit
+   * @return the bit at this position
+   */
+  public static byte getBit(int input, int position) {
+    return (byte) (input >>> position & 1);
+  }
+
+  /**
+   * Returns the bit at the given position, counting from the least to the most significant.
+   *
+   * @param input the input number
+   * @param position the position of the bit
+   * @param set whether the bit at this position is set
+   * @return the bit at this position
+   */
+  public static int setBit(int input, int position, boolean set) {
+    if (set) {
+      return input | 1 << position;
+    }
+    return input & ~(1 << position);
   }
 }

@@ -10,6 +10,7 @@ import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Equa
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Jump;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Logical;
+import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Other;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Special;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Store;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
@@ -31,6 +32,7 @@ public class InstructionSet {
     Equality.getInstructions().forEach(this::registerInstruction);
     Jump.getInstructions().forEach(this::registerInstruction);
     Special.getInstructions().forEach(this::registerInstruction);
+    Other.getInstructions().forEach(this::registerInstruction);
   }
 
   /**

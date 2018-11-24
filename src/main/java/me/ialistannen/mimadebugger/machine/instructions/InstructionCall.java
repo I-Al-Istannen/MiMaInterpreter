@@ -15,8 +15,12 @@ public abstract class InstructionCall {
   /**
    * Returns the argument for the instruction.
    *
-   * @return the argument for the instruction
+   * @return the argument for the instruction. Always 0 if {@link Instruction#hasArgument()} is
+   * false
    */
-  public abstract int argument();
+  @Value.Default
+  public int argument() {
+    return 0;
+  }
 
 }

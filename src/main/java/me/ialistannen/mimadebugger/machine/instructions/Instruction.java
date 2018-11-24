@@ -25,6 +25,16 @@ public abstract class Instruction {
   public abstract String name();
 
   /**
+   * Returns whether the instruction has any arguments.
+   *
+   * @return whether the instruction has any arguments
+   */
+  @Value.Default
+  public boolean hasArgument() {
+    return true;
+  }
+
+  /**
    * The action this instruction executes.
    *
    * @return the action this instruction executes

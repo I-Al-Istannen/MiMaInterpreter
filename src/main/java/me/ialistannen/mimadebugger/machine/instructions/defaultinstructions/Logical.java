@@ -50,7 +50,8 @@ public class Logical {
   public static Instruction NOT = ImmutableInstruction.builder()
       .opcode(10)
       .name("NOT")
-      .action((state, address) -> state.copy()
+      .hasArgument(false)
+      .action((state, ignored) -> state.copy()
           .withRegisters(
               state.registers().copy()
                   .withAccumulator(MemoryFormat.coerceToValue(~state.registers().accumulator()))
@@ -60,6 +61,6 @@ public class Logical {
 
 
   public static List<Instruction> getInstructions() {
-    return Arrays.asList(AND, OR, XOR);
+    return Arrays.asList(AND, OR, XOR, NOT);
   }
 }

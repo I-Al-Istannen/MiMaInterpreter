@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.concurrent.ThreadLocalRandom;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import org.junit.jupiter.api.Test;
 
@@ -158,6 +159,119 @@ class MemoryFormatTest {
     assertThrows(
         NumberOverflowException.class,
         () -> MemoryFormat.coerceToValue((int) (Math.pow(2, MemoryFormat.VALUE_LENGTH) + 1))
+    );
+  }
+
+  @Test
+  void testGetBitZero() {
+    int input = 0;
+
+    for (int i = 0; i < Integer.SIZE; i++) {
+      assertThat(
+          MemoryFormat.getBit(input, i),
+          is((byte) 0)
+      );
+    }
+  }
+
+  @Test
+  void testGetBitOne() {
+    int input = 1;
+
+    assertThat(
+        MemoryFormat.getBit(input, 0),
+        is((byte) 1)
+    );
+
+    for (int i = 1; i < Integer.SIZE; i++) {
+      assertThat(
+          MemoryFormat.getBit(input, i),
+          is((byte) 0)
+      );
+    }
+  }
+
+  @Test
+  void testGetBitAllSet() {
+    int input = -1;
+
+    for (int i = 0; i < Integer.SIZE; i++) {
+      assertThat(
+          MemoryFormat.getBit(input, i),
+          is((byte) 1)
+      );
+    }
+  }
+
+  @Test
+  void testLastBitSet() {
+    int input = 0b10000000000000000000000000000000;
+
+    assertThat(
+        MemoryFormat.getBit(input, Integer.SIZE - 1),
+        is((byte) 1)
+    );
+
+    for (int i = 0; i < Integer.SIZE - 1; i++) {
+      assertThat(
+          MemoryFormat.getBit(input, i),
+          is((byte) 0)
+      );
+    }
+  }
+
+  @Test
+  void testSetOneToZero() {
+    int input = 1;
+
+    assertThat(
+        MemoryFormat.setBit(input, 0, false),
+        is(0)
+    );
+  }
+
+  @Test
+  void testSetZeroToOne() {
+    int input = 0;
+
+    assertThat(
+        MemoryFormat.setBit(input, 0, true),
+        is(1)
+    );
+  }
+
+  @Test
+  void testSetMostSignificant() {
+    int input = 0;
+
+    assertThat(
+        MemoryFormat.setBit(input, Integer.SIZE - 1, true),
+        is(Integer.MIN_VALUE)
+    );
+  }
+
+  @Test
+  void testUnsetMostSignificant() {
+    int input = Integer.MIN_VALUE;
+
+    assertThat(
+        MemoryFormat.setBit(input, Integer.SIZE - 1, false),
+        is(0)
+    );
+  }
+
+  @Test
+  void testRestoreComplement() {
+    int input = ThreadLocalRandom.current().nextInt();
+    int inverted = ~input;
+
+    for (int i = 0; i < 32; i++) {
+      inverted = MemoryFormat.setBit(inverted, i, MemoryFormat.getBit(input, i) == 1);
+    }
+
+    assertThat(
+        inverted,
+        is(input)
     );
   }
 }
