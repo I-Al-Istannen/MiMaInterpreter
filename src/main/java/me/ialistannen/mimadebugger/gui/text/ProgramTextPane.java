@@ -3,13 +3,15 @@ package me.ialistannen.mimadebugger.gui.text;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
@@ -19,8 +21,11 @@ public class ProgramTextPane extends BorderPane {
 
   private Pattern pattern;
 
+  private ObservableSet<Integer> breakpoints;
+
   public ProgramTextPane(Collection<String> instructions) {
     this.codeArea = new CodeArea();
+    this.breakpoints = FXCollections.observableSet(new HashSet<>());
     getStylesheets().add("/css/Highlight.css");
 
     Pattern instructionPattern = Pattern.compile("\\b(" + String.join("|", instructions) + ")\\b");
@@ -33,13 +38,25 @@ public class ProgramTextPane extends BorderPane {
             + "|(?<BINARY>" + binaryValuePattern + ")"
     );
 
-    codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+    updateLineIcons();
+
+    // Update the icons when a new line is added to keep the gutter size consistent
+    codeArea.getParagraphs()
+        .changes()
+        .successionEnds(Duration.ofMillis(100))
+        .subscribe(changes -> updateLineIcons());
 
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(100))
         .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
 
     setCenter(codeArea);
+  }
+
+  private void updateLineIcons() {
+    codeArea.setParagraphGraphicFactory(
+        new LineGutterWithBreakpoint(codeArea, breakpoints, this::breakpointToggled)
+    );
   }
 
   private StyleSpans<Collection<String>> computeHighlighting(String text) {
@@ -66,6 +83,15 @@ public class ProgramTextPane extends BorderPane {
     return spansBuilder.create();
   }
 
+  private void breakpointToggled(int line) {
+    if (breakpoints.contains(line)) {
+      breakpoints.remove(line);
+    } else {
+      breakpoints.add(line);
+    }
+    updateLineIcons();
+  }
+
   /**
    * Sets the code to display in this pane.
    *
@@ -74,6 +100,15 @@ public class ProgramTextPane extends BorderPane {
   public void setCode(String code) {
     codeArea.textProperty();
     codeArea.appendText(code);
+  }
+
+  /**
+   * Returns all breakpoints that are currently set.
+   *
+   * @return all breakpoints that are currently set
+   */
+  public ObservableSet<Integer> getBreakpoints() {
+    return breakpoints;
   }
 
   /**

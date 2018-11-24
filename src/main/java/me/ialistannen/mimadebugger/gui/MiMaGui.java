@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.gui;
 import static java.util.stream.Collectors.toList;
 
 import javafx.application.Application;
+import javafx.collections.SetChangeListener;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -44,6 +45,14 @@ public class MiMaGui extends Application {
             .map(Instruction::name)
             .collect(toList())
     );
+    programTextPane.getBreakpoints().addListener((SetChangeListener<Integer>) change -> {
+      if (change.wasAdded()) {
+        executionControls.addBreakpoint(change.getElementAdded());
+      }
+      if (change.wasRemoved()) {
+        executionControls.removeBreakpoint(change.getElementRemoved());
+      }
+    });
 
     executionControls.programTextPropertyProperty().bind(programTextPane.codeProperty());
 

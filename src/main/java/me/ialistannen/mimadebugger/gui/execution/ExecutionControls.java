@@ -2,7 +2,9 @@ package me.ialistannen.mimadebugger.gui.execution;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -49,6 +51,8 @@ public class ExecutionControls extends BorderPane {
   private BooleanProperty noPreviousStep;
   private SimpleStringProperty programTextProperty;
 
+  private Set<Integer> breakpoints;
+
   public ExecutionControls(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
     this.stateConsumer = state -> {
@@ -58,6 +62,7 @@ public class ExecutionControls extends BorderPane {
     this.programOutOfDate = new SimpleBooleanProperty(false);
     this.programTextProperty = new SimpleStringProperty("");
     this.noPreviousStep = new SimpleBooleanProperty(true);
+    this.breakpoints = new HashSet<>();
 
     FXMLLoader loader = new FXMLLoader(
         getClass().getResource("/gui/execution/ExecutionControls.fxml")
@@ -108,6 +113,24 @@ public class ExecutionControls extends BorderPane {
    */
   public SimpleStringProperty programTextPropertyProperty() {
     return programTextProperty;
+  }
+
+  /**
+   * Adds a breakpoint where program execution halts, when the execute button was pressed.
+   *
+   * @param breakpoint the breakpoint where program execution halts
+   */
+  public void addBreakpoint(int breakpoint) {
+    this.breakpoints.add(breakpoint);
+  }
+
+  /**
+   * Removes a breakpoint where program execution halts.
+   *
+   * @param breakpoint the breakpoint where program execution halts
+   */
+  public void removeBreakpoint(int breakpoint) {
+    this.breakpoints.remove(breakpoint);
   }
 
   /**
@@ -166,8 +189,14 @@ public class ExecutionControls extends BorderPane {
     try {
       while (true) {
         // runner.nextStep will throw an exception when the program is finished
-        stateConsumer.accept(runner.get().nextStep());
+        State step = runner.get().nextStep();
+        stateConsumer.accept(step);
         noPreviousStep.set(false);
+
+        if (breakpoints.contains(step.registers().instructionPointer())) {
+          displayMessageBreakpointHit(step.registers().instructionPointer());
+          break;
+        }
       }
     } catch (MiMaException e) {
       displayError(e);
@@ -194,5 +223,12 @@ public class ExecutionControls extends BorderPane {
       alert.setHeaderText(e.getMessage());
       alert.show();
     }
+  }
+
+  private void displayMessageBreakpointHit(int address) {
+    Alert alert = new Alert(AlertType.INFORMATION);
+    alert.setTitle("Breakpoint hit");
+    alert.setHeaderText("Breakpoint hit at " + address + "!");
+    alert.show();
   }
 }
