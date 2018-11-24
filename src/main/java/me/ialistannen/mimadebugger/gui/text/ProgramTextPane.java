@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.BorderPane;
+import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -28,7 +29,7 @@ public class ProgramTextPane extends BorderPane {
 
     pattern = Pattern.compile(
         "(?<INSTRUCTION>" + instructionPattern + ")"
-            + "|(?<ARGUMENT>" + argumentPattern + ")"
+            + "|(?<VALUE>" + argumentPattern + ")"
             + "|(?<BINARY>" + binaryValuePattern + ")"
     );
 
@@ -49,11 +50,11 @@ public class ProgramTextPane extends BorderPane {
     while (matcher.find()) {
       String styleClass =
           matcher.group("INSTRUCTION") != null
-              ? "highlight-instruction"
+              ? HighlightingCategory.INSTRUCTION.getCssClass()
               : matcher.group("BINARY") != null
-                  ? "highlight-binary"
-                  : matcher.group("ARGUMENT") != null
-                      ? "highlight-value"
+                  ? HighlightingCategory.BINARY.getCssClass()
+                  : matcher.group("VALUE") != null
+                      ? HighlightingCategory.VALUE.getCssClass()
                       : null; /* never happens */
       assert styleClass != null;
 
