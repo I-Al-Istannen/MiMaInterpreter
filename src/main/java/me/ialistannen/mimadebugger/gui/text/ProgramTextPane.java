@@ -98,7 +98,7 @@ public class ProgramTextPane extends BorderPane {
    * @param code the code to display
    */
   public void setCode(String code) {
-    codeArea.textProperty();
+    codeArea.clear();
     codeArea.appendText(code);
   }
 
