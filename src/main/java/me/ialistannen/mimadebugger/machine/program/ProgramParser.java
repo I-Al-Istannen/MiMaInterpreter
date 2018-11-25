@@ -46,7 +46,7 @@ public class ProgramParser {
     List<InstructionCall> calls = new ArrayList<>();
 
     for (int i = 0; i < lines.size(); i++) {
-      String[] parts = lines.get(i).trim().split(" ");
+      String[] parts = lines.get(i).trim().split("\\s+");
 
       InstructionCall instructionCall = parseInstructionWithName(parts, i);
 
