@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
@@ -75,12 +76,96 @@ class MiMaRunnerTest {
     );
   }
 
+  @Test
+  void reportsWhenFinished() {
+    runner.nextStep();
+    runner.nextStep();
+    runner.nextStep();
+
+    State currentState = miMa.getCurrentState();
+
+    assertThat(
+        runner.isFinished(),
+        is(true)
+    );
+
+    // Not broken when stepping back again (i.e. did not mutate state) when checking
+    runner.previousStep();
+    assertThat(
+        runner.nextStep(),
+        is(currentState)
+    );
+  }
+
+  @Test
+  void reportsWhenNotYetFinishedCached() {
+    runner.nextStep();
+    runner.nextStep();
+    State lastState = runner.nextStep();
+    // go back
+    runner.previousStep();
+
+    assertThat(
+        runner.isFinished(),
+        is(false)
+    );
+
+    // Not broken when stepping back again (i.e. did not mutate state) when checking
+    assertThat(
+        runner.nextStep(),
+        is(lastState)
+    );
+  }
+
+  @Test
+  void reportsWhenNotYetFinishedComputed() {
+    runner.nextStep();
+    runner.nextStep();
+
+    assertThat(
+        runner.isFinished(),
+        is(false)
+    );
+  }
+
+  @Test
+  void testReset() {
+    State initialState = miMa.getCurrentState();
+    List<State> steps = Arrays.asList(
+        runner.nextStep(),
+        runner.nextStep(),
+        runner.nextStep()
+    );
+
+    assertThat(
+        runner.reset(),
+        is(initialState)
+    );
+    assertThat(
+        Arrays.asList(runner.nextStep(), runner.nextStep(), runner.nextStep()),
+        is(steps)
+    );
+  }
+
 
   @Test
   void testHasNoPrevious() {
     assertThat(
         runner.hasPreviousStep(),
         is(false)
+    );
+  }
+
+  @Test
+  void testPreviousOfFirstIsFirst() {
+    assertThat(
+        runner.hasPreviousStep(),
+        is(false)
+    );
+    State initialState = miMa.getCurrentState();
+    assertThat(
+        runner.previousStep(),
+        is(initialState)
     );
   }
 

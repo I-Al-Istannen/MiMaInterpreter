@@ -2,6 +2,7 @@ package me.ialistannen.mimadebugger.machine.memory;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
@@ -82,5 +83,22 @@ public class MainMemory {
    */
   public static MainMemory create() {
     return new MainMemory(HashTreePMap.empty());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MainMemory memory = (MainMemory) o;
+    return Objects.equals(data, memory.data);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(data);
   }
 }

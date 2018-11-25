@@ -95,6 +95,9 @@ public class MiMaRunner {
    * @return true if the program has finished executing
    */
   public boolean isFinished() {
+    if (!nextStates.isEmpty()) {
+      return false;
+    }
     try {
       miMa.step();
       miMa = miMa.copy(current);
