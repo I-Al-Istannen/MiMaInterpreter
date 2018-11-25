@@ -1,12 +1,11 @@
 package me.ialistannen.mimadebugger.gui.state;
 
-import java.io.IOException;
 import java.util.function.BiFunction;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 
@@ -19,16 +18,7 @@ public class StateView extends VBox {
   private MemoryView memoryView;
 
   public StateView() {
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/state/StateView.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    FxmlUtil.loadWithRoot(this, "/gui/state/StateView.fxml");
   }
 
   @FXML

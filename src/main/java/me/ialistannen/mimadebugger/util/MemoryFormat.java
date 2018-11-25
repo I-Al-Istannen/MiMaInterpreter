@@ -10,6 +10,10 @@ public class MemoryFormat {
   public static final int VALUE_MAXIMUM = (int) (Math.pow(2, 24 - 1) - 1);
   public static final int VALUE_MINIMUM = (int) -(Math.pow(2, 24 - 1));
 
+  private MemoryFormat() {
+    //no instance
+  }
+
   /**
    * Coerces the value to the size of an address ({@value ADDRESS_LENGTH}).
    *

@@ -1,6 +1,5 @@
 package me.ialistannen.mimadebugger.gui.execution;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -13,13 +12,13 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
+import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.MiMa;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
@@ -66,18 +65,7 @@ public class ExecutionControls extends BorderPane {
     this.noPreviousStep = new SimpleBooleanProperty(true);
     this.breakpoints = new HashSet<>();
 
-    FXMLLoader loader = new FXMLLoader(
-        getClass().getResource("/gui/execution/ExecutionControls.fxml")
-    );
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    FxmlUtil.loadWithRoot(this, "/gui/execution/ExecutionControls.fxml");
   }
 
 

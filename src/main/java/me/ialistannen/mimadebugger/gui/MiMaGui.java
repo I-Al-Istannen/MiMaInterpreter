@@ -24,7 +24,6 @@ public class MiMaGui extends Application {
   private static MiMaGui instance;
 
   public MiMaGui() {
-    System.out.println("Called!");
     instance = this;
   }
 

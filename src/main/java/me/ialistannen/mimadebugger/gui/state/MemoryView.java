@@ -3,18 +3,17 @@ package me.ialistannen.mimadebugger.gui.state;
 import static me.ialistannen.mimadebugger.gui.util.TableHelper.cell;
 import static me.ialistannen.mimadebugger.gui.util.TableHelper.column;
 
-import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightedMemoryValue;
+import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 
 public class MemoryView extends BorderPane {
@@ -30,16 +29,7 @@ public class MemoryView extends BorderPane {
   public MemoryView() {
     this.memory = FXCollections.observableArrayList();
 
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/state/MemoryView.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    FxmlUtil.loadWithRoot(this, "/gui/state/MemoryView.fxml");
   }
 
   @FXML

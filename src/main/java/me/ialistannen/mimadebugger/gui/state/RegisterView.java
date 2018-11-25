@@ -1,14 +1,13 @@
 package me.ialistannen.mimadebugger.gui.state;
 
-import java.io.IOException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
+import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.memory.Registers;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 
@@ -28,16 +27,7 @@ public class RegisterView extends BorderPane {
   public RegisterView() {
     this.registers = FXCollections.observableArrayList();
 
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/state/RegisterView.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    FxmlUtil.loadWithRoot(this, "/gui/state/RegisterView.fxml");
   }
 
   @FXML

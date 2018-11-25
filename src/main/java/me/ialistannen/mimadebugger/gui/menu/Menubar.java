@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -21,6 +20,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.swing.SwingUtilities;
+import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 
 public class Menubar extends MenuBar {
 
@@ -29,16 +29,7 @@ public class Menubar extends MenuBar {
   public Menubar(Consumer<List<String>> programLoadedListener) {
     this.programLoadedListener = programLoadedListener;
 
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/menu/MenuBar.fxml"));
-
-    loader.setRoot(this);
-    loader.setController(this);
-
-    try {
-      loader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    FxmlUtil.loadWithRoot(this, "/gui/menu/MenuBar.fxml");
   }
 
   @FXML
