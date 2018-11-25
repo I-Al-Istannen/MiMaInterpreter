@@ -8,7 +8,7 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Equality {
 
-  public static Instruction EQUAL = ImmutableInstruction.builder()
+  public static final Instruction EQUAL = ImmutableInstruction.builder()
       .opcode(11)
       .name("EQL")
       .action((state, address) -> state.copy()

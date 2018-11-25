@@ -8,7 +8,7 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Jump {
 
-  public static Instruction JUMP = ImmutableInstruction.builder()
+  public static final Instruction JUMP = ImmutableInstruction.builder()
       .opcode(12)
       .name("JMP")
       .action((state, address) -> state.copy()
@@ -19,7 +19,7 @@ public class Jump {
       )
       .build();
 
-  public static Instruction JUMP_IF_NEGATIVE = ImmutableInstruction.builder()
+  public static final Instruction JUMP_IF_NEGATIVE = ImmutableInstruction.builder()
       .opcode(13)
       .name("JMN")
       .action((state, address) -> state.copy()

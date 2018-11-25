@@ -8,7 +8,7 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Arithmetic {
 
-  public static Instruction ADD = ImmutableInstruction.builder()
+  public static final Instruction ADD = ImmutableInstruction.builder()
       .opcode(6)
       .name("ADD")
       .action((state, address) -> state.copy()
