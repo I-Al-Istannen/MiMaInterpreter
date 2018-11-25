@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -96,6 +97,21 @@ class MiMaTest {
 
     assertThrows(
         ProgramHaltException.class,
+        () -> miMa.step()
+    );
+  }
+
+  @Test
+  void stepToIllegalOpcodeErrors() {
+    miMa = miMa.copy(
+        ImmutableState.builder()
+            .registers(ImmutableRegisters.builder().build())
+            .memory(MainMemory.create().set(0, 0b00000000111000000000000000000000))
+            .build()
+    );
+
+    assertThrows(
+        InstructionNotFoundException.class,
         () -> miMa.step()
     );
   }
