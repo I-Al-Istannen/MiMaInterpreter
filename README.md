@@ -25,5 +25,10 @@ mostly ignoring how the machine is actually implemented in hardware.
 ## Feature requests and bugs
 Please open an [issue](https://github.com/I-Al-Istannen/MiMaInterpreter/issues/new/new) :)
 
+## Requirements
+* Java **8** with JavaFx (you will have JavaFx if you use the oracle JRE, so windows users should have it by default.
+  On Linux install `openjfx` from the package manager of your choice.)
+* Note that this program is *incompatible* with newer java versions, due to JFoenix being unable to cope
+
 ## Download
 [![Download](https://media-elerium.cursecdn.com/attachments/202/434/jenkins.png)](http://ci.ialistannen.de/job/MiMaInterpreter/)
