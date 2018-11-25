@@ -6,6 +6,10 @@ import javafx.scene.Node;
 
 public class FxmlUtil {
 
+  private FxmlUtil() {
+    //no instance
+  }
+
   /**
    * Loads a FXML file with the given node as root and controller.
    *

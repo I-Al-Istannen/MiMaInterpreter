@@ -3,6 +3,8 @@ package me.ialistannen.mimadebugger.gui.menu;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,6 +17,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.TextArea;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
@@ -46,7 +50,7 @@ public class Menubar extends MenuBar {
         List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
         programLoadedListener.accept(lines);
       } catch (IOException e) {
-        e.printStackTrace();
+        createErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
       }
     }
   }
@@ -84,10 +88,30 @@ public class Menubar extends MenuBar {
           Desktop.getDesktop().browse(URI.create(url));
         }
       } catch (IOException e) {
-        e.printStackTrace();
+        Platform.runLater(() ->
+            createErrorDialog("Error opening a link to '" + url + "'", e)
+                .show()
+        );
       }
     }));
 
     return hyperlink;
+  }
+
+  private static Alert createErrorDialog(String headerText, Throwable e) {
+    System.out.println("Creating...");
+    Alert alert = new Alert(AlertType.ERROR);
+    alert.setTitle("An error occurred");
+    alert.setHeaderText(headerText);
+
+    StringWriter stringWriter = new StringWriter();
+    e.printStackTrace(new PrintWriter(stringWriter));
+
+    TextArea textArea = new TextArea(stringWriter.toString());
+    textArea.setFont(Font.font("monospace"));
+
+    alert.getDialogPane().setExpandableContent(textArea);
+
+    return alert;
   }
 }
