@@ -16,6 +16,30 @@ class MemoryFormatTest {
   }
 
   @Test
+  void testZeroToStringNoLeading() {
+    assertThat(
+        MemoryFormat.toString(0, 24, true),
+        is("0")
+    );
+  }
+
+  @Test
+  void testOneToStringNoLeading() {
+    assertThat(
+        MemoryFormat.toString(1, 24, true),
+        is("01")
+    );
+  }
+
+  @Test
+  void testMinusOneToStringNoLeading() {
+    assertThat(
+        MemoryFormat.toString(-1, 24, true),
+        is(repeat("1", 24))
+    );
+  }
+
+  @Test
   void testZeroToString() {
     assertThat(
         formatToString(0),
