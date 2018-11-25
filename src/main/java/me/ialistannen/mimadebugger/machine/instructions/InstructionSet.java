@@ -42,10 +42,10 @@ public class InstructionSet {
    * @throws IllegalArgumentException if the opcode is already registered
    */
   public void registerInstruction(Instruction instruction) {
+    if (forName(instruction.name()).isPresent()) {
+      throw new IllegalArgumentException("Name " + instruction.name() + " already registered!");
+    }
     if (instructionMap.put(instruction.opcode(), instruction) != null) {
-      if (forName(instruction.name()).isPresent()) {
-        throw new IllegalArgumentException("Name " + instruction.name() + " already registered!");
-      }
       throw new IllegalArgumentException("Opcode " + instruction.opcode() + " already registered!");
     }
   }

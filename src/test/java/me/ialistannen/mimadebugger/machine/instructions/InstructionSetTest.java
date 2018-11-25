@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +24,22 @@ class InstructionSetTest {
   }
 
   @Test
-  void addDuplicatedThrows() {
+  void addDuplicatedNameThrows() {
     assertThrows(
         IllegalArgumentException.class,
         () -> instructionSet.registerInstruction(Load.LOAD_CONSTANT)
+    );
+  }
+
+  @Test
+  void addDuplicatedOpcodeThrows() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> instructionSet.registerInstruction(
+            ImmutableInstruction
+                .copyOf(Load.LOAD_CONSTANT)
+                .withName("hey")
+        )
     );
   }
 
@@ -81,6 +94,26 @@ class InstructionSetTest {
     assertThat(
         opcodes.size(),
         is(new HashSet<>(opcodes).size())
+    );
+  }
+
+  @Test
+  void testForEncodedValue() {
+    InstructionCall call = ImmutableInstructionCall.builder()
+        .command(Load.LOAD_CONSTANT)
+        .argument(20)
+        .build();
+    assertThat(
+        instructionSet.forEncodedValue(MemoryFormat.combineInstruction(call)),
+        is(Optional.of(call))
+    );
+  }
+
+  @Test
+  void testForInvalidEncodedValue() {
+    assertThat(
+        instructionSet.forEncodedValue(0b00000000111000000000000000000000),
+        is(Optional.empty())
     );
   }
 
