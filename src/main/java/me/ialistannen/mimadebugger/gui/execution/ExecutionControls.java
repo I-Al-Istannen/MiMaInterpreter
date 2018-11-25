@@ -32,6 +32,8 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class ExecutionControls extends BorderPane {
 
+  private static final int MAXIMUM_STEP_COUNT = 100_000;
+
   @FXML
   private Button prevStepButton;
   @FXML
@@ -185,6 +187,7 @@ public class ExecutionControls extends BorderPane {
 
   private void reset() {
     stateConsumer.accept(runner.get().reset());
+    noPreviousStep.set(!runner.get().hasPreviousStep());
   }
 
   @FXML
@@ -194,7 +197,7 @@ public class ExecutionControls extends BorderPane {
     }
 
     try {
-      while (true) {
+      for (int i = 0; i < MAXIMUM_STEP_COUNT; i++) {
         // runner.nextStep will throw an exception when the program is finished
         State step = runner.get().nextStep();
         stateConsumer.accept(step);
