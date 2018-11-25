@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.program;
 
-import static java.util.stream.Collectors.toList;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.exceptions.InstructionArgumentInvalidFormatException;
@@ -44,23 +43,29 @@ public class ProgramParser {
    * @throws NumberOverflowException if the argument was too big to fit
    */
   public List<InstructionCall> parseFromNames(List<String> lines) {
-    return lines.stream()
-        .map(String::trim)
-        .map(s -> s.split(" "))
-        .map(this::parseInstructionWithName)
-        .collect(toList());
+    List<InstructionCall> calls = new ArrayList<>();
+
+    for (int i = 0; i < lines.size(); i++) {
+      String[] parts = lines.get(i).trim().split(" ");
+
+      InstructionCall instructionCall = parseInstructionWithName(parts, i);
+
+      calls.add(instructionCall);
+    }
+
+    return calls;
   }
 
-  private InstructionCall parseInstructionWithName(String[] nameAndArg) {
+  private InstructionCall parseInstructionWithName(String[] nameAndArg, int line) {
     if (nameAndArg.length < 1) {
       throw new InstructionArgumentInvalidFormatException(
-          Arrays.toString(nameAndArg), "Not enough arguments, array is empty"
+          Arrays.toString(nameAndArg), "nothing", "Needs an opcode", line
       );
     }
 
     String instructionName = nameAndArg[0];
     Instruction instruction = instructionSet.forName(instructionName)
-        .orElseThrow(() -> new InstructionNotFoundException(instructionName));
+        .orElseThrow(() -> new InstructionNotFoundException(instructionName, line));
 
     if (!instruction.hasArgument()) {
       return ImmutableInstructionCall.builder()
@@ -70,7 +75,7 @@ public class ProgramParser {
 
     if (nameAndArg.length != 2) {
       throw new InstructionArgumentInvalidFormatException(
-          Arrays.toString(nameAndArg), "Not enough arguments, needed 2"
+          Arrays.toString(nameAndArg), "<empty>", "Needs an argument", line
       );
     }
 
@@ -78,7 +83,12 @@ public class ProgramParser {
     try {
       argument = Integer.parseInt(nameAndArg[1]);
     } catch (NumberFormatException e) {
-      throw new InstructionArgumentInvalidFormatException(instructionName, nameAndArg[1]);
+      throw new InstructionArgumentInvalidFormatException(
+          instructionName,
+          nameAndArg[1],
+          e.getMessage(),
+          line
+      );
     }
 
     return ImmutableInstructionCall.builder()
