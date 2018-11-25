@@ -205,12 +205,27 @@ public class ExecutionControls extends BorderPane {
 
         if (breakpoints.contains(step.registers().instructionPointer())) {
           displayMessageBreakpointHit(step.registers().instructionPointer());
-          break;
+          return;
         }
       }
+      displayStepsExceededMessage();
     } catch (MiMaException e) {
       displayError(e);
     }
+  }
+
+  private void displayStepsExceededMessage() {
+    Alert alert = new Alert(AlertType.INFORMATION);
+    alert.setTitle("Execution stopped");
+    alert.setHeaderText(String.format(
+        "The execution exceeded %d steps.", MAXIMUM_STEP_COUNT
+    ));
+    alert.setContentText(
+        "You can resume execution by clicking Execute again\n"
+            + "(or by stepping), but it's probably an infinite loop."
+    );
+    alert.setResizable(true);
+    alert.show();
   }
 
   private void stepGuardException(Runnable runnable) {
@@ -226,11 +241,13 @@ public class ExecutionControls extends BorderPane {
       Alert alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Program exited");
       alert.setHeaderText("Program halted normally!");
+      alert.setResizable(true);
       alert.show();
     } else {
       Alert alert = new Alert(AlertType.ERROR);
       alert.setTitle("Error executing program");
       alert.setHeaderText(e.getMessage());
+      alert.setResizable(true);
       alert.show();
     }
   }
