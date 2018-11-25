@@ -40,7 +40,7 @@ public class Logical {
 
   public static final Instruction XOR = ImmutableInstruction.builder()
       .opcode(9)
-      .name("AND")
+      .name("XOR")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()

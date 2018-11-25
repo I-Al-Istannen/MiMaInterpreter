@@ -43,6 +43,9 @@ public class InstructionSet {
    */
   public void registerInstruction(Instruction instruction) {
     if (instructionMap.put(instruction.opcode(), instruction) != null) {
+      if (forName(instruction.name()).isPresent()) {
+        throw new IllegalArgumentException("Name " + instruction.name() + " already registered!");
+      }
       throw new IllegalArgumentException("Opcode " + instruction.opcode() + " already registered!");
     }
   }

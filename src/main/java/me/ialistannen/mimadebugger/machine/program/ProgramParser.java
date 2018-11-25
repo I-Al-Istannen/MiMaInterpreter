@@ -6,10 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.exceptions.InstructionArgumentInvalidFormatException;
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 /**
  * Parses a program in String form to a series of {@link InstructionCall}s.
@@ -38,6 +40,8 @@ public class ProgramParser {
    * @param lines the lines to parse
    * @return the parsed calls
    * @throws InstructionNotFoundException if the instructions was not found
+   * @throws InstructionArgumentInvalidFormatException if the argument was invalid or not present
+   * @throws NumberOverflowException if the argument was too big to fit
    */
   public List<InstructionCall> parseFromNames(List<String> lines) {
     return lines.stream()
@@ -76,8 +80,9 @@ public class ProgramParser {
     } catch (NumberFormatException e) {
       throw new InstructionArgumentInvalidFormatException(instructionName, nameAndArg[1]);
     }
+
     return ImmutableInstructionCall.builder()
-        .argument(argument)
+        .argument(MemoryFormat.coerceToAddress(argument))
         .command(instruction)
         .build();
   }
