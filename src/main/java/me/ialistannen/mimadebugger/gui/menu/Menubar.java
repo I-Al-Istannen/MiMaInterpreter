@@ -99,7 +99,6 @@ public class Menubar extends MenuBar {
   }
 
   private static Alert createErrorDialog(String headerText, Throwable e) {
-    System.out.println("Creating...");
     Alert alert = new Alert(AlertType.ERROR);
     alert.setTitle("An error occurred");
     alert.setHeaderText(headerText);
