@@ -8,6 +8,10 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Load {
 
+  private Load() {
+    //no instance
+  }
+
   public static final Instruction LOAD_CONSTANT = ImmutableInstruction.builder()
       .opcode(1)
       .name("LDC")

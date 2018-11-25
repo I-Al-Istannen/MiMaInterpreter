@@ -8,6 +8,10 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Other {
 
+  private Other() {
+    //no instance
+  }
+
   public static final Instruction ROTATE_RIGHT = ImmutableInstruction.builder()
       .name("RAR")
       .opcode(0)

@@ -8,6 +8,10 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Logical {
 
+  private Logical() {
+    //no instance
+  }
+
   public static final Instruction AND = ImmutableInstruction.builder()
       .opcode(7)
       .name("AND")

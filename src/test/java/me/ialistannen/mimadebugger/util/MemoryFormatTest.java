@@ -1,6 +1,6 @@
 package me.ialistannen.mimadebugger.util;
 
-import static me.ialistannen.mimadebugger.util.StringUtil.repeat;
+import static me.ialistannen.mimadebugger.StringUtil.repeat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

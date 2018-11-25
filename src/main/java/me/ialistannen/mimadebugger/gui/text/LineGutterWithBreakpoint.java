@@ -2,7 +2,7 @@ package me.ialistannen.mimadebugger.gui.text;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -32,10 +32,10 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
   private Set<Integer> breakpoints;
   private int gutterLineWidth;
 
-  private Consumer<Integer> breakpointToggleListener;
+  private IntConsumer breakpointToggleListener;
 
   public LineGutterWithBreakpoint(CodeArea codeArea, Set<Integer> breakpoints,
-      Consumer<Integer> breakpointToggleListener) {
+      IntConsumer breakpointToggleListener) {
     this.breakpoints = new HashSet<>(breakpoints);
     this.breakpointToggleListener = breakpointToggleListener;
 

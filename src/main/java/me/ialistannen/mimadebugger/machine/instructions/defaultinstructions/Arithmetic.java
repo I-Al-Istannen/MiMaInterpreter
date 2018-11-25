@@ -8,6 +8,10 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Arithmetic {
 
+  private Arithmetic() {
+    //no instance
+  }
+
   public static final Instruction ADD = ImmutableInstruction.builder()
       .opcode(6)
       .name("ADD")

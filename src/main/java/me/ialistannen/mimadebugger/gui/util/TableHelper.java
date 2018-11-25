@@ -6,7 +6,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 
-public class TableHelper {
+public final class TableHelper {
+
+  private TableHelper() {
+    throw new UnsupportedOperationException("No instantiation");
+  }
 
   /**
    * Creates a column with the given name and the provided value extraction function. It will create

@@ -127,7 +127,7 @@ public class MemoryFormat {
 
     if (skipLeadingZeros) {
       String output = result.toString();
-      int firstOne = output.indexOf("1");
+      int firstOne = output.indexOf('1');
       if (firstOne < 0) {
         return "0";
       }

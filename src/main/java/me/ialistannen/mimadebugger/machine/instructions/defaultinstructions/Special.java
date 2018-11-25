@@ -7,6 +7,10 @@ import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 
 public class Special {
 
+  private Special() {
+    //no instance
+  }
+
   public static final Instruction HALT = ImmutableInstruction.builder()
       .opcode(15)
       .name("HALT")

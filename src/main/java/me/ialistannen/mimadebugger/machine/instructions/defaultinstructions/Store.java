@@ -7,6 +7,10 @@ import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 
 public class Store {
 
+  private Store() {
+    //no instance
+  }
+
   public static final Instruction STORE = ImmutableInstruction.builder()
       .opcode(4)
       .name("STV")

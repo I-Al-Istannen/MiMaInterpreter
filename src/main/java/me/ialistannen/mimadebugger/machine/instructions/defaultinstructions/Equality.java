@@ -8,6 +8,10 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Equality {
 
+  private Equality() {
+    //no instance
+  }
+
   public static final Instruction EQUAL = ImmutableInstruction.builder()
       .opcode(11)
       .name("EQL")

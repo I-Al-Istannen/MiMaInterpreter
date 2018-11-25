@@ -41,9 +41,13 @@ public class MiMa {
       throw new ProgramHaltException();
     }
 
+    // Increment IP
     currentState = fetchNextInstructionPointer();
 
-    return currentState = instruction.apply(currentState, argument);
+    // Execute the current instruction (after incrementing the IP, so jumps work correctly)
+    currentState = instruction.apply(currentState, argument);
+
+    return currentState;
   }
 
   private State fetchNextInstructionPointer() {

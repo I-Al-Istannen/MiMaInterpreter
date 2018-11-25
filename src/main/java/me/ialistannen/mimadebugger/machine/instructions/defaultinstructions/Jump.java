@@ -8,6 +8,10 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class Jump {
 
+  private Jump() {
+    //no instance
+  }
+
   public static final Instruction JUMP = ImmutableInstruction.builder()
       .opcode(12)
       .name("JMP")
