@@ -204,7 +204,6 @@ public class ExecutionControls extends BorderPane {
         noPreviousStep.set(!runner.get().hasPreviousStep());
 
         if (breakpoints.contains(step.registers().instructionPointer())) {
-          displayMessageBreakpointHit(step.registers().instructionPointer());
           return;
         }
       }
@@ -224,8 +223,7 @@ public class ExecutionControls extends BorderPane {
         "You can resume execution by clicking Execute again\n"
             + "(or by stepping), but it's probably an infinite loop."
     );
-    alert.setResizable(true);
-    alert.show();
+    displayAlert(alert);
   }
 
   private void stepGuardException(Runnable runnable) {
@@ -237,25 +235,23 @@ public class ExecutionControls extends BorderPane {
   }
 
   private void displayError(MiMaException e) {
+    Alert alert;
     if (e instanceof ProgramHaltException) {
-      Alert alert = new Alert(AlertType.INFORMATION);
+      alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Program exited");
       alert.setHeaderText("Program halted normally!");
-      alert.setResizable(true);
-      alert.show();
     } else {
-      Alert alert = new Alert(AlertType.ERROR);
+      alert = new Alert(AlertType.ERROR);
       alert.setTitle("Error executing program");
       alert.setHeaderText(e.getMessage());
-      alert.setResizable(true);
-      alert.show();
     }
+
+    displayAlert(alert);
   }
 
-  private void displayMessageBreakpointHit(int address) {
-    Alert alert = new Alert(AlertType.INFORMATION);
-    alert.setTitle("Breakpoint hit");
-    alert.setHeaderText("Breakpoint hit at " + address + "!");
+  private void displayAlert(Alert alert) {
+    alert.setResizable(true);
+    alert.initOwner(getScene().getWindow());
     alert.show();
   }
 }

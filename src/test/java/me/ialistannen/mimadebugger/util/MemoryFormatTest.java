@@ -143,6 +143,14 @@ class MemoryFormatTest {
   }
 
   @Test
+  void testCoerceMinusOneToValue() {
+    assertThat(
+        MemoryFormat.coerceToValue(-1),
+        is(-1)
+    );
+  }
+
+  @Test
   void testCoerceFittingNumberToValue() {
     int value = 20202;
     assertThat(

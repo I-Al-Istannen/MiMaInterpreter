@@ -5,7 +5,7 @@
 This program is an interpreter for the MiMa (Minimal Maschine),
 which is basically a very, very simplified model of a Von-Neumann machine.
 
-This program focuses on interpreting MiMa assembly,
+This project focuses on interpreting MiMa assembly,
 and mostly ignores how the machine is actually implemented in hardware.
 
 ## Features
