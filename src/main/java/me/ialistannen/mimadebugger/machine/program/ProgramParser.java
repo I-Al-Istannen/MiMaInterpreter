@@ -61,16 +61,16 @@ public class ProgramParser {
     Instruction instruction = instructionSet.forName(instructionName)
         .orElseThrow(() -> new InstructionNotFoundException(instructionName, line));
 
-    if (!instruction.hasArgument()) {
-      return ImmutableInstructionCall.builder()
-          .command(instruction)
-          .build();
-    }
-
-    if (nameAndArg.length != 2) {
+    if (nameAndArg.length != 2 && instruction.hasArgument()) {
       throw new InstructionArgumentInvalidFormatException(
           Arrays.toString(nameAndArg), "<empty>", "Needs an argument", line
       );
+    }
+
+    if (nameAndArg.length == 1) {
+      return ImmutableInstructionCall.builder()
+          .command(instruction)
+          .build();
     }
 
     int argument;
