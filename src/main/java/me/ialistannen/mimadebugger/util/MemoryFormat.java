@@ -22,6 +22,7 @@ public class MemoryFormat {
    * @throws NumberOverflowException if the number overflows
    */
   public static int coerceToAddress(int value) {
+    // TODO: Error here or just cut off?
     if (value < 0) {
       throw new NumberOverflowException(value, ADDRESS_LENGTH);
     }
