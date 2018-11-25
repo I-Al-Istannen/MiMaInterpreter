@@ -99,6 +99,8 @@
             <exclude>me/ialistannen/mimadebugger/machine/Immutable*</exclude>
             <exclude>me/ialistannen/mimadebugger/machine/memory/Immutable*</exclude>
             <exclude>me/ialistannen/mimadebugger/machine/instructions/Immutable*</exclude>
+            <!--Ignore GUI for now-->
+            <exclude>me/ialistannen/mimadebugger/gui/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>
