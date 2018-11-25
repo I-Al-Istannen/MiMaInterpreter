@@ -39,7 +39,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
     this.breakpoints = new HashSet<>(breakpoints);
     this.breakpointToggleListener = breakpointToggleListener;
 
-    int lineCount = codeArea.getParagraphs().size();
+    int lineCount = codeArea.getParagraphs().size() - 1;
 
     // calculate maximum size of the line number label to provide a constant width gutter
     this.gutterLineWidth = (int) Math.ceil(
