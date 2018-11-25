@@ -4,6 +4,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
@@ -91,6 +93,50 @@ class MainMemoryTest {
     assertThat(
         memory.get(0),
         is(originalValue)
+    );
+  }
+
+  @Test
+  void testGetMemory() {
+    Map<Integer, Integer> map = new HashMap<>();
+    map.put(2, 21);
+    map.put(5, 30);
+    map.put(100, -10);
+    assertThat(
+        memory.set(2, 20).set(5, 30).set(2, 21).set(100, -10).getMemory(),
+        is(map)
+    );
+  }
+
+  @Test
+  void testHashcodeSimple() {
+    MainMemory first = MainMemory.create()
+        .set(0, 20);
+    MainMemory second = MainMemory.create()
+        .set(0, 20);
+
+    assertThat(
+        first.hashCode(),
+        is(second.hashCode())
+    );
+  }
+
+  @Test
+  void testEqualsNull() {
+    assertThat(
+        memory.equals(null),
+        is(false)
+    );
+  }
+
+  @Test
+  void verifyToString() {
+    MainMemory memory = MainMemory.create()
+        .set(0, 20);
+
+    assertThat(
+        memory.toString(),
+        is("                       0 (       0)  |                    010100 (   0       20)\n")
     );
   }
 
