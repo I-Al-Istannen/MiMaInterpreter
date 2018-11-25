@@ -1,3 +1,5 @@
+[![Build Status](http://ci.ialistannen.de/buildStatus/icon?job=MiMaInterpreter)](http://ci.ialistannen.de/job/MiMaInterpreter/)
+
 ## Short description
 This program is an interpreter for the MiMa (Minimal Maschine),
 which is basically a very, very simplified model of a Von-Neumann machine.
@@ -22,3 +24,6 @@ mostly ignoring how the machine is actually implemented in hardware.
 
 ## Feature requests and bugs
 Please open an [issue](https://github.com/I-Al-Istannen/MiMaInterpreter/issues/new/new) :)
+
+## Download
+[![Download](https://media-elerium.cursecdn.com/attachments/202/434/jenkins.png)](http://ci.ialistannen.de/job/MiMaInterpreter/)
