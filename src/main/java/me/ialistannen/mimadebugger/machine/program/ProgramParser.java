@@ -57,12 +57,6 @@ public class ProgramParser {
   }
 
   private InstructionCall parseInstructionWithName(String[] nameAndArg, int line) {
-    if (nameAndArg.length < 1) {
-      throw new InstructionArgumentInvalidFormatException(
-          Arrays.toString(nameAndArg), "nothing", "Needs an opcode", line
-      );
-    }
-
     String instructionName = nameAndArg[0];
     Instruction instruction = instructionSet.forName(instructionName)
         .orElseThrow(() -> new InstructionNotFoundException(instructionName, line));

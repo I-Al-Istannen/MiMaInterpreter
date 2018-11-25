@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.exceptions.InstructionArgumentInvalidFormatException;
+import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall.Builder;
@@ -36,6 +37,24 @@ class ProgramParserTest {
     assertThat(
         parser.parseFromNames(program),
         is(Collections.emptyList())
+    );
+  }
+
+  @Test
+  void parseInvalidInstruction() {
+    List<String> program = Collections.singletonList("HEYHO");
+    assertThrows(
+        InstructionNotFoundException.class,
+        () -> parser.parseFromNames(program)
+    );
+  }
+
+  @Test
+  void parseInvalidNumber() {
+    List<String> program = Collections.singletonList("LDC HelloWorld");
+    assertThrows(
+        InstructionArgumentInvalidFormatException.class,
+        () -> parser.parseFromNames(program)
     );
   }
 
