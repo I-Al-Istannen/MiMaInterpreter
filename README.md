@@ -1,4 +1,5 @@
 [![Build Status](http://ci.ialistannen.de/buildStatus/icon?job=MiMaInterpreter)](http://ci.ialistannen.de/job/MiMaInterpreter/)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=MiMaInterpreter&metric=alert_status)](https://sonarcloud.io/dashboard?id=MiMaInterpreter)
 
 ## Short description
 This program is an interpreter for the MiMa (Minimal Maschine),
