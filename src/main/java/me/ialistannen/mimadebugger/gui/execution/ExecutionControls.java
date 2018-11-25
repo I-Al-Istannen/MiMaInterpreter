@@ -128,6 +128,7 @@ public class ExecutionControls extends BorderPane {
    * Sets the program to execute
    *
    * @param program the program to execute
+   * @see ProgramParser#parseFromNames(List) for possible exceptions
    */
   public void setProgram(List<String> program) {
     List<InstructionCall> calls = programParser.parseFromNames(program);
@@ -168,8 +169,12 @@ public class ExecutionControls extends BorderPane {
 
   @FXML
   private void onLoadProgram() {
-    setProgram(Arrays.asList(programTextProperty.get().split("\\n")));
-    noPreviousStep.set(!runner.get().hasPreviousStep());
+    try {
+      setProgram(Arrays.asList(programTextProperty.get().split("\\n")));
+      noPreviousStep.set(!runner.get().hasPreviousStep());
+    } catch (MiMaException e) {
+      displayError(e);
+    }
   }
 
 
