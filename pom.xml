@@ -10,6 +10,14 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!--Exclude Immutables and GUI code-->
+    <sonar.coverage.exclusions>
+      **/me/ialistannen/mimadebugger/machine/State,
+      **/me/ialistannen/mimadebugger/machine/Immutable*,
+      **/me/ialistannen/mimadebugger/machine/memory/Immutable*,
+      **/me/ialistannen/mimadebugger/machine/instructions/Immutable*,
+      **/me/ialistannen/mimadebugger/gui/**/*
+    </sonar.coverage.exclusions>
   </properties>
 
   <build>
