@@ -18,7 +18,7 @@ public class HighlightedMemoryValue extends TextFlow {
     getChildren().addAll(getTextsForCall(call));
 
     // Update on the first pulse after this component is visible
-    Platform.runLater(() -> setPrefHeight(computeMinHeight(getWidth())));
+    Platform.runLater(() -> setPrefHeight(computeMinHeight(getPrefWidth())));
 
     widthProperty().addListener((observable, oldValue, newValue) ->
         setPrefHeight(computeMinHeight(newValue.doubleValue()))
