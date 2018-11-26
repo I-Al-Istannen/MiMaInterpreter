@@ -1,3 +1,9 @@
-.current-instruction-pointer-address {
+.current-instruction-pointer-address, .current-instruction-pointer-address-halt {
   -fx-background-color: rgba(118, 255, 3, 0.51);
+}
+
+.current-instruction-pointer-address-halt {
+  -fx-border-color: tomato;
+  -fx-border-width: 2px;
+  -fx-border-style: solid;
 }

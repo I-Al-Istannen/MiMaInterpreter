@@ -14,6 +14,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightedMemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
+import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Special;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 
 public class MemoryView extends BorderPane {
@@ -52,11 +53,20 @@ public class MemoryView extends BorderPane {
 
         if (item == null || empty || item.address() != instructionPointerAddress) {
           getStyleClass().remove("current-instruction-pointer-address");
+          getStyleClass().remove("current-instruction-pointer-address-halt");
           return;
         }
 
         if (item.address() == instructionPointerAddress) {
-          getStyleClass().add("current-instruction-pointer-address");
+          boolean isHalt = item.instructionCall()
+              .map(call -> call.command().equals(Special.HALT))
+              .orElse(false);
+
+          if (isHalt) {
+            getStyleClass().add("current-instruction-pointer-address-halt");
+          } else {
+            getStyleClass().add("current-instruction-pointer-address");
+          }
         }
       }
     });
