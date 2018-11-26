@@ -41,17 +41,9 @@ public class MemoryView extends BorderPane {
     TableColumn<MemoryValue, MemoryValue> valueColumn = column("Value", x -> x);
     valueColumn.setCellFactory(
         param -> cell(
-            (value, cell) -> {
-              if (cell.getGraphic() == null) {
-                cell.setGraphic(new HighlightedMemoryValue(value));
-              } else {
-                HighlightedMemoryValue graphic = (HighlightedMemoryValue) cell.getGraphic();
-                if (value == null || cell.isEmpty()) {
-                  graphic.clear();
-                }
-                graphic.setValue(value);
-              }
-            }
+            HighlightedMemoryValue::new,
+            HighlightedMemoryValue::clear,
+            (memoryValue, highlightedMemoryValue) -> highlightedMemoryValue.setValue(memoryValue)
         )
     );
     valueColumn.setPrefWidth(280);
@@ -88,6 +80,12 @@ public class MemoryView extends BorderPane {
     memoryTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
   }
 
+  /**
+   * Sets the memory decoder, the function that converts an address and a value to a {@link
+   * MemoryValue}.
+   *
+   * @param decoder the decoder
+   */
   public void setMemoryValueDecoder(BiFunction<Integer, Integer, MemoryValue> decoder) {
     this.memoryValueDecoder = decoder;
   }
