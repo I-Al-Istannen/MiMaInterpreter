@@ -41,7 +41,17 @@ public class MemoryView extends BorderPane {
     TableColumn<MemoryValue, MemoryValue> valueColumn = column("Value", x -> x);
     valueColumn.setCellFactory(
         param -> cell(
-            (value, cell) -> cell.setGraphic(new HighlightedMemoryValue(value))
+            (value, cell) -> {
+              if (cell.getGraphic() == null) {
+                cell.setGraphic(new HighlightedMemoryValue(value));
+              } else {
+                HighlightedMemoryValue graphic = (HighlightedMemoryValue) cell.getGraphic();
+                if (value == null || cell.isEmpty()) {
+                  graphic.clear();
+                }
+                graphic.setValue(value);
+              }
+            }
         )
     );
     valueColumn.setPrefWidth(280);

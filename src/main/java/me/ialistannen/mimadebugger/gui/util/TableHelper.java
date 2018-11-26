@@ -42,7 +42,8 @@ public final class TableHelper {
   /**
    * Creates a new {@link TableCell} with the given mutation function.
    *
-   * This method takes care of all the default emptying and resetting of the cell.
+   * This method takes care of all the default emptying and resetting of the cell,
+   * <em>but does not null the graphic.</em>
    *
    * @param consumer the consumer to invoke. It takes the item and the cell as inputs
    * @param <S> the type of the row object
@@ -56,7 +57,6 @@ public final class TableHelper {
         super.updateItem(item, empty);
 
         if (item == null || empty) {
-          setGraphic(null);
           setText(null);
           return;
         }
