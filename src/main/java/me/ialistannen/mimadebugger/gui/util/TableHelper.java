@@ -1,12 +1,19 @@
 package me.ialistannen.mimadebugger.gui.util;
 
+import com.sun.javafx.scene.control.skin.TableViewSkin;
+import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
 public final class TableHelper {
+
+  private static final Logger LOGGER = Logger.getLogger("TableHelper");
 
   private TableHelper() {
     throw new UnsupportedOperationException("No instantiation");
@@ -57,6 +64,24 @@ public final class TableHelper {
         consumer.accept(item, this);
       }
     };
+  }
+
+  /**
+   * Sizes the columns of the table view to fit.
+   *
+   * @param tableView the table view to resize
+   */
+  public static void autoSizeColumns(TableView<?> tableView) {
+    try {
+      Method method = TableViewSkin.class
+          .getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+      method.setAccessible(true);
+      for (TableColumn<?, ?> column : tableView.getColumns()) {
+        method.invoke(tableView.getSkin(), column, -1);
+      }
+    } catch (ReflectiveOperationException e) {
+      LOGGER.log(Level.WARNING, "Error setting tableview size", e);
+    }
   }
 
 }

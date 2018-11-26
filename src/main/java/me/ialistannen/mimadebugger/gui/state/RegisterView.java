@@ -8,6 +8,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
+import me.ialistannen.mimadebugger.gui.util.TableHelper;
 import me.ialistannen.mimadebugger.machine.memory.Registers;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 
@@ -37,6 +38,10 @@ public class RegisterView extends BorderPane {
     valueColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue()));
 
     tableView.setItems(registers);
+
+    tableView.widthProperty().addListener(
+        (observable, oldValue, newValue) -> TableHelper.autoSizeColumns(tableView)
+    );
   }
 
   /**
@@ -56,6 +61,8 @@ public class RegisterView extends BorderPane {
         "Accumulator",
         registers.accumulator()
     ));
+
+    TableHelper.autoSizeColumns(tableView);
   }
 
   /**
