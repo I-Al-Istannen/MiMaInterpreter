@@ -17,13 +17,6 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 public class ProgramTextPane extends BorderPane {
 
-  /*
-   * Leere Zeile = 0
-   * Zeile Mit Zahl = Zahl
-   * Instruktion ohne Argument setzt untere 20 bits, wenn mit Argument
-   * Disable execution buttons when halted
-   */
-
   private CodeArea codeArea;
 
   private Pattern pattern;

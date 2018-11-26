@@ -75,6 +75,15 @@ public class MiMaRunner {
   }
 
   /**
+   * Returns the current state.
+   *
+   * @return the current state
+   */
+  public State getCurrent() {
+    return current;
+  }
+
+  /**
    * Resets the runner to the initial state, before any call to {@link #nextStep()} was made.
    *
    * @return the initial state that it was reset to
