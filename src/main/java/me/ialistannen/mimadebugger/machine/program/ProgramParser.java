@@ -1,11 +1,15 @@
 package me.ialistannen.mimadebugger.machine.program;
 
+import static me.ialistannen.mimadebugger.gui.state.EncodedInstructionCall.constantValue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import me.ialistannen.mimadebugger.exceptions.InstructionArgumentInvalidFormatException;
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
+import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
+import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
@@ -42,18 +46,41 @@ public class ProgramParser {
    * @throws InstructionArgumentInvalidFormatException if the argument was invalid or not present
    * @throws NumberOverflowException if the argument was too big to fit
    */
-  public List<InstructionCall> parseFromNames(List<String> lines) {
-    List<InstructionCall> calls = new ArrayList<>();
+  public List<MemoryValue> parseFromNames(List<String> lines) {
+    List<MemoryValue> values = new ArrayList<>();
 
     for (int i = 0; i < lines.size(); i++) {
-      String[] parts = lines.get(i).trim().split("\\s+");
+      String line = lines.get(i);
+      MemoryValue memoryValue = parseLine(line, i);
 
-      InstructionCall instructionCall = parseInstructionWithName(parts, i);
-
-      calls.add(instructionCall);
+      values.add(memoryValue);
     }
 
-    return calls;
+    return values;
+  }
+
+  private MemoryValue parseLine(String line, int lineNumber) {
+    if (line.isEmpty()) {
+      return constantValue(0, lineNumber);
+    }
+    if (line.matches("([+\\-])?\\d+")) {
+      return constantValue(ensureInValueRange(Integer.parseInt(line)), lineNumber);
+    }
+
+    InstructionCall instructionCall = parseInstructionWithName(line.split("\\s+"), lineNumber);
+    return ImmutableEncodedInstructionCall.builder()
+        .address(lineNumber)
+        .instructionCall(instructionCall)
+        .representation(MemoryFormat.combineInstruction(instructionCall))
+        .build();
+  }
+
+  private int ensureInValueRange(int input) {
+    if (input < MemoryFormat.VALUE_MINIMUM || input > MemoryFormat.VALUE_MAXIMUM) {
+      throw new NumberOverflowException(input, 24);
+    }
+
+    return input;
   }
 
   private InstructionCall parseInstructionWithName(String[] nameAndArg, int line) {

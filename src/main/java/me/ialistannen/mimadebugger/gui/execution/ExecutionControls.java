@@ -18,21 +18,20 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
+import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.MiMa;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
 import me.ialistannen.mimadebugger.machine.State;
-import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 import me.ialistannen.mimadebugger.machine.program.ProgramParser;
-import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class ExecutionControls extends BorderPane {
 
-  private static final int MAXIMUM_STEP_COUNT = 100_000;
+  private static final int MAXIMUM_STEP_COUNT = 10_000;
 
   @FXML
   private Button prevStepButton;
@@ -133,14 +132,14 @@ public class ExecutionControls extends BorderPane {
    * @see ProgramParser#parseFromNames(List) for possible exceptions
    */
   public void setProgram(List<String> program) {
-    List<InstructionCall> calls = programParser.parseFromNames(program);
+    List<MemoryValue> values = programParser.parseFromNames(program);
 
     MainMemory memory = MainMemory.create();
 
-    for (int i = 0; i < calls.size(); i++) {
-      InstructionCall call = calls.get(i);
+    for (int i = 0; i < values.size(); i++) {
+      MemoryValue value = values.get(i);
 
-      memory = memory.set(i, MemoryFormat.combineInstruction(call));
+      memory = memory.set(i, value.representation());
     }
 
     State initialState = ImmutableState.builder()

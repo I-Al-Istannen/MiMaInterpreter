@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class HighlightedMemoryValue extends TextFlow {
 
@@ -35,8 +36,11 @@ public class HighlightedMemoryValue extends TextFlow {
     return texts;
   }
 
-  private Text getTextForBinaryRepresentation(String representation) {
-    return createText(representation + " ", HighlightingCategory.BINARY);
+  private Text getTextForBinaryRepresentation(int representation) {
+    return createText(
+        MemoryFormat.toString(representation, 24, false) + " ",
+        HighlightingCategory.BINARY
+    );
   }
 
   private List<Text> getTextsForInstruction(InstructionCall call) {

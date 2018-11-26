@@ -18,7 +18,7 @@ public interface MemoryValue {
    *
    * @return the encoded representation of this value
    */
-  String representation();
+  int representation();
 
   /**
    * Returns the address in the {@link MainMemory} that the value is stored in.

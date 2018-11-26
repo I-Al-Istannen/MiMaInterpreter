@@ -16,7 +16,6 @@ import me.ialistannen.mimadebugger.gui.state.StateView;
 import me.ialistannen.mimadebugger.gui.text.ProgramTextPane;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
-import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class MiMaGui extends Application {
 
@@ -36,7 +35,7 @@ public class MiMaGui extends Application {
 
     stateView.setMemoryValueDecoder((address, value) -> ImmutableEncodedInstructionCall.builder()
         .address(address)
-        .representation(MemoryFormat.toString(value, 24, false))
+        .representation(value)
         .instructionCall(instructionSet.forEncodedValue(value))
         .build()
     );
