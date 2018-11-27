@@ -81,21 +81,33 @@ public class InstructionSet {
    */
   public Optional<InstructionCall> forEncodedValue(int value) {
     int opcode = MemoryFormat.extractOpcode(value);
+    int argument = MemoryFormat.extractArgument(value);
 
+    // check for small opcode first
     if (!instructionMap.containsKey(opcode)) {
-      return Optional.empty();
+      if (instructionMap.containsKey(MemoryFormat.extractLargeOpcode(value))) {
+        opcode = MemoryFormat.extractLargeOpcode(value);
+        argument = MemoryFormat.extractArgumentLargeOpcode(value);
+      } else {
+        return Optional.empty();
+      }
     }
 
     Instruction instruction = instructionMap.get(opcode);
 
     return Optional.of(
         ImmutableInstructionCall.builder()
-            .argument(MemoryFormat.extractArgument(value))
+            .argument(argument)
             .command(instruction)
             .build()
     );
   }
 
+  /**
+   * Returns all registered instructions.
+   *
+   * @return all registered instructions
+   */
   public List<Instruction> getAll() {
     return new ArrayList<>(instructionMap.values());
   }

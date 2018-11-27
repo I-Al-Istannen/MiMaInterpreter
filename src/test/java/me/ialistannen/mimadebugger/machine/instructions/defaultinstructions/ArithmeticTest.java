@@ -42,6 +42,14 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
+  void testOverflowMinimumPlusOne() {
+    assertThat(
+        add(MemoryFormat.VALUE_MINIMUM, -1),
+        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM))
+    );
+  }
+
+  @Test
   void testAddMinimums() {
     assertThat(
         add(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM),

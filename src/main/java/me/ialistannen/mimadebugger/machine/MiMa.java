@@ -2,9 +2,8 @@ package me.ialistannen.mimadebugger.machine;
 
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
-import me.ialistannen.mimadebugger.machine.instructions.Instruction;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
-import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class MiMa {
 
@@ -31,13 +30,10 @@ public class MiMa {
     currentState = fetchNextInstruction();
     int currentInstruction = currentState.registers().instruction();
 
-    int opcode = MemoryFormat.extractOpcode(currentInstruction);
-    int argument = MemoryFormat.extractArgument(currentInstruction);
+    InstructionCall instructionCall = instructionSet.forEncodedValue(currentInstruction)
+        .orElseThrow(() -> new InstructionNotFoundException(currentInstruction));
 
-    Instruction instruction = instructionSet.forOpcode(opcode)
-        .orElseThrow(() -> new InstructionNotFoundException(opcode));
-
-    if (instruction.name().equalsIgnoreCase("HALT")) {
+    if (instructionCall.command().name().equalsIgnoreCase("HALT")) {
       throw new ProgramHaltException();
     }
 
@@ -45,7 +41,7 @@ public class MiMa {
     currentState = fetchNextInstructionPointer();
 
     // Execute the current instruction (after incrementing the IP, so jumps work correctly)
-    currentState = instruction.apply(currentState, argument);
+    currentState = instructionCall.command().apply(currentState, instructionCall.argument());
 
     return currentState;
   }

@@ -80,6 +80,20 @@ public class MemoryFormat {
   }
 
   /**
+   * Extracts the large opcode (8 bit) from a combined integer.
+   *
+   * This is used for instructions that do not take an argument to be able to encode more than 16
+   * different instructions.
+   *
+   * @param value the value, 24 bits wide
+   * @return the extracted opcode
+   * @throws NumberOverflowException if the number was more than 24 bits wide
+   */
+  public static int extractLargeOpcode(int value) {
+    return (value & 0x00ff0000) >>> 16;
+  }
+
+  /**
    * Extracts the value from a combined integer.
    *
    * @param value the positive value, 20 bits wide (first 4 are reserved for opcode)
@@ -91,15 +105,30 @@ public class MemoryFormat {
   }
 
   /**
+   * Extracts the value from a combined integer, where the opcode takes 8 bit.
+   *
+   * This is used for instructions that do not take an argument to be able to encode more than 16
+   * different instructions.
+   *
+   * @param value the positive value, 20 bits wide (first 4 are reserved for opcode)
+   * @return the extracted value
+   * @throws NumberOverflowException if the number was more than 24 bits wide
+   */
+  public static int extractArgumentLargeOpcode(int value) {
+    return coerceToAddress(value & 0x0000ffff);
+  }
+
+  /**
    * Combines the given opcode and its argument to a single integer that can be stored in the
    * memory.
    *
    * @param opcode the opcode
+   * @param large whether the opcode is 8 bit (large) or not
    * @param argument the argument for it
    * @return the combined instruction
    */
-  public static int combineInstruction(int opcode, int argument) {
-    int result = opcode << 20;
+  private static int combineInstruction(int opcode, boolean large, int argument) {
+    int result = large ? opcode << 16 : opcode << 20;
     result = result | argument;
 
     return result;
@@ -108,11 +137,15 @@ public class MemoryFormat {
   /**
    * Combines the given instruction in a single integer that can be stored in the memory.
    *
-   * @param call the
+   * @param call the instruction call to combine to an int
    * @return the combined instruction
    */
   public static int combineInstruction(InstructionCall call) {
-    return combineInstruction(call.command().opcode(), call.argument());
+    return combineInstruction(
+        call.command().opcode(),
+        call.command().opcode() > 0xF,
+        call.argument()
+    );
   }
 
   /**

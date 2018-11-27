@@ -13,7 +13,7 @@ public class Load {
   }
 
   public static final Instruction LOAD_CONSTANT = ImmutableInstruction.builder()
-      .opcode(1)
+      .opcode(0)
       .name("LDC")
       .action((state, argument) -> state.copy()
           .withRegisters(
@@ -24,7 +24,7 @@ public class Load {
       .build();
 
   public static final Instruction LOAD_FROM_ADDRESS = ImmutableInstruction.builder()
-      .opcode(2)
+      .opcode(1)
       .name("LDV")
       .action((state, argument) -> state.copy()
           .withRegisters(
@@ -35,7 +35,7 @@ public class Load {
       .build();
 
   public static final Instruction LOAD_INDIRECT_FROM_ADDRESS = ImmutableInstruction.builder()
-      .opcode(3)
+      .opcode(11)
       .name("LDIV")
       .action((state, argument) -> state.copy()
           .withRegisters(

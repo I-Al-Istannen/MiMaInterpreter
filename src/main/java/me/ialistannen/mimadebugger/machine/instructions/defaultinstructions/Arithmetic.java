@@ -13,7 +13,7 @@ public class Arithmetic {
   }
 
   public static final Instruction ADD = ImmutableInstruction.builder()
-      .opcode(6)
+      .opcode(3)
       .name("ADD")
       .action((state, address) -> state.copy()
           .withRegisters(

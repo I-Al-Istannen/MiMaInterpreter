@@ -67,7 +67,7 @@ public class MainMemory {
                 MemoryFormat.toString(entry.getKey(), 24, true),
                 entry.getKey(),
                 MemoryFormat.toString(entry.getValue(), 24, true),
-                MemoryFormat.extractOpcode(entry.getValue()),
+                MemoryFormat.extractLargeOpcode(entry.getValue()),
                 MemoryFormat.extractArgument(entry.getValue())
             ))
                 .append(System.lineSeparator())

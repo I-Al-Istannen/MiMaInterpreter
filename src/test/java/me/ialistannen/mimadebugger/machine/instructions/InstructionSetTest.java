@@ -24,6 +24,14 @@ class InstructionSetTest {
   }
 
   @Test
+  void testHasCorrectNumberOfInstructions() {
+    assertThat(
+        instructionSet.getAll().size(),
+        is(15)
+    );
+  }
+
+  @Test
   void addDuplicatedNameThrows() {
     assertThrows(
         IllegalArgumentException.class,
@@ -98,15 +106,18 @@ class InstructionSetTest {
   }
 
   @Test
-  void testForEncodedValue() {
-    InstructionCall call = ImmutableInstructionCall.builder()
-        .command(Load.LOAD_CONSTANT)
-        .argument(20)
-        .build();
-    assertThat(
-        instructionSet.forEncodedValue(MemoryFormat.combineInstruction(call)),
-        is(Optional.of(call))
-    );
+  void testForEncodedValues() {
+    for (Instruction instruction : instructionSet.getAll()) {
+      ImmutableInstructionCall call = ImmutableInstructionCall.builder()
+          .command(instruction)
+          .argument(20)
+          .build();
+
+      assertThat(
+          instructionSet.forEncodedValue(MemoryFormat.combineInstruction(call)),
+          is(Optional.of(call))
+      );
+    }
   }
 
   @Test

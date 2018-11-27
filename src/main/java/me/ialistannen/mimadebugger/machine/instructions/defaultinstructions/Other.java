@@ -14,7 +14,7 @@ public class Other {
 
   public static final Instruction ROTATE_RIGHT = ImmutableInstruction.builder()
       .name("RAR")
-      .opcode(0)
+      .opcode(0xF2)
       .hasArgument(false)
       .action((state, ignored) -> {
         int accumulator = state.registers().accumulator();

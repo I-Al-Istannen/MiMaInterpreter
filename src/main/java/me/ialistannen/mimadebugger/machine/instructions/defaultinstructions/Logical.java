@@ -13,7 +13,7 @@ public class Logical {
   }
 
   public static final Instruction AND = ImmutableInstruction.builder()
-      .opcode(7)
+      .opcode(4)
       .name("AND")
       .action((state, address) -> state.copy()
           .withRegisters(
@@ -26,7 +26,7 @@ public class Logical {
       .build();
 
   public static final Instruction OR = ImmutableInstruction.builder()
-      .opcode(8)
+      .opcode(5)
       .name("OR")
       .action((state, address) -> state.copy()
           .withRegisters(
@@ -39,7 +39,7 @@ public class Logical {
       .build();
 
   public static final Instruction XOR = ImmutableInstruction.builder()
-      .opcode(9)
+      .opcode(6)
       .name("XOR")
       .action((state, address) -> state.copy()
           .withRegisters(
@@ -52,7 +52,7 @@ public class Logical {
       .build();
 
   public static final Instruction NOT = ImmutableInstruction.builder()
-      .opcode(10)
+      .opcode(0xF1)
       .name("NOT")
       .hasArgument(false)
       .action((state, ignored) -> state.copy()

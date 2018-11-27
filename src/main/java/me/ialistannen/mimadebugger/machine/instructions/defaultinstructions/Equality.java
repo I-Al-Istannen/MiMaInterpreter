@@ -13,7 +13,7 @@ public class Equality {
   }
 
   public static final Instruction EQUAL = ImmutableInstruction.builder()
-      .opcode(11)
+      .opcode(7)
       .name("EQL")
       .action((state, address) -> state.copy()
           .withRegisters(

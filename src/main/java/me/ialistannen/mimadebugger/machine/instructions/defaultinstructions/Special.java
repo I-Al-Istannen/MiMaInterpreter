@@ -12,7 +12,7 @@ public class Special {
   }
 
   public static final Instruction HALT = ImmutableInstruction.builder()
-      .opcode(15)
+      .opcode(0xF0)
       .name("HALT")
       .hasArgument(false)
       .action((state, address) -> state)

@@ -13,7 +13,7 @@ public class Jump {
   }
 
   public static final Instruction JUMP = ImmutableInstruction.builder()
-      .opcode(12)
+      .opcode(8)
       .name("JMP")
       .action((state, address) -> state.copy()
           .withRegisters(
@@ -24,7 +24,7 @@ public class Jump {
       .build();
 
   public static final Instruction JUMP_IF_NEGATIVE = ImmutableInstruction.builder()
-      .opcode(13)
+      .opcode(9)
       .name("JMN")
       .action((state, address) -> state.copy()
           .withRegisters(

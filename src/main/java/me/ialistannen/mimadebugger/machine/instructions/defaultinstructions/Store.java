@@ -12,7 +12,7 @@ public class Store {
   }
 
   public static final Instruction STORE = ImmutableInstruction.builder()
-      .opcode(4)
+      .opcode(2)
       .name("STV")
       .action((state, address) -> state.copy()
           .withMemory(
@@ -23,7 +23,7 @@ public class Store {
       .build();
 
   public static final Instruction STORE_INDIRECT = ImmutableInstruction.builder()
-      .opcode(5)
+      .opcode(10)
       .name("STIV")
       .action((state, address) -> state.copy()
           .withMemory(
