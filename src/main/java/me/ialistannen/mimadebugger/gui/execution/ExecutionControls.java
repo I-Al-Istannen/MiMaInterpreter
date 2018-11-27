@@ -135,14 +135,12 @@ public class ExecutionControls extends BorderPane {
    * @param program the program to execute
    * @see ProgramParser#parseFromNames(List) for possible exceptions
    */
-  public void setProgram(List<String> program) {
+  private void setProgram(List<String> program) {
     List<MemoryValue> values = programParser.parseFromNames(program);
 
     MainMemory memory = MainMemory.create();
 
-    for (int i = 0; i < values.size(); i++) {
-      MemoryValue value = values.get(i);
-
+    for (MemoryValue value : values) {
       memory = memory.set(value.address(), value.representation());
     }
 
