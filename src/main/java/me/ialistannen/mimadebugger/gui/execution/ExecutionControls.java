@@ -81,7 +81,7 @@ public class ExecutionControls extends BorderPane {
 
     nextStepButton.disableProperty().bind(disableStepButtons.or(halted.and(noCachedNextStep)));
     prevStepButton.disableProperty().bind(disableStepButtons.or(noPreviousStep));
-    executeButton.disableProperty().bind(disableStepButtons.or(halted));
+    executeButton.disableProperty().bind(disableStepButtons.or(halted.and(noCachedNextStep)));
     resetButton.disableProperty().bind(disableStepButtons);
 
     programTextProperty.addListener((observable, oldValue, newValue) -> programOutOfDate.set(true));
