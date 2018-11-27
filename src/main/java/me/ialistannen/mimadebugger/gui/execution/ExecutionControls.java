@@ -195,11 +195,11 @@ public class ExecutionControls extends BorderPane {
 
   @FXML
   private void onExecute() {
-    if (runner.get().isFinished()) {
-      reset();
-    }
-
     try {
+      if (runner.get().isFinished()) {
+        reset();
+      }
+
       for (int i = 0; i < MAXIMUM_STEP_COUNT; i++) {
         // runner.nextStep will throw an exception when the program is finished
         State step = runner.get().nextStep();
