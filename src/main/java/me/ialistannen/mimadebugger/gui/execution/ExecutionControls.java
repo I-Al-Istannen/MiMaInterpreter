@@ -31,7 +31,7 @@ import me.ialistannen.mimadebugger.machine.program.ProgramParser;
 
 public class ExecutionControls extends BorderPane {
 
-  private static final int MAXIMUM_STEP_COUNT = 50_000;
+  private static final int MAXIMUM_STEP_COUNT = 1_000_000;
 
   @FXML
   private Button prevStepButton;
@@ -143,7 +143,7 @@ public class ExecutionControls extends BorderPane {
     for (int i = 0; i < values.size(); i++) {
       MemoryValue value = values.get(i);
 
-      memory = memory.set(i, value.representation());
+      memory = memory.set(value.address(), value.representation());
     }
 
     State initialState = ImmutableState.builder()
@@ -242,13 +242,13 @@ public class ExecutionControls extends BorderPane {
   }
 
   private void onError(MiMaException e) {
-    displayError(e);
+    displayExecutionError(e);
     if (e instanceof ProgramHaltException) {
       halted.set(true);
     }
   }
 
-  private void displayError(MiMaException e) {
+  private void displayExecutionError(MiMaException e) {
     Alert alert;
     if (e instanceof ProgramHaltException) {
       alert = new Alert(AlertType.INFORMATION);
