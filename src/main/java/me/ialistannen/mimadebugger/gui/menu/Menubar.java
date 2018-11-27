@@ -2,7 +2,6 @@ package me.ialistannen.mimadebugger.gui.menu;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -53,9 +52,8 @@ public class Menubar extends MenuBar {
       try {
         List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
         programLoadedListener.accept(lines);
-      } catch (IOException e) {
-        createErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e)
-            .show();
+      } catch (Exception e) {
+        showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
       }
     }
   }
@@ -100,9 +98,8 @@ public class Menubar extends MenuBar {
     try {
       List<String> lines = Arrays.asList(codeSupplier.get().split("\n"));
       Files.write(file.toPath(), lines);
-    } catch (IOException e) {
-      createErrorDialog("Error saving file to '" + file.getAbsolutePath() + "'", e)
-          .show();
+    } catch (Exception e) {
+      showErrorDialog("Error saving file to '" + file.getAbsolutePath() + "'", e);
     }
   }
 
@@ -117,10 +114,9 @@ public class Menubar extends MenuBar {
         if (Desktop.isDesktopSupported()) {
           Desktop.getDesktop().browse(URI.create(url));
         }
-      } catch (IOException e) {
+      } catch (Exception e) {
         Platform.runLater(() ->
-            createErrorDialog("Error opening a link to '" + url + "'", e)
-                .show()
+            showErrorDialog("Error opening a link to '" + url + "'", e)
         );
       }
     }));
@@ -128,7 +124,7 @@ public class Menubar extends MenuBar {
     return hyperlink;
   }
 
-  private Alert createErrorDialog(String headerText, Throwable e) {
+  private void showErrorDialog(String headerText, Throwable e) {
     Alert alert = new Alert(AlertType.ERROR);
     alert.setTitle("An error occurred");
     alert.setHeaderText(headerText);
@@ -142,6 +138,6 @@ public class Menubar extends MenuBar {
 
     alert.getDialogPane().setExpandableContent(textArea);
 
-    return alert;
+    alert.show();
   }
 }
