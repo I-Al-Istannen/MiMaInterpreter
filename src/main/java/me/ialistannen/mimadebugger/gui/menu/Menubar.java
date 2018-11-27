@@ -79,6 +79,7 @@ public class Menubar extends MenuBar {
         link("issues", "https://github.com/I-Al-Istannen/MiMaInterpreter/issues"),
         new Text("section there!")
     ));
+    alert.initOwner(getScene().getWindow());
     alert.show();
   }
 
@@ -127,10 +128,11 @@ public class Menubar extends MenuBar {
     return hyperlink;
   }
 
-  private static Alert createErrorDialog(String headerText, Throwable e) {
+  private Alert createErrorDialog(String headerText, Throwable e) {
     Alert alert = new Alert(AlertType.ERROR);
     alert.setTitle("An error occurred");
     alert.setHeaderText(headerText);
+    alert.initOwner(getScene().getWindow());
 
     StringWriter stringWriter = new StringWriter();
     e.printStackTrace(new PrintWriter(stringWriter));
