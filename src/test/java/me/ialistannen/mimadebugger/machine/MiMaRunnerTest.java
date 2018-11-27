@@ -157,6 +157,14 @@ class MiMaRunnerTest {
   }
 
   @Test
+  void testHasNoCachedNext() {
+    assertThat(
+        runner.hasCachedNextStep(),
+        is(false)
+    );
+  }
+
+  @Test
   void testPreviousOfFirstIsFirst() {
     assertThat(
         runner.hasPreviousStep(),
@@ -226,6 +234,10 @@ class MiMaRunnerTest {
           is(i != 2)
       );
       assertThat(
+          runner.hasCachedNextStep(),
+          is(true)
+      );
+      assertThat(
           previousStep,
           is(cachedStates.pop())
       );
@@ -245,6 +257,10 @@ class MiMaRunnerTest {
     assertThat(
         runner.previousStep(),
         is(cachedStates.get(2))
+    );
+    assertThat(
+        runner.hasCachedNextStep(),
+        is(true)
     );
 
     State currentMiMaState = miMa.getCurrentState();

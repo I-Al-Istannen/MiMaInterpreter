@@ -75,6 +75,15 @@ public class MiMaRunner {
   }
 
   /**
+   * Returns whether there is a cached next step.
+   *
+   * @return whether there is a cached next step
+   */
+  public boolean hasCachedNextStep() {
+    return !nextStates.isEmpty();
+  }
+
+  /**
    * Returns the current state.
    *
    * @return the current state

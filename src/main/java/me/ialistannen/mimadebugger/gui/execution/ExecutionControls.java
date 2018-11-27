@@ -51,6 +51,7 @@ public class ExecutionControls extends BorderPane {
   private ObjectProperty<MiMaRunner> runner;
   private BooleanProperty programOutOfDate;
   private BooleanProperty noPreviousStep;
+  private BooleanProperty noCachedNextStep;
   private BooleanProperty halted;
   private SimpleStringProperty programTextProperty;
 
@@ -65,6 +66,7 @@ public class ExecutionControls extends BorderPane {
     this.programOutOfDate = new SimpleBooleanProperty(false);
     this.programTextProperty = new SimpleStringProperty("");
     this.noPreviousStep = new SimpleBooleanProperty(true);
+    this.noCachedNextStep = new SimpleBooleanProperty(false);
     this.halted = new SimpleBooleanProperty(false);
     this.breakpoints = new HashSet<>();
 
@@ -75,13 +77,12 @@ public class ExecutionControls extends BorderPane {
   @FXML
   private void initialize() {
     BooleanBinding disableStepButtons = programOutOfDate
-        .or(runner.isNull())
-        .or(halted);
+        .or(runner.isNull());
 
-    nextStepButton.disableProperty().bind(disableStepButtons);
+    nextStepButton.disableProperty().bind(disableStepButtons.or(halted.and(noCachedNextStep)));
     prevStepButton.disableProperty().bind(disableStepButtons.or(noPreviousStep));
-    executeButton.disableProperty().bind(disableStepButtons);
-    resetButton.disableProperty().bind(programOutOfDate.or(runner.isNull()));
+    executeButton.disableProperty().bind(disableStepButtons.or(halted));
+    resetButton.disableProperty().bind(disableStepButtons);
 
     programTextProperty.addListener((observable, oldValue, newValue) -> programOutOfDate.set(true));
 
@@ -154,33 +155,32 @@ public class ExecutionControls extends BorderPane {
     runner.set(new MiMaRunner(miMa));
 
     programOutOfDate.set(false);
-    halted.set(false);
-    stateConsumer.accept(initialState);
+
+    reset();
   }
 
   @FXML
   private void onNext() {
     stepGuardException(() -> stateConsumer.accept(runner.get().nextStep()));
-    noPreviousStep.set(!runner.get().hasPreviousStep());
+
+    afterStep();
   }
 
   @FXML
   private void onPrevious() {
     stepGuardException(() -> stateConsumer.accept(runner.get().previousStep()));
 
-    noPreviousStep.set(!runner.get().hasPreviousStep());
+    afterStep();
   }
 
   @FXML
   private void onLoadProgram() {
     try {
       setProgram(Arrays.asList(programTextProperty.get().split("\\n")));
-      noPreviousStep.set(!runner.get().hasPreviousStep());
     } catch (MiMaException e) {
       onError(e);
     }
   }
-
 
   @FXML
   private void onReset() {
@@ -203,7 +203,6 @@ public class ExecutionControls extends BorderPane {
       for (int i = 0; i < MAXIMUM_STEP_COUNT; i++) {
         // runner.nextStep will throw an exception when the program is finished
         State step = runner.get().nextStep();
-        noPreviousStep.set(!runner.get().hasPreviousStep());
 
         if (breakpoints.contains(step.registers().instructionPointer())) {
           return;
@@ -215,6 +214,7 @@ public class ExecutionControls extends BorderPane {
     } finally {
       // only set it once at the end
       stateConsumer.accept(runner.get().getCurrent());
+      afterStep();
     }
   }
 
@@ -265,5 +265,10 @@ public class ExecutionControls extends BorderPane {
     alert.setResizable(true);
     alert.initOwner(getScene().getWindow());
     alert.show();
+  }
+
+  private void afterStep() {
+    noPreviousStep.set(!runner.get().hasPreviousStep());
+    noCachedNextStep.set(!runner.get().hasCachedNextStep());
   }
 }
