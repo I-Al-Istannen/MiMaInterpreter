@@ -22,7 +22,8 @@ public class HighlightedMemoryValue extends TextFlow {
     getChildren().addAll(binary, instruction, argument);
 
     initForValue(value);
-    Platform.runLater(() -> setPrefHeight(computeMinHeight(getPrefWidth())));
+    initHeight();
+    Platform.runLater(this::initHeight);
   }
 
   private void initForValue(MemoryValue memoryValue) {
@@ -38,7 +39,8 @@ public class HighlightedMemoryValue extends TextFlow {
   }
 
   private void initHeight() {
-    setPrefHeight(computeMinHeight(getWidth()));
+    // set an upper bound for the height, so the bigger cells are not as disruptive
+    setPrefHeight(Math.min(computeMinHeight(getWidth()), 50));
   }
 
   private void setBinaryRepresentation(int representation) {
