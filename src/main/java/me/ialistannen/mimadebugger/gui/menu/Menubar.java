@@ -8,8 +8,10 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -29,9 +31,11 @@ import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 public class Menubar extends MenuBar {
 
   private Consumer<List<String>> programLoadedListener;
+  private Supplier<String> codeSupplier;
 
-  public Menubar(Consumer<List<String>> programLoadedListener) {
+  public Menubar(Consumer<List<String>> programLoadedListener, Supplier<String> codeSupplier) {
     this.programLoadedListener = programLoadedListener;
+    this.codeSupplier = codeSupplier;
 
     FxmlUtil.loadWithRoot(this, "/gui/menu/MenuBar.fxml");
   }
@@ -50,7 +54,8 @@ public class Menubar extends MenuBar {
         List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
         programLoadedListener.accept(lines);
       } catch (IOException e) {
-        createErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
+        createErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e)
+            .show();
       }
     }
   }
@@ -76,6 +81,30 @@ public class Menubar extends MenuBar {
     ));
     alert.show();
   }
+
+  @FXML
+  private void onSave() {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Choose a file to save to");
+    fileChooser.getExtensionFilters().add(new ExtensionFilter("MiMa files", "*.mima"));
+    fileChooser.getExtensionFilters().add(new ExtensionFilter("All files", "*"));
+    fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(0));
+
+    File file = fileChooser.showSaveDialog(getScene().getWindow());
+
+    if (file == null) {
+      return;
+    }
+
+    try {
+      List<String> lines = Arrays.asList(codeSupplier.get().split("\n"));
+      Files.write(file.toPath(), lines);
+    } catch (IOException e) {
+      createErrorDialog("Error saving file to '" + file.getAbsolutePath() + "'", e)
+          .show();
+    }
+  }
+
 
   private Node link(String label, String url) {
     Hyperlink hyperlink = new Hyperlink(label);

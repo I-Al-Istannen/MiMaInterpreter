@@ -3,10 +3,11 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <fx:root type="MenuBar"
-  xmlns:fx="http://javafx.com/fxml/1"
-  xmlns="http://javafx.com/javafx/8.0.162-ea">
+  xmlns="http://javafx.com/javafx/8.0.162-ea"
+  xmlns:fx="http://javafx.com/fxml/1">
   <menus>
     <Menu
       mnemonicParsing="false"
@@ -26,6 +27,21 @@
               shortcut="UP"/>
           </accelerator>
         </MenuItem>
+        <MenuItem
+          mnemonicParsing="false"
+          onAction="#onSave"
+          text="Save">
+          <accelerator>
+            <KeyCodeCombination
+              alt="UP"
+              code="S"
+              control="DOWN"
+              meta="UP"
+              shift="UP"
+              shortcut="UP"/>
+          </accelerator>
+        </MenuItem>
+        <SeparatorMenuItem mnemonicParsing="false"/>
         <MenuItem
           mnemonicParsing="false"
           onAction="#onQuit"

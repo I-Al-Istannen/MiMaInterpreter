@@ -16,8 +16,12 @@ and mostly ignores how the machine is actually implemented in hardware.
 * Execute a program until the next breakpoint (added by clicking on a line number in the gutter) is hit
 * Execute a program step by step (forwards and backwards) at any point in time
   (So after hitting a breakpoint or just from the beginning / end)
+* Specify the literal value in an address by just writing the number you want in the line.
+  Empty (blank) lines will be treated as unset memory, but the address is still incremented.
+  This means that if you have a jump at position 0, four blank lines and then HALT, the HALT will be
+  at address 5.
 
-* Load a program from disk (though you can not write it again as of now)
+* Load a program from disk (and save it again)
 
 ## Screenshots
 ![Program screenshot](/images/Main_screen.jpg?raw=true "The main program screen")

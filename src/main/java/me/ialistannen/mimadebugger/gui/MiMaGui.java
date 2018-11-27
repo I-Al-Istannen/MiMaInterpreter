@@ -58,7 +58,10 @@ public class MiMaGui extends Application {
     });
     executionControls.programTextPropertyProperty().bind(programTextPane.codeProperty());
 
-    Menubar menubar = new Menubar(strings -> programTextPane.setCode(String.join("\n", strings)));
+    Menubar menubar = new Menubar(
+        readLines -> programTextPane.setCode(String.join("\n", readLines)),
+        () -> programTextPane.codeProperty().getValue()
+    );
 
     HBox mainPane = new HBox(programTextPane, stateView);
     HBox.setHgrow(programTextPane, Priority.ALWAYS);
