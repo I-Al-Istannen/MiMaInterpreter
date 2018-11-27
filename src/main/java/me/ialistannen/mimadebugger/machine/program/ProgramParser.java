@@ -53,7 +53,9 @@ public class ProgramParser {
       String line = lines.get(i);
       MemoryValue memoryValue = parseLine(line, i);
 
-      values.add(memoryValue);
+      if (memoryValue != null) {
+        values.add(memoryValue);
+      }
     }
 
     return values;
@@ -61,7 +63,7 @@ public class ProgramParser {
 
   private MemoryValue parseLine(String line, int lineNumber) {
     if (line.isEmpty()) {
-      return constantValue(0, lineNumber);
+      return null;
     }
     if (line.matches("([+\\-])?\\d+")) {
       return constantValue(ensureInValueRange(Integer.parseInt(line)), lineNumber);
