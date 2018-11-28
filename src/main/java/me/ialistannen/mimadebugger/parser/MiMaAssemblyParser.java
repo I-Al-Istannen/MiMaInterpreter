@@ -117,7 +117,6 @@ public class MiMaAssemblyParser {
       node = readValue();
       address++;
     } else if (reader.peek(NEW_LINE_PATTERN)) {
-      System.out.println(reader.peek(20));
       node = null;
       address++;
     } else if (reader.peek(WHITE_SPACE)) {

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.regex.Pattern;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -19,6 +20,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.model.Paragraph;
 
 public class LineGutterWithBreakpoint implements IntFunction<Node> {
 
@@ -29,6 +31,9 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
   private static final Background DEFAULT_BACKGROUND =
       new Background(new BackgroundFill(Color.web("#ddd"), null, null));
 
+  private static final Pattern COMMENT_PATTERN = Pattern.compile("\\s*//.*");
+
+  private CodeArea codeArea;
   private Set<Integer> breakpoints;
   private int gutterLineWidth;
 
@@ -36,10 +41,11 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
 
   public LineGutterWithBreakpoint(CodeArea codeArea, Set<Integer> breakpoints,
       IntConsumer breakpointToggleListener) {
+    this.codeArea = codeArea;
     this.breakpoints = new HashSet<>(breakpoints);
     this.breakpointToggleListener = breakpointToggleListener;
 
-    int lineCount = codeArea.getParagraphs().size() - 1;
+    int lineCount = findActualLineNumber(codeArea.getParagraphs().size());
 
     // calculate maximum size of the line number label to provide a constant width gutter
     this.gutterLineWidth = (int) Math.ceil(
@@ -49,7 +55,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
   }
 
   @Override
-  public Node apply(int lineNumber) {
+  public Node apply(int storedLineNumber) {
     HBox container = new HBox();
     container.setFillHeight(true);
     container.setSpacing(5);
@@ -57,6 +63,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
     container.setPadding(DEFAULT_INSETS);
     container.setMaxWidth(Double.MAX_VALUE);
 
+    int lineNumber = findActualLineNumber(storedLineNumber);
     Label lineNo = new Label(Integer.toString(lineNumber));
     lineNo.setFont(DEFAULT_FONT);
     lineNo.setTextFill(DEFAULT_TEXT_FILL);
@@ -77,8 +84,12 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
     container.getChildren().add(lineNo);
     container.getChildren().add(breakpointIndicator);
 
-    container.setOnMouseClicked(event -> breakpointToggleListener.accept(lineNumber));
-    container.setCursor(Cursor.HAND);
+    if (storedLineNumber >= 0 && isNoComment(codeArea.getParagraph(storedLineNumber))) {
+      container.setOnMouseClicked(event -> breakpointToggleListener.accept(lineNumber));
+      container.setCursor(Cursor.HAND);
+    } else {
+      lineNo.setText("");
+    }
 
     return container;
   }
@@ -89,5 +100,18 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
     } else {
       circle.setFill(Color.TRANSPARENT);
     }
+  }
+
+  private int findActualLineNumber(int storedNumber) {
+    long count = codeArea.getParagraphs().stream()
+        .limit(Math.max(storedNumber, 0))
+        .filter(this::isNoComment)
+        .count();
+    // start at 0
+    return (int) (count);
+  }
+
+  private boolean isNoComment(Paragraph<?, ?, ?> paragraph) {
+    return !COMMENT_PATTERN.matcher(paragraph.getText()).matches();
   }
 }

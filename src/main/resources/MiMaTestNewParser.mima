@@ -1,0 +1,6 @@
+hey: -1
+you: LDC 10
+there: HALT // this is a comment
+JMP hey // jump to hey
+mate:
+JMP mate
