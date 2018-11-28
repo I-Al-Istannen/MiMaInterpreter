@@ -32,8 +32,8 @@ public class ProgramTextPane extends BorderPane {
     Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
     Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
     Pattern commentPattern = Pattern.compile("\\s*//.+");
-    Pattern labelDeclarationPattern = Pattern.compile("\\b[a-zA-Z]+(?=: )\\b");
-    Pattern labelUsagePattern = Pattern.compile(" \\b[a-zA-Z]+ *(?=(//|$))");
+    Pattern labelDeclarationPattern = Pattern.compile("\\b[a-zA-Z]+(?=:)\\b");
+    Pattern labelUsagePattern = Pattern.compile(" \\b[a-zA-Z]+ *(?=(//|\\n|$))");
 
     pattern = Pattern.compile(
         "(?<INSTRUCTION>" + instructionPattern + ")"
