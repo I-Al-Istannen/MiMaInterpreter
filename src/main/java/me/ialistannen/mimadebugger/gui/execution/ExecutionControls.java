@@ -1,6 +1,5 @@
 package me.ialistannen.mimadebugger.gui.execution;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +26,7 @@ import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
-import me.ialistannen.mimadebugger.machine.program.ProgramParser;
+import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 
 public class ExecutionControls extends BorderPane {
 
@@ -46,7 +45,7 @@ public class ExecutionControls extends BorderPane {
 
   private InstructionSet instructionSet;
   private Consumer<State> stateConsumer;
-  private ProgramParser programParser;
+  private MiMaAssemblyParser programParser;
 
   private ObjectProperty<MiMaRunner> runner;
   private BooleanProperty programOutOfDate;
@@ -61,7 +60,7 @@ public class ExecutionControls extends BorderPane {
     this.instructionSet = instructionSet;
     this.stateConsumer = state -> {
     };
-    this.programParser = new ProgramParser(instructionSet);
+    this.programParser = new MiMaAssemblyParser(instructionSet);
     this.runner = new SimpleObjectProperty<>();
     this.programOutOfDate = new SimpleBooleanProperty(false);
     this.programTextProperty = new SimpleStringProperty("");
@@ -134,10 +133,9 @@ public class ExecutionControls extends BorderPane {
    * Sets the program to execute
    *
    * @param program the program to execute
-   * @see ProgramParser#parseFromNames(List) for possible exceptions
    */
-  private void setProgram(List<String> program) {
-    List<MemoryValue> values = programParser.parseFromNames(program);
+  private void setProgram(String program) {
+    List<MemoryValue> values = programParser.parseProgramToMemoryValues(program);
 
     MainMemory memory = MainMemory.create();
 
@@ -176,7 +174,7 @@ public class ExecutionControls extends BorderPane {
   @FXML
   private void onLoadProgram() {
     try {
-      setProgram(Arrays.asList(programTextProperty.get().split("\\n")));
+      setProgram(programTextProperty.get());
     } catch (MiMaException e) {
       onError(e);
     }
