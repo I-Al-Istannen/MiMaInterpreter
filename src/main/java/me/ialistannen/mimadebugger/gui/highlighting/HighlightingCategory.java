@@ -3,7 +3,10 @@ package me.ialistannen.mimadebugger.gui.highlighting;
 public enum HighlightingCategory {
   INSTRUCTION("highlight-instruction"),
   VALUE("highlight-value"),
-  BINARY("highlight-binary");
+  BINARY("highlight-binary"),
+  COMMENT("highlight-comment"),
+  LABEL_DECLARATION("highlight-label-declaration"),
+  LABEL_USAGE("highlight-label-usage");
 
   private String cssClass;
 

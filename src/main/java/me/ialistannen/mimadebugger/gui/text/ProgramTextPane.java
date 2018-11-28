@@ -31,11 +31,17 @@ public class ProgramTextPane extends BorderPane {
     Pattern instructionPattern = Pattern.compile("\\b(" + String.join("|", instructions) + ")\\b");
     Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
     Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
+    Pattern commentPattern = Pattern.compile("\\s*//.+");
+    Pattern labelDeclarationPattern = Pattern.compile("\\b[a-zA-Z]+(?=: )\\b");
+    Pattern labelUsagePattern = Pattern.compile(" \\b[a-zA-Z]+ *(?=(//|$))");
 
     pattern = Pattern.compile(
         "(?<INSTRUCTION>" + instructionPattern + ")"
             + "|(?<VALUE>" + argumentPattern + ")"
             + "|(?<BINARY>" + binaryValuePattern + ")"
+            + "|(?<COMMENT>" + commentPattern + ")"
+            + "|(?<LABELDECLARATION>" + labelDeclarationPattern + ")"
+            + "|(?<LABELUSAGE>" + labelUsagePattern + ")"
     );
 
     updateLineIcons();
@@ -66,13 +72,19 @@ public class ProgramTextPane extends BorderPane {
 
     while (matcher.find()) {
       String styleClass =
-          matcher.group("INSTRUCTION") != null
-              ? HighlightingCategory.INSTRUCTION.getCssClass()
-              : matcher.group("BINARY") != null
-                  ? HighlightingCategory.BINARY.getCssClass()
-                  : matcher.group("VALUE") != null
-                      ? HighlightingCategory.VALUE.getCssClass()
-                      : null; /* never happens */
+          matcher.group("COMMENT") != null
+              ? HighlightingCategory.COMMENT.getCssClass()
+              : matcher.group("LABELDECLARATION") != null
+                  ? HighlightingCategory.LABEL_DECLARATION.getCssClass()
+                  : matcher.group("LABELUSAGE") != null
+                      ? HighlightingCategory.LABEL_USAGE.getCssClass()
+                      : matcher.group("INSTRUCTION") != null
+                          ? HighlightingCategory.INSTRUCTION.getCssClass()
+                          : matcher.group("BINARY") != null
+                              ? HighlightingCategory.BINARY.getCssClass()
+                              : matcher.group("VALUE") != null
+                                  ? HighlightingCategory.VALUE.getCssClass()
+                                  : null; /* never happens */
       assert styleClass != null;
 
       spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);

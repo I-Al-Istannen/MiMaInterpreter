@@ -9,3 +9,15 @@
 .highlight-binary {
   -fx-fill: black;
 }
+
+.highlight-comment {
+  -fx-fill: #65737e;
+}
+
+.highlight-label-declaration {
+  -fx-fill: #6699cc;
+}
+
+.highlight-label-usage {
+  -fx-fill: #5fb3b3;
+}
