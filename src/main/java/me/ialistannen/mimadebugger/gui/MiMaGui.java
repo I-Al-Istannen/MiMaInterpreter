@@ -19,13 +19,6 @@ import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 
 public class MiMaGui extends Application {
 
-  // Application is mostly a singleton anyways
-  private static MiMaGui instance;
-
-  public MiMaGui() {
-    instance = this;
-  }
-
   @Override
   public void start(Stage primaryStage) {
     BorderPane root = new BorderPane();
@@ -77,15 +70,6 @@ public class MiMaGui extends Application {
     primaryStage.setWidth(1000);
     primaryStage.centerOnScreen();
     primaryStage.show();
-  }
-
-  /**
-   * Returns the instance of this application.
-   *
-   * @return the the instance of this application
-   */
-  public static MiMaGui getInstance() {
-    return instance;
   }
 
   public static void main(String[] args) {
