@@ -89,6 +89,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
       container.setCursor(Cursor.HAND);
     } else {
       lineNo.setText("");
+      breakpointIndicator.setFill(Color.TRANSPARENT);
     }
 
     return container;
