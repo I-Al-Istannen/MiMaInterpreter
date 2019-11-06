@@ -80,9 +80,9 @@ public class MiMaGui extends Application {
           String programText = instructions.stream()
               .map(Optional::get)
               .map(call -> {
-                // all zeros are the default value, discard as padding
+                // Treat all zeros as padding
                 if (call.command().opcode() == 0 && call.argument() == 0) {
-                  return "";
+                  return "0";
                 }
                 return call.command().name() + " " + call.argument();
               })
