@@ -16,6 +16,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
+import me.ialistannen.mimadebugger.exceptions.NamedExecutionError;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
@@ -55,6 +56,7 @@ public class ExecutionControls extends BorderPane {
   private SimpleStringProperty programTextProperty;
 
   private Set<Integer> breakpoints;
+  private ExecutionStrategy executionStrategy;
 
   public ExecutionControls(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
@@ -68,6 +70,7 @@ public class ExecutionControls extends BorderPane {
     this.noCachedNextStep = new SimpleBooleanProperty(false);
     this.halted = new SimpleBooleanProperty(false);
     this.breakpoints = new HashSet<>();
+    this.executionStrategy = new LimitedStepsExecutionStrategy(MAXIMUM_STEP_COUNT);
 
     FxmlUtil.loadWithRoot(this, "/gui/execution/ExecutionControls.fxml");
   }
@@ -207,15 +210,13 @@ public class ExecutionControls extends BorderPane {
         reset();
       }
 
-      for (int i = 0; i < MAXIMUM_STEP_COUNT; i++) {
-        // runner.nextStep will throw an exception when the program is finished
-        State step = runner.get().nextStep();
-
-        if (breakpoints.contains(step.registers().instructionPointer())) {
-          return;
-        }
-      }
-      displayStepsExceededMessage();
+      executionStrategy.run(runner.get(), breakpoints);
+    } catch (NamedExecutionError e) {
+      Alert alert = new Alert(AlertType.WARNING);
+      alert.setTitle(e.getName());
+      alert.setHeaderText(e.getName());
+      alert.setContentText(e.getMessage());
+      displayAlert(alert);
     } catch (MiMaException e) {
       onError(e);
     } finally {
@@ -223,19 +224,6 @@ public class ExecutionControls extends BorderPane {
       stateConsumer.accept(runner.get().getCurrent());
       afterStep();
     }
-  }
-
-  private void displayStepsExceededMessage() {
-    Alert alert = new Alert(AlertType.INFORMATION);
-    alert.setTitle("Execution stopped");
-    alert.setHeaderText(String.format(
-        "The execution exceeded %d steps.", MAXIMUM_STEP_COUNT
-    ));
-    alert.setContentText(
-        "You can resume execution by clicking Execute again\n"
-            + "(or by stepping), but it's probably an infinite loop."
-    );
-    displayAlert(alert);
   }
 
   private void stepGuardException(Runnable runnable) {
