@@ -35,7 +35,7 @@ public class Load {
       .build();
 
   public static final Instruction LOAD_INDIRECT_FROM_ADDRESS = ImmutableInstruction.builder()
-      .opcode(11)
+      .opcode(10)
       .name("LDIV")
       .action((state, argument) -> state.copy()
           .withRegisters(

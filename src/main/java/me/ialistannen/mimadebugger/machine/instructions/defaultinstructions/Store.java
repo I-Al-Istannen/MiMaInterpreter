@@ -23,7 +23,7 @@ public class Store {
       .build();
 
   public static final Instruction STORE_INDIRECT = ImmutableInstruction.builder()
-      .opcode(10)
+      .opcode(11)
       .name("STIV")
       .action((state, address) -> state.copy()
           .withMemory(
