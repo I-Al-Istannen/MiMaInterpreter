@@ -1,6 +1,7 @@
 package me.ialistannen.mimadebugger.gui.menu;
 
 import java.awt.Desktop;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,16 +26,20 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.swing.SwingUtilities;
+import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 
 public class Menubar extends MenuBar {
 
   private Consumer<List<String>> programLoadedListener;
   private Supplier<String> codeSupplier;
+  private final Supplier<List<MemoryValue>> memorySupplier;
 
-  public Menubar(Consumer<List<String>> programLoadedListener, Supplier<String> codeSupplier) {
+  public Menubar(Consumer<List<String>> programLoadedListener, Supplier<String> codeSupplier,
+      Supplier<List<MemoryValue>> memorySupplier) {
     this.programLoadedListener = programLoadedListener;
     this.codeSupplier = codeSupplier;
+    this.memorySupplier = memorySupplier;
 
     FxmlUtil.loadWithRoot(this, "/gui/menu/MenuBar.fxml");
   }
@@ -100,6 +105,33 @@ public class Menubar extends MenuBar {
       Files.write(file.toPath(), lines);
     } catch (Exception e) {
       showErrorDialog("Error saving file to '" + file.getAbsolutePath() + "'", e);
+    }
+  }
+
+  @FXML
+  private void onSaveBinary() {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Choose a file to save the binary version to");
+    fileChooser.getExtensionFilters().add(new ExtensionFilter("MiMa binary files", "*.mima"));
+    fileChooser.getExtensionFilters().add(new ExtensionFilter("All files", "*"));
+    fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(0));
+
+    File file = fileChooser.showSaveDialog(getScene().getWindow());
+
+    if (file == null) {
+      return;
+    }
+
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      for (MemoryValue value : memorySupplier.get()) {
+        out.write(value.representation() >>> 16 & 0xFF);
+        out.write(value.representation() >>> 8 & 0xFF);
+        out.write(value.representation() & 0xFF);
+      }
+      Files.write(file.toPath(), out.toByteArray());
+    } catch (Exception e) {
+      showErrorDialog("Error saving binary file to '" + file.getAbsolutePath() + "'", e);
     }
   }
 

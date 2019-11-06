@@ -69,7 +69,7 @@ public class InstructionCallResolver {
         instructionNode.removeChild(node);
       }
 
-      ImmutableInstructionCall instructionCall = ImmutableInstructionCall.builder()
+      InstructionCall instructionCall = ImmutableInstructionCall.builder()
           .argument(argument)
           .command(instruction)
           .build();

@@ -96,7 +96,7 @@ public class ExecutionControls extends BorderPane {
    * Sets the consumer that is called for each new state.
    *
    * @param stateConsumer the consumer that is called for each new state. Null indicates that no
-   * program is being executed
+   *     program is being executed
    */
   public void setStateConsumer(Consumer<State> stateConsumer) {
     this.stateConsumer = stateConsumer;
@@ -109,6 +109,15 @@ public class ExecutionControls extends BorderPane {
    */
   public SimpleStringProperty programTextPropertyProperty() {
     return programTextProperty;
+  }
+
+  /**
+   * Parses the current program ({@link #programTextPropertyProperty()} to a list of memory values.
+   *
+   * @return a list with the memory layout for the current program
+   */
+  public List<MemoryValue> getProgramMemoryLayout() {
+    return programParser.parseProgramToMemoryValues(programTextProperty.get());
   }
 
   /**

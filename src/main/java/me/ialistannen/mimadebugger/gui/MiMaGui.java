@@ -53,7 +53,8 @@ public class MiMaGui extends Application {
 
     Menubar menubar = new Menubar(
         readLines -> programTextPane.setCode(String.join("\n", readLines)),
-        () -> programTextPane.codeProperty().getValue()
+        () -> programTextPane.codeProperty().getValue(),
+        executionControls::getProgramMemoryLayout
     );
 
     HBox mainPane = new HBox(programTextPane, stateView);

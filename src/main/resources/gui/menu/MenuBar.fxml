@@ -30,7 +30,7 @@
         <MenuItem
           mnemonicParsing="false"
           onAction="#onSave"
-          text="Save">
+          text="Save (text)">
           <accelerator>
             <KeyCodeCombination
               alt="UP"
@@ -38,6 +38,20 @@
               control="DOWN"
               meta="UP"
               shift="UP"
+              shortcut="UP"/>
+          </accelerator>
+        </MenuItem>
+        <MenuItem
+          mnemonicParsing="false"
+          onAction="#onSaveBinary"
+          text="Save (binary)">
+          <accelerator>
+            <KeyCodeCombination
+              alt="UP"
+              code="S"
+              control="DOWN"
+              meta="UP"
+              shift="DOWN"
               shortcut="UP"/>
           </accelerator>
         </MenuItem>
