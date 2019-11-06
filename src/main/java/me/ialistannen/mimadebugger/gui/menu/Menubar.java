@@ -11,9 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -159,10 +161,21 @@ public class Menubar extends MenuBar {
 
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
-      for (MemoryValue value : memorySupplier.get()) {
+      int currentAddress = 0;
+      List<MemoryValue> values = memorySupplier.get().stream()
+          .sorted(Comparator.comparing(MemoryValue::address))
+          .collect(Collectors.toList());
+
+      for (MemoryValue value : values) {
+        // pad with zeros until next occupied address
+        while (value.address() > currentAddress) {
+          currentAddress++;
+          out.write(new byte[]{0, 0, 0});
+        }
         out.write(value.representation() >>> 16 & 0xFF);
         out.write(value.representation() >>> 8 & 0xFF);
         out.write(value.representation() & 0xFF);
+        currentAddress++;
       }
       Files.write(file.toPath(), out.toByteArray());
     } catch (Exception e) {
