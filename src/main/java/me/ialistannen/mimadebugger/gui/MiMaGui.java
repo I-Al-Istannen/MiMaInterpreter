@@ -79,7 +79,13 @@ public class MiMaGui extends Application {
 
           String programText = instructions.stream()
               .map(Optional::get)
-              .map(call -> call.command().name() + " " + call.argument())
+              .map(call -> {
+                // all zeros are the default value, discard as padding
+                if (call.command().opcode() == 0 && call.argument() == 0) {
+                  return "";
+                }
+                return call.command().name() + " " + call.argument();
+              })
               .collect(Collectors.joining("\n"));
           programTextPane.setCode(programText);
         },
