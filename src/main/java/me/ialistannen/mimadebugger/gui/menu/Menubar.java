@@ -3,11 +3,13 @@ package me.ialistannen.mimadebugger.gui.menu;
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -32,12 +34,16 @@ import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 public class Menubar extends MenuBar {
 
   private Consumer<List<String>> programLoadedListener;
+  private final Consumer<List<Integer>> programBinaryLoadedListener;
   private Supplier<String> codeSupplier;
   private final Supplier<List<MemoryValue>> memorySupplier;
 
-  public Menubar(Consumer<List<String>> programLoadedListener, Supplier<String> codeSupplier,
+  public Menubar(Consumer<List<String>> programLoadedListener,
+      Consumer<List<Integer>> programBinaryLoadedListener,
+      Supplier<String> codeSupplier,
       Supplier<List<MemoryValue>> memorySupplier) {
     this.programLoadedListener = programLoadedListener;
+    this.programBinaryLoadedListener = programBinaryLoadedListener;
     this.codeSupplier = codeSupplier;
     this.memorySupplier = memorySupplier;
 
@@ -57,6 +63,35 @@ public class Menubar extends MenuBar {
       try {
         List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
         programLoadedListener.accept(lines);
+      } catch (Exception e) {
+        showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
+      }
+    }
+  }
+
+  @FXML
+  private void onLoadBinary() {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle("Please choose a mima binary file");
+    fileChooser.getExtensionFilters().add(new ExtensionFilter("All", "*"));
+    fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(0));
+
+    File file = fileChooser.showOpenDialog(getScene().getWindow());
+
+    if (file != null) {
+      List<Integer> memory = new ArrayList<>();
+
+      try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+        byte[] instructionBuffer = new byte[3];
+        while (inputStream.read(instructionBuffer) > 0) {
+          int instruction =
+              (instructionBuffer[0] & 0xFF) << 16
+                  | (instructionBuffer[1] & 0xFF) << 8
+                  | instructionBuffer[2] & 0xFF;
+
+          memory.add(instruction);
+        }
+        programBinaryLoadedListener.accept(memory);
       } catch (Exception e) {
         showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
       }

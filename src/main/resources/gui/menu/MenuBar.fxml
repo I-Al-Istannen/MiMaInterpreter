@@ -29,6 +29,20 @@
         </MenuItem>
         <MenuItem
           mnemonicParsing="false"
+          onAction="#onLoadBinary"
+          text="Load (binary)">
+          <accelerator>
+            <KeyCodeCombination
+              alt="UP"
+              code="O"
+              control="DOWN"
+              meta="UP"
+              shift="DOWN"
+              shortcut="UP"/>
+          </accelerator>
+        </MenuItem>
+        <MenuItem
+          mnemonicParsing="false"
           onAction="#onSave"
           text="Save (text)">
           <accelerator>

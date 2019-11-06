@@ -2,6 +2,9 @@ package me.ialistannen.mimadebugger.gui;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javafx.application.Application;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Scene;
@@ -15,7 +18,9 @@ import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
 import me.ialistannen.mimadebugger.gui.state.StateView;
 import me.ialistannen.mimadebugger.gui.text.ProgramTextPane;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
+import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class MiMaGui extends Application {
 
@@ -53,6 +58,31 @@ public class MiMaGui extends Application {
 
     Menubar menubar = new Menubar(
         readLines -> programTextPane.setCode(String.join("\n", readLines)),
+        memoryBytes -> {
+          List<Optional<InstructionCall>> instructions = memoryBytes.stream()
+              .map(encodedValue -> {
+                Optional<InstructionCall> instructionCall = instructionSet.forEncodedValue(
+                    encodedValue
+                );
+
+                if (!instructionCall.isPresent()) {
+                  throw new IllegalArgumentException(String.format(
+                      "Unknown opcode or invalid instruction: 0b%s (0x%s)",
+                      Integer.toHexString(encodedValue),
+                      MemoryFormat.toString(encodedValue, 24, false)
+                  ));
+                }
+
+                return instructionCall;
+              })
+              .collect(toList());
+
+          String programText = instructions.stream()
+              .map(Optional::get)
+              .map(call -> call.command().name() + " " + call.argument())
+              .collect(Collectors.joining("\n"));
+          programTextPane.setCode(programText);
+        },
         () -> programTextPane.codeProperty().getValue(),
         executionControls::getProgramMemoryLayout
     );

@@ -6,7 +6,7 @@ import org.immutables.value.Value;
 public abstract class EncodedInstructionCall implements MemoryValue {
 
   /**
-   * Represents a constnt memory value.
+   * Represents a constant memory value.
    *
    * @param value the value
    * @param address the address
