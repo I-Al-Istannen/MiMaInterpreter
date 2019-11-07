@@ -84,6 +84,9 @@ public class Menubar extends MenuBar {
       List<Integer> memory = new ArrayList<>();
 
       try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+        // TODO: Implement
+        // register dummy
+        inputStream.read(new byte[3 * 5]);
         byte[] instructionBuffer = new byte[3];
         while (inputStream.read(instructionBuffer) > 0) {
           int instruction =
@@ -161,6 +164,10 @@ public class Menubar extends MenuBar {
 
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
+      // TODO: Implement
+      // register dummy
+      out.write(new byte[5 * 3]);
+
       int currentAddress = 0;
       List<MemoryValue> values = memorySupplier.get().stream()
           .sorted(Comparator.comparing(MemoryValue::address))
