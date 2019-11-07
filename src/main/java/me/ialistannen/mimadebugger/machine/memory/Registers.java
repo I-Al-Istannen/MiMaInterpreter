@@ -58,6 +58,36 @@ public abstract class Registers {
     return 0;
   }
 
+  /**
+   * The pointer to the return address from a call.
+   *
+   * @return the pointer to the return address from a call
+   */
+  @Value.Default
+  public int returnAddress() {
+    return 0;
+  }
+
+  /**
+   * The pointer to the next free address push would store data in.
+   *
+   * @return the pointer to the next free address push would store data in
+   */
+  @Value.Default
+  public int stackPointer() {
+    return 0;
+  }
+
+  /**
+   * The pointer to the current stack frame.
+   *
+   * @return the pointer to the current stack frame
+   */
+  @Value.Default
+  public int framePointer() {
+    return 0;
+  }
+
   public ImmutableRegisters copy() {
     return ImmutableRegisters.copyOf(this);
   }
