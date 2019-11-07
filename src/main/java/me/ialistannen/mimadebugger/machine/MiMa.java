@@ -45,9 +45,6 @@ public class MiMa {
     return currentState.copy()
         .withRegisters(
             currentState.registers().copy()
-                .withInstruction(
-                    currentState.memory().get(currentState.registers().instructionPointer())
-                )
                 .withInstructionPointer(currentState.registers().instructionPointer() + 1)
                 // Reset ALU
                 .withAluInputLeft(0)
