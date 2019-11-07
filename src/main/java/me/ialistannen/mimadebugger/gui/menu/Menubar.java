@@ -3,16 +3,15 @@ package me.ialistannen.mimadebugger.gui.menu;
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,8 +29,10 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.swing.SwingUtilities;
+import me.ialistannen.mimadebugger.fileio.MimaBinaryFormat;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
+import me.ialistannen.mimadebugger.machine.State;
 
 public class Menubar extends MenuBar {
 
@@ -81,22 +82,14 @@ public class Menubar extends MenuBar {
     File file = fileChooser.showOpenDialog(getScene().getWindow());
 
     if (file != null) {
-      List<Integer> memory = new ArrayList<>();
-
-      try (InputStream inputStream = Files.newInputStream(file.toPath())) {
-        // TODO: Implement
-        // register dummy
-        inputStream.read(new byte[3 * 5]);
-        byte[] instructionBuffer = new byte[3];
-        while (inputStream.read(instructionBuffer) > 0) {
-          int instruction =
-              (instructionBuffer[0] & 0xFF) << 16
-                  | (instructionBuffer[1] & 0xFF) << 8
-                  | instructionBuffer[2] & 0xFF;
-
-          memory.add(instruction);
-        }
-        programBinaryLoadedListener.accept(memory);
+      try {
+        State loaded = new MimaBinaryFormat().load(Files.readAllBytes(file.toPath()));
+        programBinaryLoadedListener.accept(
+            loaded.memory().getMemory().entrySet().stream()
+                .sorted(Entry.comparingByKey())
+                .map(Entry::getValue)
+                .collect(Collectors.toList())
+        );
       } catch (Exception e) {
         showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
       }
