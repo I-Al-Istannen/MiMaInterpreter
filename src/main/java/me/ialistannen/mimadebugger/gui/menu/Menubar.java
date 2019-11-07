@@ -1,5 +1,7 @@
 package me.ialistannen.mimadebugger.gui.menu;
 
+import static java.nio.file.Files.readAllBytes;
+
 import java.awt.Desktop;
 import java.io.File;
 import java.io.PrintWriter;
@@ -26,23 +28,25 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.swing.SwingUtilities;
 import me.ialistannen.mimadebugger.fileio.MimaBinaryFormat;
+import me.ialistannen.mimadebugger.fileio.MimaDisassembler;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.State;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 
 public class Menubar extends MenuBar {
 
-  private Consumer<List<String>> programLoadedListener;
-  private final Consumer<State> programBinaryLoadedListener;
+  private Consumer<String> programLoadedListener;
   private Supplier<String> codeSupplier;
+  private Supplier<InstructionSet> instructionSetSupplier;
   private final Supplier<State> stateSupplier;
 
-  public Menubar(Consumer<List<String>> programLoadedListener,
-      Consumer<State> programBinaryLoadedListener,
+  public Menubar(Consumer<String> programLoadedListener,
       Supplier<String> codeSupplier,
+      Supplier<InstructionSet> instructionSetSupplier,
       Supplier<State> stateSupplier) {
     this.programLoadedListener = programLoadedListener;
-    this.programBinaryLoadedListener = programBinaryLoadedListener;
     this.codeSupplier = codeSupplier;
+    this.instructionSetSupplier = instructionSetSupplier;
     this.stateSupplier = stateSupplier;
 
     FxmlUtil.loadWithRoot(this, "/gui/menu/MenuBar.fxml");
@@ -60,7 +64,7 @@ public class Menubar extends MenuBar {
     if (file != null) {
       try {
         List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
-        programLoadedListener.accept(lines);
+        programLoadedListener.accept(String.join("\n", lines));
       } catch (Exception e) {
         showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
       }
@@ -78,8 +82,10 @@ public class Menubar extends MenuBar {
 
     if (file != null) {
       try {
-        programBinaryLoadedListener.accept(
-            new MimaBinaryFormat().load(Files.readAllBytes(file.toPath()))
+        programLoadedListener.accept(
+            new MimaDisassembler().fromAssembly(
+                readAllBytes(file.toPath()), instructionSetSupplier.get()
+            )
         );
       } catch (Exception e) {
         showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
