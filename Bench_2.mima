@@ -1,0 +1,46 @@
+JMP iLoopCond
+i: 0
+j: 0
+k: 0
+max: 99
+indirectStoreDelegation: 5
+indirectStoreAddress: 0
+
+iLoopCond: LDV max
+EQL i
+JMN end
+LDC 0
+STV j
+0
+jLoopCond: LDV max
+EQL j
+JMN iLoopUpdate
+LDC 0
+STV k
+0
+kLoopCond: LDV max
+EQL k
+JMN jLoopUpdate
+0
+LDIV indirectStoreDelegation
+STIV indirectStoreDelegation
+RAR
+0
+JMP kLoopUpdate
+0
+kLoopUpdate: LDC 1
+ADD k
+STV k
+JMP kLoopCond
+0
+jLoopUpdate: LDC 1
+ADD j
+STV j
+JMP jLoopCond
+0
+iLoopUpdate: LDC 1
+ADD i
+STV i
+JMP iLoopCond
+0
+end: HALT
