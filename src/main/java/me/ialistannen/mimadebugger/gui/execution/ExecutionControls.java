@@ -42,7 +42,7 @@ public class ExecutionControls extends BorderPane {
   @FXML
   private Button nextStepButton;
   @FXML
-  private Button executeButton;
+  private Button executeAndPauseButton;
   @FXML
   private Button loadProgramIntoMemory;
   @FXML
@@ -59,6 +59,7 @@ public class ExecutionControls extends BorderPane {
   private BooleanProperty noPreviousStep;
   private BooleanProperty noCachedNextStep;
   private BooleanProperty halted;
+  private BooleanProperty currentlyRunning;
   private SimpleStringProperty programTextProperty;
 
   private Set<Integer> breakpoints;
@@ -75,6 +76,7 @@ public class ExecutionControls extends BorderPane {
     this.noPreviousStep = new SimpleBooleanProperty(true);
     this.noCachedNextStep = new SimpleBooleanProperty(false);
     this.halted = new SimpleBooleanProperty(false);
+    this.currentlyRunning = new SimpleBooleanProperty(false);
     this.breakpoints = new HashSet<>();
 
     FxmlUtil.loadWithRoot(this, "/gui/execution/ExecutionControls.fxml");
@@ -86,9 +88,19 @@ public class ExecutionControls extends BorderPane {
     BooleanBinding disableStepButtons = programOutOfDate
         .or(runner.isNull());
 
-    nextStepButton.disableProperty().bind(disableStepButtons.or(halted.and(noCachedNextStep)));
-    prevStepButton.disableProperty().bind(disableStepButtons.or(noPreviousStep));
-    executeButton.disableProperty().bind(disableStepButtons.or(halted.and(noCachedNextStep)));
+    nextStepButton.disableProperty().bind(
+        disableStepButtons
+            .or(halted.and(noCachedNextStep))
+            .or(currentlyRunning)
+    );
+    prevStepButton.disableProperty().bind(
+        disableStepButtons.or(noPreviousStep)
+            .or(currentlyRunning)
+    );
+    executeAndPauseButton.disableProperty().bind(
+        disableStepButtons
+            .or(halted.and(noCachedNextStep))
+    );
     resetButton.disableProperty().bind(disableStepButtons);
 
     programTextProperty.addListener((observable, oldValue, newValue) -> programOutOfDate.set(true));
@@ -98,6 +110,10 @@ public class ExecutionControls extends BorderPane {
         stateConsumer.accept(null);
       }
     });
+
+    currentlyRunning.addListener(
+        (ob, ov, running) -> executeAndPauseButton.setText(running ? "Stop" : "Execute")
+    );
 
     executionStrategySelection.getItems().setAll(
         new LimitedStepsExecutionStrategy(MAXIMUM_STEP_COUNT),
@@ -218,12 +234,12 @@ public class ExecutionControls extends BorderPane {
   private void onExecute() {
     if (executionTask != null && executionTask.isRunning()) {
       executionTask.cancel();
+      currentlyRunning.set(false);
       return;
     }
     if (runner.get().isFinished()) {
       reset();
     }
-    executeButton.setText("Stop");
     ExecutionStrategy strategy = executionStrategySelection.getSelectionModel().getSelectedItem();
 
     executionTask = new Task<Void>() {
@@ -238,16 +254,7 @@ public class ExecutionControls extends BorderPane {
       @Override
       protected void failed() {
         Throwable exception = getException();
-        if (exception instanceof NamedExecutionError) {
-          NamedExecutionError e = (NamedExecutionError) exception;
-          Alert alert = new Alert(AlertType.WARNING);
-          alert.setTitle(e.getName());
-          alert.setHeaderText(e.getName());
-          alert.setContentText(e.getMessage());
-          displayAlert(alert);
-        } else if (exception instanceof MiMaException) {
-          onError((MiMaException) exception);
-        }
+        onError((MiMaException) exception);
 
         afterExec();
       }
@@ -271,9 +278,11 @@ public class ExecutionControls extends BorderPane {
         // only set it once at the end
         stateConsumer.accept(runner.get().getCurrent());
         afterStep();
-        executeButton.setText("Execute");
+        currentlyRunning.set(false);
       }
     };
+
+    currentlyRunning.set(true);
     new Thread(executionTask).start();
   }
 
@@ -298,6 +307,12 @@ public class ExecutionControls extends BorderPane {
       alert = new Alert(AlertType.INFORMATION);
       alert.setTitle("Program exited");
       alert.setHeaderText("Program halted normally!");
+    } else if (e instanceof NamedExecutionError) {
+      NamedExecutionError excError = (NamedExecutionError) e;
+      alert = new Alert(AlertType.WARNING);
+      alert.setTitle(excError.getName());
+      alert.setHeaderText(excError.getName());
+      alert.setContentText(e.getMessage());
     } else {
       alert = new Alert(AlertType.ERROR);
       alert.setTitle("Error executing program");

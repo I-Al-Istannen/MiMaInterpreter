@@ -17,7 +17,7 @@
           maxWidth="1.7976931348623157E308" onAction="#onPrevious" text="Previous Step"/>
         <JFXButton fx:id="nextStepButton" maxHeight="1.7976931348623157E308"
           maxWidth="1.7976931348623157E308" onAction="#onNext" text="Next Step"/>
-        <JFXButton fx:id="executeButton" maxHeight="1.7976931348623157E308"
+        <JFXButton fx:id="executeAndPauseButton" maxHeight="1.7976931348623157E308"
           maxWidth="1.7976931348623157E308" onAction="#onExecute" text="Execute"/>
         <Separator prefWidth="200.0">
           <VBox.margin>
