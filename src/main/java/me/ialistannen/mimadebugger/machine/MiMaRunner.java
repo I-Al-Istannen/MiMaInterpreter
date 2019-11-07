@@ -1,25 +1,23 @@
 package me.ialistannen.mimadebugger.machine;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
+import me.ialistannen.mimadebugger.util.RingBuffer;
 
 public class MiMaRunner {
 
   private MiMa miMa;
 
-  private Deque<State> previousStates;
-  private Deque<State> nextStates;
   private State current;
   private State initial;
+  private RingBuffer<State> bufferedStates;
 
   public MiMaRunner(MiMa miMa) {
     this.miMa = miMa;
     this.current = miMa.getCurrentState();
     this.initial = miMa.getCurrentState();
 
-    this.nextStates = new ArrayDeque<>();
-    this.previousStates = new ArrayDeque<>();
+    this.bufferedStates = new RingBuffer<>(10_000);
+    this.bufferedStates.offer(current);
   }
 
   /**
@@ -31,18 +29,14 @@ public class MiMaRunner {
    * @throws ProgramHaltException if there is no next step
    */
   public State nextStep() {
-    if (!nextStates.isEmpty()) {
-      previousStates.push(current);
-      current = nextStates.pop();
-
-      return current;
+    if (bufferedStates.hasValueAfterView()) {
+      bufferedStates.viewForwards();
+      return bufferedStates.getValueAtView();
     }
 
-    State nextStep = miMa.step();
+    current = miMa.step();
 
-    previousStates.push(current);
-
-    current = nextStep;
+    bufferedStates.offer(current);
 
     return current;
   }
@@ -53,12 +47,9 @@ public class MiMaRunner {
    * @return the previous state
    */
   public State previousStep() {
-    if (!previousStates.isEmpty()) {
-      nextStates.push(current);
-
-      current = previousStates.pop();
-
-      return current;
+    if (bufferedStates.hasValueBeforeView()) {
+      bufferedStates.viewBackwards();
+      return bufferedStates.getValueAtView();
     }
 
     // don't change things, there is no previous state
@@ -71,7 +62,7 @@ public class MiMaRunner {
    * @return whether there is a previous step
    */
   public boolean hasPreviousStep() {
-    return !previousStates.isEmpty();
+    return bufferedStates.hasValueBeforeView();
   }
 
   /**
@@ -80,7 +71,7 @@ public class MiMaRunner {
    * @return whether there is a cached next step
    */
   public boolean hasCachedNextStep() {
-    return !nextStates.isEmpty();
+    return bufferedStates.hasValueAfterView();
   }
 
   /**
@@ -99,8 +90,8 @@ public class MiMaRunner {
    */
   public State reset() {
     current = initial;
-    previousStates.clear();
-    nextStates.clear();
+    bufferedStates.clear();
+    bufferedStates.offer(current);
 
     miMa = miMa.copy(current);
 
@@ -113,7 +104,7 @@ public class MiMaRunner {
    * @return true if the program has finished executing
    */
   public boolean isFinished() {
-    if (!nextStates.isEmpty()) {
+    if (bufferedStates.hasValueAfterView()) {
       return false;
     }
     try {
