@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.gui.menu;
 
 import java.awt.Desktop;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -9,12 +8,9 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -30,25 +26,24 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.swing.SwingUtilities;
 import me.ialistannen.mimadebugger.fileio.MimaBinaryFormat;
-import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.State;
 
 public class Menubar extends MenuBar {
 
   private Consumer<List<String>> programLoadedListener;
-  private final Consumer<List<Integer>> programBinaryLoadedListener;
+  private final Consumer<State> programBinaryLoadedListener;
   private Supplier<String> codeSupplier;
-  private final Supplier<List<MemoryValue>> memorySupplier;
+  private final Supplier<State> stateSupplier;
 
   public Menubar(Consumer<List<String>> programLoadedListener,
-      Consumer<List<Integer>> programBinaryLoadedListener,
+      Consumer<State> programBinaryLoadedListener,
       Supplier<String> codeSupplier,
-      Supplier<List<MemoryValue>> memorySupplier) {
+      Supplier<State> stateSupplier) {
     this.programLoadedListener = programLoadedListener;
     this.programBinaryLoadedListener = programBinaryLoadedListener;
     this.codeSupplier = codeSupplier;
-    this.memorySupplier = memorySupplier;
+    this.stateSupplier = stateSupplier;
 
     FxmlUtil.loadWithRoot(this, "/gui/menu/MenuBar.fxml");
   }
@@ -83,12 +78,8 @@ public class Menubar extends MenuBar {
 
     if (file != null) {
       try {
-        State loaded = new MimaBinaryFormat().load(Files.readAllBytes(file.toPath()));
         programBinaryLoadedListener.accept(
-            loaded.memory().getMemory().entrySet().stream()
-                .sorted(Entry.comparingByKey())
-                .map(Entry::getValue)
-                .collect(Collectors.toList())
+            new MimaBinaryFormat().load(Files.readAllBytes(file.toPath()))
         );
       } catch (Exception e) {
         showErrorDialog("Error loading the file '" + file.getAbsolutePath() + "'", e);
@@ -156,28 +147,10 @@ public class Menubar extends MenuBar {
     }
 
     try {
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      // TODO: Implement
-      // register dummy
-      out.write(new byte[5 * 3]);
-
-      int currentAddress = 0;
-      List<MemoryValue> values = memorySupplier.get().stream()
-          .sorted(Comparator.comparing(MemoryValue::address))
-          .collect(Collectors.toList());
-
-      for (MemoryValue value : values) {
-        // pad with zeros until next occupied address
-        while (value.address() > currentAddress) {
-          currentAddress++;
-          out.write(new byte[]{0, 0, 0});
-        }
-        out.write(value.representation() >>> 16 & 0xFF);
-        out.write(value.representation() >>> 8 & 0xFF);
-        out.write(value.representation() & 0xFF);
-        currentAddress++;
-      }
-      Files.write(file.toPath(), out.toByteArray());
+      Files.write(
+          file.toPath(),
+          new MimaBinaryFormat().save(stateSupplier.get())
+      );
     } catch (Exception e) {
       showErrorDialog("Error saving binary file to '" + file.getAbsolutePath() + "'", e);
     }

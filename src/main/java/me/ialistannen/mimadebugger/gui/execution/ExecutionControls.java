@@ -143,12 +143,22 @@ public class ExecutionControls extends BorderPane {
   }
 
   /**
-   * Parses the current program ({@link #programTextPropertyProperty()} to a list of memory values.
+   * Returns the current state of the MiMa. If no program is loaded, it will just convert the
+   * program in the editor to a state.
    *
-   * @return a list with the memory layout for the current program
+   * @return the current state
    */
-  public List<MemoryValue> getProgramMemoryLayout() {
-    return programParser.parseProgramToMemoryValues(programTextProperty.get());
+  public State getCurrentState() {
+    if (runner.get() == null || programOutOfDate.get()) {
+      List<MemoryValue> memoryValues = new MiMaAssemblyParser(
+          instructionSet).parseProgramToMemoryValues(programTextProperty.get()
+      );
+      return ImmutableState.builder()
+          .memory(MainMemory.create(memoryValues))
+          .registers(ImmutableRegisters.builder().build())
+          .build();
+    }
+    return runner.get().getCurrent();
   }
 
   /**

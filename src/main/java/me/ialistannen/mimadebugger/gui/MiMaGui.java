@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.gui;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.application.Application;
@@ -58,7 +59,12 @@ public class MiMaGui extends Application {
 
     Menubar menubar = new Menubar(
         readLines -> programTextPane.setCode(String.join("\n", readLines)),
-        memoryBytes -> {
+        state -> {
+          List<Integer> memoryBytes = state.memory().getMemory().entrySet().stream()
+              .sorted(Entry.comparingByKey())
+              .map(Entry::getValue)
+              .collect(toList());
+
           List<Optional<InstructionCall>> instructions = memoryBytes.stream()
               .map(encodedValue -> {
                 Optional<InstructionCall> instructionCall = instructionSet.forEncodedValue(
@@ -90,7 +96,7 @@ public class MiMaGui extends Application {
           programTextPane.setCode(programText);
         },
         () -> programTextPane.codeProperty().getValue(),
-        executionControls::getProgramMemoryLayout
+        executionControls::getCurrentState
     );
 
     HBox mainPane = new HBox(programTextPane, stateView);

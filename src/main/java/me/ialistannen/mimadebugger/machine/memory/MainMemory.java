@@ -1,10 +1,13 @@
 package me.ialistannen.mimadebugger.machine.memory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
+import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
@@ -83,6 +86,19 @@ public class MainMemory {
    */
   public static MainMemory create() {
     return new MainMemory(HashTreePMap.empty());
+  }
+
+  /**
+   * Creates a new MainMemory instance.
+   *
+   * @param values the values to store in it
+   * @return the new MainMemory instance
+   */
+  public static MainMemory create(List<MemoryValue> values) {
+    return new MainMemory(HashTreePMap.from(
+        values.stream()
+            .collect(Collectors.toMap(MemoryValue::address, MemoryValue::representation))
+    ));
   }
 
   @Override
