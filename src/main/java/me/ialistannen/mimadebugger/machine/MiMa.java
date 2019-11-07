@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine;
 
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
-import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 
@@ -32,10 +31,6 @@ public class MiMa {
 
     InstructionCall instructionCall = instructionSet.forEncodedValue(currentInstruction)
         .orElseThrow(() -> new InstructionNotFoundException(currentInstruction));
-
-    if (instructionCall.command().name().equalsIgnoreCase("HALT")) {
-      throw new ProgramHaltException();
-    }
 
     // Increment IP
     currentState = fetchNextInstructionPointer();

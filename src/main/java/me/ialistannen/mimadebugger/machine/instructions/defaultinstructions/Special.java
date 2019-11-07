@@ -2,6 +2,7 @@ package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
 import java.util.Collections;
 import java.util.List;
+import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstruction;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 
@@ -15,7 +16,9 @@ public class Special {
       .opcode(0xF0)
       .name("HALT")
       .hasArgument(false)
-      .action((state, address) -> state)
+      .action((state, address) -> {
+        throw new ProgramHaltException();
+      })
       .build();
 
 
