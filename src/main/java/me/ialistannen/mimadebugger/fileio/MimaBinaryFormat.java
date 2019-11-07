@@ -24,9 +24,9 @@ public class MimaBinaryFormat {
     // TODO: Implement other registers
     writeInt(out, state.registers().instructionPointer());
     writeInt(out, state.registers().accumulator());
-    writeInt(out, 0); // RA
-    writeInt(out, 0); // SP
-    writeInt(out, 0); // FP
+    writeInt(out, state.registers().returnAddress());
+    writeInt(out, state.registers().stackPointer());
+    writeInt(out, state.registers().framePointer());
 
     Map<Integer, Integer> memory = state.memory().getMemory();
     int maxAddress = memory.keySet().stream()
@@ -62,6 +62,9 @@ public class MimaBinaryFormat {
     Registers registers = ImmutableRegisters.builder()
         .instructionPointer(readInt(data, 0))
         .accumulator(readInt(data, 3))
+        .returnAddress(readInt(data, 6))
+        .stackPointer(readInt(data, 9))
+        .framePointer(readInt(data, 12))
         .build();
 
     MainMemory memory = MainMemory.create();
