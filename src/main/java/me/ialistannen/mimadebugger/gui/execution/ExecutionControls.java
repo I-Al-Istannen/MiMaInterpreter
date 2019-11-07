@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.gui.execution;
 
+import com.jfoenix.controls.JFXComboBox;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,8 @@ public class ExecutionControls extends BorderPane {
   private Button loadProgramIntoMemory;
   @FXML
   private Button resetButton;
+  @FXML
+  private JFXComboBox<ExecutionStrategy> executionStrategySelection;
 
   private InstructionSet instructionSet;
   private Consumer<State> stateConsumer;
@@ -56,7 +59,6 @@ public class ExecutionControls extends BorderPane {
   private SimpleStringProperty programTextProperty;
 
   private Set<Integer> breakpoints;
-  private ExecutionStrategy executionStrategy;
 
   public ExecutionControls(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
@@ -70,7 +72,6 @@ public class ExecutionControls extends BorderPane {
     this.noCachedNextStep = new SimpleBooleanProperty(false);
     this.halted = new SimpleBooleanProperty(false);
     this.breakpoints = new HashSet<>();
-    this.executionStrategy = new LimitedStepsExecutionStrategy(MAXIMUM_STEP_COUNT);
 
     FxmlUtil.loadWithRoot(this, "/gui/execution/ExecutionControls.fxml");
   }
@@ -93,6 +94,12 @@ public class ExecutionControls extends BorderPane {
         stateConsumer.accept(null);
       }
     });
+
+    executionStrategySelection.getItems().setAll(
+        new LimitedStepsExecutionStrategy(MAXIMUM_STEP_COUNT),
+        new RunForeverExecutionStrategy()
+    );
+    executionStrategySelection.getSelectionModel().select(0);
   }
 
   /**
@@ -210,7 +217,8 @@ public class ExecutionControls extends BorderPane {
         reset();
       }
 
-      executionStrategy.run(runner.get(), breakpoints);
+      executionStrategySelection.getSelectionModel().getSelectedItem()
+          .run(runner.get(), breakpoints);
     } catch (NamedExecutionError e) {
       Alert alert = new Alert(AlertType.WARNING);
       alert.setTitle(e.getName());

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <fx:root maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0"
-  minWidth="50.0" type="BorderPane" xmlns="http://javafx.com/javafx/8.0.162-ea"
+  minWidth="50.0" type="BorderPane" xmlns="http://javafx.com/javafx/11.0.1"
   xmlns:fx="http://javafx.com/fxml/1">
   <center>
     <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0"
@@ -42,6 +43,14 @@
             <Insets/>
           </VBox.margin>
         </JFXButton>
+        <Separator prefWidth="200.0"/>
+        <JFXComboBox fx:id="executionStrategySelection" labelFloat="true"
+          maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+          promptText="Execution Strategy">
+          <VBox.margin>
+            <Insets top="10.0"/>
+          </VBox.margin>
+        </JFXComboBox>
       </children>
       <BorderPane.margin>
         <Insets bottom="20.0" left="5.0" right="5.0" top="20.0"/>

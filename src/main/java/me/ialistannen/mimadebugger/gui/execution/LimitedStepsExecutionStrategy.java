@@ -28,4 +28,9 @@ class LimitedStepsExecutionStrategy extends ExecutionStrategy {
         "Execution time exceeded"
     );
   }
+
+  @Override
+  public String toString() {
+    return "Limit step count";
+  }
 }

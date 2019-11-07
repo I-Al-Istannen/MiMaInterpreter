@@ -17,4 +17,9 @@ class RunForeverExecutionStrategy extends ExecutionStrategy {
       }
     }
   }
+
+  @Override
+  public String toString() {
+    return "Run until HALT";
+  }
 }
