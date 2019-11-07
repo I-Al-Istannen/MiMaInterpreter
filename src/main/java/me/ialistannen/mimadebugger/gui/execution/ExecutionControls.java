@@ -62,6 +62,7 @@ public class ExecutionControls extends BorderPane {
   private SimpleStringProperty programTextProperty;
 
   private Set<Integer> breakpoints;
+  private Task<Void> executionTask;
 
   public ExecutionControls(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
@@ -215,12 +216,17 @@ public class ExecutionControls extends BorderPane {
 
   @FXML
   private void onExecute() {
+    if (executionTask != null && executionTask.isRunning()) {
+      executionTask.cancel();
+      return;
+    }
     if (runner.get().isFinished()) {
       reset();
     }
+    executeButton.setText("Stop");
     ExecutionStrategy strategy = executionStrategySelection.getSelectionModel().getSelectedItem();
 
-    Task<Void> task = new Task<Void>() {
+    executionTask = new Task<Void>() {
       Instant now = Instant.now();
 
       @Override
@@ -265,9 +271,10 @@ public class ExecutionControls extends BorderPane {
         // only set it once at the end
         stateConsumer.accept(runner.get().getCurrent());
         afterStep();
+        executeButton.setText("Execute");
       }
     };
-    new Thread(task).start();
+    new Thread(executionTask).start();
   }
 
   private void stepGuardException(Runnable runnable) {
