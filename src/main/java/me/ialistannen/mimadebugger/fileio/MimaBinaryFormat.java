@@ -34,7 +34,7 @@ public class MimaBinaryFormat {
         .max()
         .orElse(0);
 
-    for (int i = 0; i < maxAddress; i++) {
+    for (int i = 0; i <= maxAddress; i++) {
       int value = memory.getOrDefault(i, 0);
       writeInt(out, value);
     }
