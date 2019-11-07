@@ -1,6 +1,7 @@
 package me.ialistannen.mimadebugger.gui.execution;
 
 import java.util.Set;
+import java.util.function.Supplier;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.NamedExecutionError;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
@@ -17,8 +18,9 @@ class LimitedStepsExecutionStrategy extends ExecutionStrategy {
   }
 
   @Override
-  public void run(MiMaRunner runner, Set<Integer> breakpoints) throws MiMaException {
-    for (int i = 0; i < maximumStepCount; i++) {
+  public void run(MiMaRunner runner, Set<Integer> breakpoints, Supplier<Boolean> cancelledSupplier)
+      throws MiMaException {
+    for (int i = 0; i < maximumStepCount && !cancelledSupplier.get(); i++) {
       if (!singleStep(runner, breakpoints).isPresent()) {
         return;
       }

@@ -1,6 +1,7 @@
 package me.ialistannen.mimadebugger.gui.execution;
 
 import java.util.Set;
+import java.util.function.Supplier;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
 
@@ -10,8 +11,9 @@ import me.ialistannen.mimadebugger.machine.MiMaRunner;
 class RunForeverExecutionStrategy extends ExecutionStrategy {
 
   @Override
-  void run(MiMaRunner runner, Set<Integer> breakpoints) throws MiMaException {
-    while (true) {
+  void run(MiMaRunner runner, Set<Integer> breakpoints, Supplier<Boolean> cancelledSupplier)
+      throws MiMaException {
+    while (!cancelledSupplier.get()) {
       if (!singleStep(runner, breakpoints).isPresent()) {
         return;
       }

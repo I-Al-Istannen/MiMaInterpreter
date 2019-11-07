@@ -2,6 +2,7 @@ package me.ialistannen.mimadebugger.gui.execution;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
 import me.ialistannen.mimadebugger.machine.State;
@@ -13,8 +14,10 @@ abstract class ExecutionStrategy {
    *
    * @param runner the runner to use
    * @param breakpoints the breakpoints to use
+   * @param cancelledSupplier defines whether this execution was cancelled
    */
-  abstract void run(MiMaRunner runner, Set<Integer> breakpoints) throws MiMaException;
+  abstract void run(MiMaRunner runner, Set<Integer> breakpoints,
+      Supplier<Boolean> cancelledSupplier) throws MiMaException;
 
   /**
    * Performs a single step or stops the execution.

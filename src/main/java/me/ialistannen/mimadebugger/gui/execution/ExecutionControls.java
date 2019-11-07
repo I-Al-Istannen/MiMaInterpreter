@@ -1,6 +1,8 @@
 package me.ialistannen.mimadebugger.gui.execution;
 
 import com.jfoenix.controls.JFXComboBox;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +13,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -212,26 +215,59 @@ public class ExecutionControls extends BorderPane {
 
   @FXML
   private void onExecute() {
-    try {
-      if (runner.get().isFinished()) {
-        reset();
+    if (runner.get().isFinished()) {
+      reset();
+    }
+    ExecutionStrategy strategy = executionStrategySelection.getSelectionModel().getSelectedItem();
+
+    Task<Void> task = new Task<Void>() {
+      Instant now = Instant.now();
+
+      @Override
+      protected Void call() {
+        strategy.run(runner.get(), breakpoints, this::isCancelled);
+        return null;
       }
 
-      executionStrategySelection.getSelectionModel().getSelectedItem()
-          .run(runner.get(), breakpoints);
-    } catch (NamedExecutionError e) {
-      Alert alert = new Alert(AlertType.WARNING);
-      alert.setTitle(e.getName());
-      alert.setHeaderText(e.getName());
-      alert.setContentText(e.getMessage());
-      displayAlert(alert);
-    } catch (MiMaException e) {
-      onError(e);
-    } finally {
-      // only set it once at the end
-      stateConsumer.accept(runner.get().getCurrent());
-      afterStep();
-    }
+      @Override
+      protected void failed() {
+        Throwable exception = getException();
+        if (exception instanceof NamedExecutionError) {
+          NamedExecutionError e = (NamedExecutionError) exception;
+          Alert alert = new Alert(AlertType.WARNING);
+          alert.setTitle(e.getName());
+          alert.setHeaderText(e.getName());
+          alert.setContentText(e.getMessage());
+          displayAlert(alert);
+        } else if (exception instanceof MiMaException) {
+          onError((MiMaException) exception);
+        }
+
+        afterExec();
+      }
+
+      @Override
+      protected void succeeded() {
+        afterExec();
+      }
+
+      @Override
+      protected void cancelled() {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Cancelled");
+        alert.setHeaderText("I tried to fulfill your wish");
+        displayAlert(alert);
+      }
+
+      private void afterExec() {
+        System.out.println(Duration.between(now, Instant.now()));
+
+        // only set it once at the end
+        stateConsumer.accept(runner.get().getCurrent());
+        afterStep();
+      }
+    };
+    new Thread(task).start();
   }
 
   private void stepGuardException(Runnable runnable) {
