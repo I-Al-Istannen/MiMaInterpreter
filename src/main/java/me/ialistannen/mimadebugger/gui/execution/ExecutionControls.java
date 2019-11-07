@@ -247,14 +247,19 @@ public class ExecutionControls extends BorderPane {
 
       @Override
       protected Void call() {
-        strategy.run(runner.get(), breakpoints, this::isCancelled);
+        strategy.run(
+            runner.get(),
+            breakpoints,
+            this::isCancelled,
+            new DebouncingUiRunnable<>(stateConsumer, Duration.ofMillis(250))
+        );
         return null;
       }
 
       @Override
       protected void failed() {
         Throwable exception = getException();
-        onError((MiMaException) exception);
+        onError(exception);
 
         afterExec();
       }
@@ -294,14 +299,14 @@ public class ExecutionControls extends BorderPane {
     }
   }
 
-  private void onError(MiMaException e) {
+  private void onError(Throwable e) {
     displayExecutionError(e);
     if (e instanceof ProgramHaltException) {
       halted.set(true);
     }
   }
 
-  private void displayExecutionError(MiMaException e) {
+  private void displayExecutionError(Throwable e) {
     Alert alert;
     if (e instanceof ProgramHaltException) {
       alert = new Alert(AlertType.INFORMATION);
