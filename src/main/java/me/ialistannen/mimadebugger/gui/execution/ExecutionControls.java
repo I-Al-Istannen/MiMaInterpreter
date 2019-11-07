@@ -117,7 +117,8 @@ public class ExecutionControls extends BorderPane {
 
     executionStrategySelection.getItems().setAll(
         new LimitedStepsExecutionStrategy(MAXIMUM_STEP_COUNT),
-        new RunForeverExecutionStrategy()
+        new RunForeverExecutionStrategy(),
+        new ClockExecutionStrategy(250)
     );
     executionStrategySelection.getSelectionModel().select(0);
   }
@@ -288,7 +289,9 @@ public class ExecutionControls extends BorderPane {
     };
 
     currentlyRunning.set(true);
-    new Thread(executionTask).start();
+    Thread worker = new Thread(executionTask);
+    worker.setDaemon(true);
+    worker.start();
   }
 
   private void stepGuardException(Runnable runnable) {
