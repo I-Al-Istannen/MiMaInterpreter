@@ -118,7 +118,7 @@ public class ExecutionControls extends BorderPane {
     executionStrategySelection.getItems().setAll(
         new LimitedStepsExecutionStrategy(MAXIMUM_STEP_COUNT),
         new RunForeverExecutionStrategy(),
-        new ClockExecutionStrategy(250)
+        new ClockExecutionStrategy(2000)
     );
     executionStrategySelection.getSelectionModel().select(0);
   }

@@ -13,7 +13,7 @@ public class DebouncingUiRunnable<T> implements Consumer<T> {
 
   public DebouncingUiRunnable(Consumer<T> action, Duration debounceDuration) {
     this.action = action;
-    this.lastUpdate = Instant.now();
+    this.lastUpdate = Instant.EPOCH;
     this.debounceDuration = debounceDuration;
   }
 
