@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.Optional;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Arithmetic;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Equality;
+import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Functions;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Jump;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Logical;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Other;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Special;
+import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Stack;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Store;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 
@@ -33,6 +35,8 @@ public class InstructionSet {
     Jump.getInstructions().forEach(this::registerInstruction);
     Special.getInstructions().forEach(this::registerInstruction);
     Other.getInstructions().forEach(this::registerInstruction);
+    Stack.getInstructions().forEach(this::registerInstruction);
+    Functions.getInstructions().forEach(this::registerInstruction);
   }
 
   /**

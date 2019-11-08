@@ -27,7 +27,7 @@ class InstructionSetTest {
   void testHasCorrectNumberOfInstructions() {
     assertThat(
         instructionSet.getAll().size(),
-        is(15)
+        is(26)
     );
   }
 
@@ -123,7 +123,7 @@ class InstructionSetTest {
   @Test
   void testForInvalidEncodedValue() {
     assertThat(
-        instructionSet.forEncodedValue(0b00000000111000000000000000000000),
+        instructionSet.forEncodedValue(0xFF0000),
         is(Optional.empty())
     );
   }

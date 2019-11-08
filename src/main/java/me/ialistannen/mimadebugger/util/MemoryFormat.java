@@ -57,6 +57,23 @@ public class MemoryFormat {
   }
 
   /**
+   * Coerces the value to a 16 bit value as that is what a large opcode can take, overflowing when
+   * necessary.
+   *
+   * <p>Prohibits overflows.</p>
+   *
+   * @param value the value
+   * @return the value
+   * @throws NumberOverflowException if the value is too large
+   */
+  public static int coerceToLargeOpcodeArgument(int value) {
+    if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+      return value;
+    }
+    throw new NumberOverflowException(value, Short.SIZE);
+  }
+
+  /**
    * Mask the given value by cutting off all leading 8 bits.
    *
    * @param value the value to mask

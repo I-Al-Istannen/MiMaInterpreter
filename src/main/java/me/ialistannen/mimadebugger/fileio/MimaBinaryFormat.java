@@ -21,7 +21,6 @@ public class MimaBinaryFormat {
    */
   public byte[] save(State state) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    // TODO: Implement other registers
     writeInt(out, state.registers().instructionPointer());
     writeInt(out, state.registers().accumulator());
     writeInt(out, state.registers().returnAddress());
@@ -58,7 +57,6 @@ public class MimaBinaryFormat {
     if (data.length % 3 != 0) {
       throw new IllegalArgumentException("Invalid memory dump, not a multiple of 3");
     }
-    // TODO: Implement other registers
     Registers registers = ImmutableRegisters.builder()
         .instructionPointer(readInt(data, 0))
         .accumulator(readInt(data, 3))

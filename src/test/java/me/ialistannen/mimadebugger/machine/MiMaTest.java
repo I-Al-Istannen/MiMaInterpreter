@@ -106,7 +106,7 @@ class MiMaTest {
     miMa = miMa.copy(
         ImmutableState.builder()
             .registers(ImmutableRegisters.builder().build())
-            .memory(MainMemory.create().set(0, 0b00000000111000000000000000000000))
+            .memory(MainMemory.create().set(0, 0xFB0000))
             .build()
     );
 
