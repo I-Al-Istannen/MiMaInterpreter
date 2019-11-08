@@ -61,6 +61,18 @@ public class RegisterView extends BorderPane {
         "Accumulator",
         registers.accumulator()
     ));
+    this.registers.add(new RegisterValue(
+        "Return address",
+        registers.returnAddress()
+    ));
+    this.registers.add(new RegisterValue(
+        "Stack pointer",
+        registers.stackPointer()
+    ));
+    this.registers.add(new RegisterValue(
+        "Frame pointer",
+        registers.framePointer()
+    ));
 
     TableHelper.autoSizeColumns(tableView);
   }

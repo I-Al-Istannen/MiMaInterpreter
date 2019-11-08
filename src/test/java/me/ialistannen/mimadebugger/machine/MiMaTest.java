@@ -26,13 +26,12 @@ class MiMaTest {
 
   private MiMa miMa;
   private State initialState;
-  private MainMemory memory;
 
   @BeforeEach
   void setup() {
     InstructionSet instructionSet = new InstructionSet();
 
-    memory = MainMemory.create()
+    MainMemory memory = MainMemory.create()
         .set(
             0, MemoryFormat.combineInstruction(toCall(Load.LOAD_CONSTANT, 20))
         )
