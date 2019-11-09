@@ -38,7 +38,9 @@ public class ProgramTextPane extends BorderPane {
         .stream()
         .map(Instruction::name)
         .collect(Collectors.toList());
-    Pattern instructionPattern = Pattern.compile("\\b(" + String.join("|", instructions) + ")\\b");
+    Pattern instructionPattern = Pattern.compile(
+        "(\\b|\\s)(" + String.join("|", instructions) + ")\\b"
+    );
     Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
     Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
     Pattern commentPattern = Pattern.compile("\\s*//.+");

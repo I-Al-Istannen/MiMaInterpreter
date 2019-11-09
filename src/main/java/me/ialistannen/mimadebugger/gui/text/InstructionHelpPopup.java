@@ -97,12 +97,12 @@ public class InstructionHelpPopup extends Popup {
 
     int i = start;
 
-    for (; i <= text.length() && i >= 0; i = update.apply(i)) {
+    for (; i < text.length() && i >= 0; i = update.apply(i)) {
       if (predicate.test(text.charAt(i))) {
         break;
       }
     }
 
-    return i;
+    return Math.max(0, i);
   }
 }
