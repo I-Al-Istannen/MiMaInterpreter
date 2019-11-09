@@ -139,6 +139,7 @@ public class MiMaAssemblyParser {
   }
 
   private CommentNode readComment() throws MiMaSyntaxError {
+    eatWhitespaceNoNewline();
     int start = reader.getCursor();
     assertRead(COMMENT_PATTERN);
     eatWhitespaceNoNewline();
@@ -158,6 +159,7 @@ public class MiMaAssemblyParser {
    * @return the read label declaration
    */
   private LabelNode readLabelDeclaration() throws MiMaSyntaxError {
+    eatWhitespaceNoNewline();
     int startPos = reader.getCursor();
     String name = assertRead(LABEL_DECLARATION_PATTERN);
     reader.read(1); // consume trailing ':'
@@ -176,6 +178,7 @@ public class MiMaAssemblyParser {
    * @return the read label
    */
   private LabelNode readLabelUsage() throws MiMaSyntaxError {
+    eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String name = assertRead(LABEL_JUMP_PATTERN);
     return new LabelNode(
@@ -193,6 +196,7 @@ public class MiMaAssemblyParser {
    * @return the read value or instruction node, null if nothing found
    */
   private SyntaxTreeNode readInstructionOrValue() throws MiMaSyntaxError {
+    eatWhitespaceNoNewline();
     if (reader.peek(VALUE_PATTERN)) {
       return readValue();
     } else if (reader.peek(INSTRUCTION_PATTERN)) {
@@ -209,6 +213,7 @@ public class MiMaAssemblyParser {
    * @throws MiMaSyntaxError if the value is no integer
    */
   private SyntaxTreeNode readValue() throws MiMaSyntaxError {
+    eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String number = assertRead(VALUE_PATTERN);
 
@@ -233,6 +238,7 @@ public class MiMaAssemblyParser {
    * @throws MiMaSyntaxError if no instruction was found
    */
   private SyntaxTreeNode readInstruction() throws MiMaSyntaxError {
+    eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String instructionName = assertRead(INSTRUCTION_PATTERN);
 
