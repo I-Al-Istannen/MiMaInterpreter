@@ -23,13 +23,13 @@ import me.ialistannen.mimadebugger.util.ClosedIntRange;
  */
 public class MiMaAssemblyParser {
 
-  private static final Pattern COMMENT_PATTERN = Pattern.compile(" *//.+");
-  private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile(" *[a-zA-Z]+(?=:)");
-  private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile(" *[a-zA-Z]+");
-  private static final Pattern INSTRUCTION_PATTERN = Pattern.compile(" *[A-Za-z]{1,5}");
-  private static final Pattern VALUE_PATTERN = Pattern.compile(" *[+\\-]?\\d+");
-  private static final Pattern NEW_LINE_PATTERN = Pattern.compile(" *\\n");
-  private static final Pattern WHITE_SPACE = Pattern.compile(" +");
+  private static final Pattern COMMENT_PATTERN = Pattern.compile("//.+");
+  private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile("[a-zA-Z]+(?=:)");
+  private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z]+");
+  private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("[A-Za-z]{1,5}");
+  private static final Pattern VALUE_PATTERN = Pattern.compile("[+\\-]?\\d+");
+  private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
+  private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
 
   private MutableStringReader reader;
   private int address;
@@ -98,6 +98,8 @@ public class MiMaAssemblyParser {
    * @return the read value or null if none
    */
   private SyntaxTreeNode readLine() throws MiMaSyntaxError {
+    eatWhitespace();
+
     SyntaxTreeNode node;
     if (reader.peek(COMMENT_PATTERN)) {
       node = null;
@@ -130,23 +132,16 @@ public class MiMaAssemblyParser {
       );
     }
 
-    readCommentAndNewline();
+    readComment();
+    eatWhitespace();
     return node;
   }
 
   /**
    * Reads a comment and a newline, if they are present.
    */
-  private void readCommentAndNewline() {
+  private void readComment() {
     reader.read(COMMENT_PATTERN);
-    readNewLine();
-  }
-
-  /**
-   * Reads a new line, if present.
-   */
-  private void readNewLine() {
-    reader.read(NEW_LINE_PATTERN);
   }
 
   /**
@@ -156,7 +151,7 @@ public class MiMaAssemblyParser {
    */
   private LabelNode readLabelDeclaration() {
     int startPos = reader.getCursor();
-    String name = reader.read(LABEL_DECLARATION_PATTERN).trim();
+    String name = reader.read(LABEL_DECLARATION_PATTERN);
     reader.read(1); // consume trailing ':'
     return new LabelNode(
         name,
@@ -206,7 +201,6 @@ public class MiMaAssemblyParser {
    * @throws MiMaSyntaxError if the value is no integer
    */
   private SyntaxTreeNode readValue() throws MiMaSyntaxError {
-    reader.read(Pattern.compile("\\s*"));
     int start = reader.getCursor();
     String number = reader.read(VALUE_PATTERN).trim();
 
@@ -233,11 +227,13 @@ public class MiMaAssemblyParser {
   private SyntaxTreeNode readInstruction() throws MiMaSyntaxError {
     int start = reader.getCursor();
     InstructionNode instructionNode = new InstructionNode(
-        reader.read(INSTRUCTION_PATTERN).trim(),
+        reader.read(INSTRUCTION_PATTERN),
         address,
         reader.copy(),
         new ClosedIntRange(start, reader.getCursor() - 1)
     );
+
+    eatWhitespace();
 
     if (reader.peek(VALUE_PATTERN)) {
       instructionNode.addChild(readValue());
@@ -248,6 +244,10 @@ public class MiMaAssemblyParser {
     }
 
     return instructionNode;
+  }
+
+  private void eatWhitespace() {
+    reader.read(WHITE_SPACE);
   }
 
 }
