@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
@@ -15,7 +16,7 @@ class StoreTest extends InstructionTest {
 
   //<editor-fold desc="STV">
   @Test
-  void testStoreZero() {
+  void testStoreZero() throws MiMaException {
     assertThat(
         storeMemoryValue(0, 20),
         is(0)
@@ -23,7 +24,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreOne() {
+  void testStoreOne() throws MiMaException {
     assertThat(
         storeMemoryValue(1, 20),
         is(1)
@@ -31,7 +32,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreMinusOne() {
+  void testStoreMinusOne() throws MiMaException {
     assertThat(
         storeMemoryValue(-1, 20),
         is(-1)
@@ -39,7 +40,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreMinimum() {
+  void testStoreMinimum() throws MiMaException {
     assertThat(
         storeMemoryValue(MemoryFormat.VALUE_MINIMUM, 20),
         is(MemoryFormat.VALUE_MINIMUM)
@@ -47,7 +48,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreMaximum() {
+  void testStoreMaximum() throws MiMaException {
     assertThat(
         storeMemoryValue(MemoryFormat.VALUE_MAXIMUM, 20),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -63,7 +64,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreTooBigNumber() {
+  void testStoreTooBigNumber() throws MiMaException {
     assertThat(
         storeMemoryValue(MemoryFormat.VALUE_MAXIMUM + 1, 20),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1))
@@ -73,7 +74,7 @@ class StoreTest extends InstructionTest {
 
   //<editor-fold desc="STIV">
   @Test
-  void testStoreIndirectlyZero() {
+  void testStoreIndirectlyZero() throws MiMaException {
     assertThat(
         storeMemoryValueIndirect(0, 2, 20),
         is(0)
@@ -81,7 +82,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreIndirectlyOne() {
+  void testStoreIndirectlyOne() throws MiMaException {
     assertThat(
         storeMemoryValueIndirect(1, 2, 20),
         is(1)
@@ -89,7 +90,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreIndirectlyMinusOne() {
+  void testStoreIndirectlyMinusOne() throws MiMaException {
     assertThat(
         storeMemoryValueIndirect(-1, 2, 20),
         is(-1)
@@ -97,7 +98,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreIndirectlyMinimum() {
+  void testStoreIndirectlyMinimum() throws MiMaException {
     assertThat(
         storeMemoryValueIndirect(MemoryFormat.VALUE_MINIMUM, 2, 20),
         is(MemoryFormat.VALUE_MINIMUM)
@@ -105,7 +106,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreIndirectlyMaximum() {
+  void testStoreIndirectlyMaximum() throws MiMaException {
     assertThat(
         storeMemoryValueIndirect(MemoryFormat.VALUE_MAXIMUM, 2, 20),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -129,7 +130,7 @@ class StoreTest extends InstructionTest {
   }
 
   @Test
-  void testStoreIndirectlyTooBigNumber() {
+  void testStoreIndirectlyTooBigNumber() throws MiMaException {
     assertThat(
         storeMemoryValueIndirect(MemoryFormat.VALUE_MAXIMUM + 1, 2, 20),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1))
@@ -137,7 +138,7 @@ class StoreTest extends InstructionTest {
   }
   //</editor-fold>
 
-  private int storeMemoryValue(int accumulator, int storeAt) {
+  private int storeMemoryValue(int accumulator, int storeAt) throws MiMaException {
     State state = getState().copy()
         .withRegisters(
             ImmutableRegisters.builder()
@@ -147,7 +148,8 @@ class StoreTest extends InstructionTest {
     return Store.STORE.apply(state, storeAt).memory().get(storeAt);
   }
 
-  private int storeMemoryValueIndirect(int accumulator, int forward, int storeAt) {
+  private int storeMemoryValueIndirect(int accumulator, int forward, int storeAt)
+      throws MiMaException {
     State state = getState().copy()
         .withMemory(
             MainMemory.create()

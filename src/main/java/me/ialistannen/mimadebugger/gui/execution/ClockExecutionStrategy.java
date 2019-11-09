@@ -37,7 +37,8 @@ class ClockExecutionStrategy extends ExecutionStrategy {
   }
 
   private void step(MiMaRunner runner, Set<Integer> breakpoints,
-      Supplier<Boolean> cancelledSupplier, Consumer<State> uiUpdater) throws InterruptedException {
+      Supplier<Boolean> cancelledSupplier, Consumer<State> uiUpdater)
+      throws InterruptedException, MiMaException {
     long nextTick = System.currentTimeMillis();
 
     while (!cancelledSupplier.get()) {

@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.AssemblyInstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.state.EncodedInstructionCall;
 import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
@@ -39,7 +39,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void parseEmptyProgram() {
+  void parseEmptyProgram() throws MiMaSyntaxError {
     assertThat(
         parser.parseProgramToMemoryValues(""),
         is(Collections.emptyList())
@@ -50,7 +50,7 @@ class MiMaAssemblyParserTest {
   void parseInvalidInstruction() {
     String program = "HEYHO";
     assertThrows(
-        InstructionNotFoundException.class,
+        AssemblyInstructionNotFoundException.class,
         () -> parser.parseProgramToMemoryValues(program)
     );
   }
@@ -65,7 +65,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void parseOneLineWithEachInstruction() {
+  void parseOneLineWithEachInstruction() throws MiMaSyntaxError {
     for (Instruction instruction : instructionSet.getAll()) {
       String argument = instruction.hasArgument() ? "01" : "";
       String program = instruction.name() + " " + argument;
@@ -79,7 +79,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureArgumentIsNotIgnoredWhenNotNeeded() {
+  void ensureArgumentIsNotIgnoredWhenNotNeeded() throws MiMaSyntaxError {
     for (Instruction instruction : instructionSet.getAll()) {
       if (instruction.hasArgument()) {
         continue;
@@ -127,7 +127,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureMultipleLinesAreParsed() {
+  void ensureMultipleLinesAreParsed() throws MiMaSyntaxError {
     for (int i = 0; i < 1_000; i++) {
       int argument = 112;
 
@@ -151,7 +151,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureMaximumValueIsRead() {
+  void ensureMaximumValueIsRead() throws MiMaSyntaxError {
     Instruction instruction = getInstructionWithArgument();
 
     // -1 as 0 counts too
@@ -180,7 +180,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureBlankLineisSkipped() {
+  void ensureBlankLineisSkipped() throws MiMaSyntaxError {
     String program = "\n\n";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -192,7 +192,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureValueIsReadCorrectly() {
+  void ensureValueIsReadCorrectly() throws MiMaSyntaxError {
     String program = "12345";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -204,7 +204,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureNegativeValueIsReadCorrectly() {
+  void ensureNegativeValueIsReadCorrectly() throws MiMaSyntaxError {
     String program = "-12345";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -236,7 +236,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureMinimumValueCanBeRead() {
+  void ensureMinimumValueCanBeRead() throws MiMaSyntaxError {
     String program = Integer.toString(MemoryFormat.VALUE_MINIMUM);
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -247,7 +247,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureMaximumValueCanBeRead() {
+  void ensureMaximumValueCanBeRead() throws MiMaSyntaxError {
     String program = Integer.toString(MemoryFormat.VALUE_MAXIMUM);
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -258,7 +258,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureLabelIsFollowedForConstant() {
+  void ensureLabelIsFollowedForConstant() throws MiMaSyntaxError {
     String program = "hey: 0\nJMP hey";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -272,7 +272,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureLabelIsFollowedForInstruction() {
+  void ensureLabelIsFollowedForInstruction() throws MiMaSyntaxError {
     String program = "hey: LDC 0\nJMP hey";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program)
@@ -289,7 +289,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureLabelForEmptyLineIsFollowed() {
+  void ensureLabelForEmptyLineIsFollowed() throws MiMaSyntaxError {
     String program = "hey:\nJMP hey";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -302,7 +302,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureLabelForwardsIsFollowed() {
+  void ensureLabelForwardsIsFollowed() throws MiMaSyntaxError {
     String program = "JMP hey\nhey:";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -315,7 +315,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureLineWithSpaceIsParsed() {
+  void ensureLineWithSpaceIsParsed() throws MiMaSyntaxError {
     String program = "  ";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -346,7 +346,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureMaximumAddressIsRead() {
+  void ensureMaximumAddressIsRead() throws MiMaSyntaxError {
     String program = "LDC 524288";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -359,7 +359,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureMaximumAddressForTwoBitOpcodeIsRead() {
+  void ensureMaximumAddressForTwoBitOpcodeIsRead() throws MiMaSyntaxError {
     String program = "RAR 32768";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -391,7 +391,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureReadComment() {
+  void ensureReadComment() throws MiMaSyntaxError {
     String program = "// this is a comment\nLDC 10";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);

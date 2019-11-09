@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ArithmeticTest extends InstructionTest {
 
   @Test
-  void testAddZeros() {
+  void testAddZeros() throws MiMaException {
     assertThat(
         add(0, 0),
         is(0)
@@ -18,7 +19,7 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
-  void testAddOnes() {
+  void testAddOnes() throws MiMaException {
     assertThat(
         add(1, 1),
         is(2)
@@ -26,7 +27,7 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
-  void testAddMinusOne() {
+  void testAddMinusOne() throws MiMaException {
     assertThat(
         add(-1, -1),
         is(-2)
@@ -34,7 +35,7 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
-  void testAddOverflowMaximum() {
+  void testAddOverflowMaximum() throws MiMaException {
     assertThat(
         add(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + MemoryFormat.VALUE_MAXIMUM))
@@ -42,7 +43,7 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
-  void testOverflowMinimumPlusOne() {
+  void testOverflowMinimumPlusOne() throws MiMaException {
     assertThat(
         add(MemoryFormat.VALUE_MINIMUM, -1),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM))
@@ -50,7 +51,7 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
-  void testAddMinimums() {
+  void testAddMinimums() throws MiMaException {
     assertThat(
         add(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM + MemoryFormat.VALUE_MINIMUM))
@@ -58,7 +59,7 @@ class ArithmeticTest extends InstructionTest {
   }
 
   @Test
-  void testAddRandomNumbers() {
+  void testAddRandomNumbers() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int numberOne = getRandomValue();
       int numberTwo = getRandomValue();
@@ -70,7 +71,7 @@ class ArithmeticTest extends InstructionTest {
     }
   }
 
-  private int add(int memory, int accumulator) {
+  private int add(int memory, int accumulator) throws MiMaException {
     State initialState = getState();
     State state = initialState.copy()
         .withMemory(

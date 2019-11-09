@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
@@ -15,7 +16,7 @@ class EqualityTest extends InstructionTest {
   private static final int DIFFERENT = 0;
 
   @Test
-  void testEqual() {
+  void testEqual() throws MiMaException {
     assertThat(
         isEqual(20, 20),
         is(EQUAL)
@@ -23,7 +24,7 @@ class EqualityTest extends InstructionTest {
   }
 
   @Test
-  void testNotEqual() {
+  void testNotEqual() throws MiMaException {
     assertThat(
         isEqual(21, 20),
         is(DIFFERENT)
@@ -31,7 +32,7 @@ class EqualityTest extends InstructionTest {
   }
 
   @Test
-  void testZero() {
+  void testZero() throws MiMaException {
     assertThat(
         isEqual(0, 0),
         is(EQUAL)
@@ -39,7 +40,7 @@ class EqualityTest extends InstructionTest {
   }
 
   @Test
-  void testMinimum() {
+  void testMinimum() throws MiMaException {
     assertThat(
         isEqual(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM),
         is(EQUAL)
@@ -47,7 +48,7 @@ class EqualityTest extends InstructionTest {
   }
 
   @Test
-  void testMaximum() {
+  void testMaximum() throws MiMaException {
     assertThat(
         isEqual(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM),
         is(EQUAL)
@@ -55,7 +56,7 @@ class EqualityTest extends InstructionTest {
   }
 
   @Test
-  void testRandom() {
+  void testRandom() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int accum = getRandomValue();
       int memory = getRandomValue();
@@ -67,7 +68,7 @@ class EqualityTest extends InstructionTest {
     }
   }
 
-  private int isEqual(int accumulator, int memory) {
+  private int isEqual(int accumulator, int memory) throws MiMaException {
     State state = getState().copy()
         .withRegisters(
             ImmutableRegisters.builder()

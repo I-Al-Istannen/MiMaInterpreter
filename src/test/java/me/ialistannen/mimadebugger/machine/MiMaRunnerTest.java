@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -30,7 +32,7 @@ class MiMaRunnerTest {
   private MiMa miMa;
 
   @BeforeEach
-  void setup() {
+  void setup() throws NumberOverflowException {
     InstructionSet instructionSet = new InstructionSet();
 
     MainMemory memory = MainMemory.create()
@@ -57,7 +59,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void testStepOnce() {
+  void testStepOnce() throws MiMaException {
     assertThat(
         runner.nextStep(),
         is(miMa.getCurrentState())
@@ -65,7 +67,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void testThrowsHaltExceptionWhenFinished() {
+  void testThrowsHaltExceptionWhenFinished() throws MiMaException {
     runner.nextStep();
     runner.nextStep();
     runner.nextStep();
@@ -77,7 +79,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void reportsWhenFinished() {
+  void reportsWhenFinished() throws MiMaException {
     runner.nextStep();
     runner.nextStep();
     runner.nextStep();
@@ -98,7 +100,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void reportsWhenNotYetFinishedCached() {
+  void reportsWhenNotYetFinishedCached() throws MiMaException {
     runner.nextStep();
     runner.nextStep();
     State lastState = runner.nextStep();
@@ -118,7 +120,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void reportsWhenNotYetFinishedComputed() {
+  void reportsWhenNotYetFinishedComputed() throws MiMaException {
     runner.nextStep();
     runner.nextStep();
 
@@ -129,7 +131,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void testReset() {
+  void testReset() throws MiMaException {
     State initialState = miMa.getCurrentState();
     List<State> steps = Arrays.asList(
         runner.nextStep(),
@@ -215,7 +217,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void testCanStepBackToBeginning() {
+  void testCanStepBackToBeginning() throws MiMaException {
     Deque<State> cachedStates = new ArrayDeque<>();
     cachedStates.push(miMa.getCurrentState());
     // go to end
@@ -245,7 +247,7 @@ class MiMaRunnerTest {
   }
 
   @Test
-  void testCanStepBackAndSwitchDirection() {
+  void testCanStepBackAndSwitchDirection() throws MiMaException {
     List<State> cachedStates = new ArrayList<>();
     cachedStates.add(miMa.getCurrentState());
     // go to end
@@ -271,7 +273,7 @@ class MiMaRunnerTest {
         is(cachedStates.get(3))
     );
 
-    // did not recompute mima state
+    // did not recompute MiMa state
     assertThat(
         miMa.getCurrentState(),
         is(currentMiMaState)

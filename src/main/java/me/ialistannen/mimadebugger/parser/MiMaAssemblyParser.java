@@ -58,7 +58,7 @@ public class MiMaAssemblyParser {
    * @param program the program text
    * @return the root of the parsed syntax tree
    */
-  public SyntaxTreeNode parseProgramToTree(String program) {
+  public SyntaxTreeNode parseProgramToTree(String program) throws MiMaSyntaxError {
     this.reader = new MutableStringReader(program);
     this.address = 0;
 
@@ -80,8 +80,9 @@ public class MiMaAssemblyParser {
    *
    * @param program the program text
    * @return the parsed memory values
+   * @throws MiMaSyntaxError if the program has a syntax error
    */
-  public List<MemoryValue> parseProgramToMemoryValues(String program) {
+  public List<MemoryValue> parseProgramToMemoryValues(String program) throws MiMaSyntaxError {
     SyntaxTreeNode rootNode = parseProgramToTree(program);
     labelResolver.resolve(rootNode);
     constantVerification.validateConstants(rootNode);
@@ -95,7 +96,7 @@ public class MiMaAssemblyParser {
    *
    * @return the read value or null if none
    */
-  private SyntaxTreeNode readLine() {
+  private SyntaxTreeNode readLine() throws MiMaSyntaxError {
     SyntaxTreeNode node;
     if (reader.peek(COMMENT_PATTERN)) {
       node = null;
@@ -175,7 +176,7 @@ public class MiMaAssemblyParser {
    *
    * @return the read value or instruction node, null if nothing found
    */
-  private SyntaxTreeNode readInstructionOrValue() {
+  private SyntaxTreeNode readInstructionOrValue() throws MiMaSyntaxError {
     if (reader.peek(VALUE_PATTERN)) {
       return readValue();
     } else if (reader.peek(INSTRUCTION_PATTERN)) {
@@ -191,7 +192,7 @@ public class MiMaAssemblyParser {
    * @return the read integer value
    * @throws MiMaSyntaxError if the value is no integer
    */
-  private SyntaxTreeNode readValue() {
+  private SyntaxTreeNode readValue() throws MiMaSyntaxError {
     String number = reader.read(VALUE_PATTERN).trim();
 
     try {
@@ -209,7 +210,7 @@ public class MiMaAssemblyParser {
    * @return the read instruction
    * @throws MiMaSyntaxError if no instruction was found
    */
-  private SyntaxTreeNode readInstruction() {
+  private SyntaxTreeNode readInstruction() throws MiMaSyntaxError {
     InstructionNode instructionNode = new InstructionNode(
         reader.read(INSTRUCTION_PATTERN).trim(), address, reader.copy()
     );

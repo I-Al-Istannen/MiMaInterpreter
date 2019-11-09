@@ -16,16 +16,16 @@ public class ConstantVerification {
    *
    * @param root the root node to check all children for
    */
-  public void validateConstants(SyntaxTreeNode root) {
+  public void validateConstants(SyntaxTreeNode root) throws MiMaSyntaxError {
     root.accept(new NodeVisitor() {
       @Override
-      public void visitConstantNode(ConstantNode constantNode) {
+      public void visitConstantNode(ConstantNode constantNode) throws MiMaSyntaxError {
         validateSize(constantNode.getParent().orElse(null), constantNode);
       }
     });
   }
 
-  private void validateSize(SyntaxTreeNode parent, ConstantNode node) {
+  private void validateSize(SyntaxTreeNode parent, ConstantNode node) throws MiMaSyntaxError {
     int value = node.getValue();
     if (parent instanceof InstructionNode) {
       if (value < 0 || value > MAX_ADDRESS) {

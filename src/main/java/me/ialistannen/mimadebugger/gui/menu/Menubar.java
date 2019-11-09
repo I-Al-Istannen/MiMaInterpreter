@@ -4,8 +4,6 @@ import static java.nio.file.Files.readAllBytes;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,8 +18,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.TextArea;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
@@ -29,21 +25,23 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javax.swing.SwingUtilities;
 import me.ialistannen.mimadebugger.fileio.MimaBinaryFormat;
 import me.ialistannen.mimadebugger.fileio.MimaDisassembler;
+import me.ialistannen.mimadebugger.gui.util.DialogUtil;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
+import me.ialistannen.mimadebugger.parser.util.MiMaExceptionSupplier;
 
 public class Menubar extends MenuBar {
 
   private Consumer<String> programLoadedListener;
   private Supplier<String> codeSupplier;
   private Supplier<InstructionSet> instructionSetSupplier;
-  private final Supplier<State> stateSupplier;
+  private final MiMaExceptionSupplier<State> stateSupplier;
 
   public Menubar(Consumer<String> programLoadedListener,
       Supplier<String> codeSupplier,
       Supplier<InstructionSet> instructionSetSupplier,
-      Supplier<State> stateSupplier) {
+      MiMaExceptionSupplier<State> stateSupplier) {
     this.programLoadedListener = programLoadedListener;
     this.codeSupplier = codeSupplier;
     this.instructionSetSupplier = instructionSetSupplier;
@@ -184,19 +182,6 @@ public class Menubar extends MenuBar {
   }
 
   private void showErrorDialog(String headerText, Throwable e) {
-    Alert alert = new Alert(AlertType.ERROR);
-    alert.setTitle("An error occurred");
-    alert.setHeaderText(headerText);
-    alert.initOwner(getScene().getWindow());
-
-    StringWriter stringWriter = new StringWriter();
-    e.printStackTrace(new PrintWriter(stringWriter));
-
-    TextArea textArea = new TextArea(stringWriter.toString());
-    textArea.setFont(Font.font("monospace"));
-
-    alert.getDialogPane().setExpandableContent(textArea);
-
-    alert.show();
+    DialogUtil.showErrorDialog("An error occurred", headerText, getScene().getWindow(), e);
   }
 }

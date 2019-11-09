@@ -2,6 +2,8 @@ package me.ialistannen.mimadebugger.machine;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 
 public class MiMaRunner {
@@ -28,9 +30,10 @@ public class MiMaRunner {
    * This can either be the next one on the history or a newly computed step.
    *
    * @return the next step
-   * @throws ProgramHaltException if there is no next step
+   * @throws InstructionNotFoundException if the next instruction was invalid
+   * @throws MiMaException if the instruction threw it
    */
-  public State nextStep() {
+  public State nextStep() throws MiMaException {
     if (!nextStates.isEmpty()) {
       previousStates.push(current);
       current = nextStates.pop();
@@ -119,12 +122,15 @@ public class MiMaRunner {
     if (!nextStates.isEmpty()) {
       return false;
     }
+
     try {
       miMa.step();
       miMa = miMa.copy(current);
       return false;
     } catch (ProgramHaltException e) {
       return true;
+    } catch (MiMaException e) {
+      return false;
     }
   }
 

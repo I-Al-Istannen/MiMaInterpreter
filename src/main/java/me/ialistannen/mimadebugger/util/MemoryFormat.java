@@ -21,7 +21,7 @@ public class MemoryFormat {
    * @return the value with all leading ignored bits zeroed out.
    * @throws NumberOverflowException if the number overflows
    */
-  public static int coerceToAddress(int value) {
+  public static int coerceToAddress(int value) throws NumberOverflowException {
     // TODO: Error here or just cut off?
     if (value < 0) {
       throw new NumberOverflowException(value, ADDRESS_LENGTH);
@@ -66,7 +66,7 @@ public class MemoryFormat {
    * @return the value
    * @throws NumberOverflowException if the value is too large
    */
-  public static int coerceToLargeOpcodeArgument(int value) {
+  public static int coerceToLargeOpcodeArgument(int value) throws NumberOverflowException {
     if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
       return value;
     }
@@ -117,7 +117,7 @@ public class MemoryFormat {
    * @return the extracted value
    * @throws NumberOverflowException if the number was more than 24 bits wide
    */
-  public static int extractArgument(int value) {
+  public static int extractArgument(int value) throws NumberOverflowException {
     return coerceToAddress(value & 0x000fffff);
   }
 
@@ -131,7 +131,7 @@ public class MemoryFormat {
    * @return the extracted value
    * @throws NumberOverflowException if the number was more than 24 bits wide
    */
-  public static int extractArgumentLargeOpcode(int value) {
+  public static int extractArgumentLargeOpcode(int value) throws NumberOverflowException {
     return coerceToAddress(value & 0x0000ffff);
   }
 

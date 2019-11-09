@@ -20,7 +20,9 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
+import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.exceptions.NamedExecutionError;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
@@ -32,6 +34,7 @@ import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
+import me.ialistannen.mimadebugger.parser.util.MiMaExceptionRunnable;
 
 public class ExecutionControls extends BorderPane {
 
@@ -148,11 +151,10 @@ public class ExecutionControls extends BorderPane {
    *
    * @return the current state
    */
-  public State getCurrentState() {
+  public State getCurrentState() throws MiMaSyntaxError {
     if (runner.get() == null || programOutOfDate.get()) {
-      List<MemoryValue> memoryValues = new MiMaAssemblyParser(
-          instructionSet).parseProgramToMemoryValues(programTextProperty.get()
-      );
+      List<MemoryValue> memoryValues = new MiMaAssemblyParser(instructionSet)
+          .parseProgramToMemoryValues(programTextProperty.get());
       return ImmutableState.builder()
           .memory(MainMemory.create(memoryValues))
           .registers(ImmutableRegisters.builder().build())
@@ -183,8 +185,10 @@ public class ExecutionControls extends BorderPane {
    * Sets the program to execute
    *
    * @param program the program to execute
+   * @throws MiMaSyntaxError if the program has an syntax error
+   * @throws NumberOverflowException if the program's addresses were too large
    */
-  private void setProgram(String program) {
+  private void setProgram(String program) throws MiMaSyntaxError, NumberOverflowException {
     List<MemoryValue> values = programParser.parseProgramToMemoryValues(program);
 
     MainMemory memory = MainMemory.create();
@@ -257,7 +261,7 @@ public class ExecutionControls extends BorderPane {
       Instant now = Instant.now();
 
       @Override
-      protected Void call() {
+      protected Void call() throws MiMaException {
         strategy.run(
             runner.get(),
             breakpoints,
@@ -304,7 +308,7 @@ public class ExecutionControls extends BorderPane {
     worker.start();
   }
 
-  private void stepGuardException(Runnable runnable) {
+  private void stepGuardException(MiMaExceptionRunnable runnable) {
     try {
       runnable.run();
     } catch (MiMaException e) {

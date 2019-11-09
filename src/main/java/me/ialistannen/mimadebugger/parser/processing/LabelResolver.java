@@ -16,7 +16,7 @@ public class LabelResolver {
    *
    * @param syntaxTreeNode the root node to resolve all labels for
    */
-  public void resolve(SyntaxTreeNode syntaxTreeNode) {
+  public void resolve(SyntaxTreeNode syntaxTreeNode) throws MiMaSyntaxError {
     LabelCollectionVisitor visitor = new LabelCollectionVisitor();
     syntaxTreeNode.accept(visitor);
 
@@ -55,7 +55,7 @@ public class LabelResolver {
     }
 
     @Override
-    public void visitLabelNode(LabelNode labelNode) {
+    public void visitLabelNode(LabelNode labelNode) throws MiMaSyntaxError {
       if (labelNode.isDeclaration()) {
         labelNode.getParent().ifPresent(node -> {
           node.removeChild(labelNode);

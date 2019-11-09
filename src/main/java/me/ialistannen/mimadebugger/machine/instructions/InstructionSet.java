@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Arithmetic;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Equality;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Functions;
@@ -84,27 +85,31 @@ public class InstructionSet {
    * @return the instruction call or an empty optional, if the opcode was not found
    */
   public Optional<InstructionCall> forEncodedValue(int value) {
-    int opcode = MemoryFormat.extractOpcode(value);
-    int argument = MemoryFormat.extractArgument(value);
+    try {
+      int opcode = MemoryFormat.extractOpcode(value);
+      int argument = MemoryFormat.extractArgument(value);
 
-    // check for small opcode first
-    if (!instructionMap.containsKey(opcode)) {
-      if (instructionMap.containsKey(MemoryFormat.extractLargeOpcode(value))) {
-        opcode = MemoryFormat.extractLargeOpcode(value);
-        argument = MemoryFormat.extractArgumentLargeOpcode(value);
-      } else {
-        return Optional.empty();
+      // check for small opcode first
+      if (!instructionMap.containsKey(opcode)) {
+        if (instructionMap.containsKey(MemoryFormat.extractLargeOpcode(value))) {
+          opcode = MemoryFormat.extractLargeOpcode(value);
+          argument = MemoryFormat.extractArgumentLargeOpcode(value);
+        } else {
+          return Optional.empty();
+        }
       }
+
+      Instruction instruction = instructionMap.get(opcode);
+
+      return Optional.of(
+          ImmutableInstructionCall.builder()
+              .argument(argument)
+              .command(instruction)
+              .build()
+      );
+    } catch (NumberOverflowException e) {
+      return Optional.empty();
     }
-
-    Instruction instruction = instructionMap.get(opcode);
-
-    return Optional.of(
-        ImmutableInstructionCall.builder()
-            .argument(argument)
-            .command(instruction)
-            .build()
-    );
   }
 
   /**

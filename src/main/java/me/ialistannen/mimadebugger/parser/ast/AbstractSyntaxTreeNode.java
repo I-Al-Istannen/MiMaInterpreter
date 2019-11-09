@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
 
 /**
@@ -66,9 +67,11 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
   }
 
   @Override
-  public void accept(NodeVisitor visitor) {
+  public void accept(NodeVisitor visitor) throws MiMaSyntaxError {
     visitor.visit(this);
-    new ArrayList<>(getChildren()).forEach(node -> node.accept(visitor));
+    for (SyntaxTreeNode node : new ArrayList<>(getChildren())) {
+      node.accept(visitor);
+    }
   }
 
 }

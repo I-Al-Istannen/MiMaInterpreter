@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.State;
@@ -22,7 +23,7 @@ class StackTest extends InstructionTest {
       "0",      // ip   address min
       "65535",  // ip   address max
   })
-  void spToAcc(int returnAddress) {
+  void spToAcc(int returnAddress) throws MiMaException {
     State state = getState().copy().withRegisters(
         getState().registers().copy().withStackPointer(returnAddress)
     );
@@ -46,7 +47,7 @@ class StackTest extends InstructionTest {
       "0",      // ip   address min
       "65535",  // ip   address max
   })
-  void accToSP(int accumulator) {
+  void accToSP(int accumulator) throws MiMaException {
     State state = getStateWithAccumulator(accumulator);
     State resultState = Stack.STSP.apply(state, 0);
 
@@ -82,7 +83,7 @@ class StackTest extends InstructionTest {
       "0",      // ip   address min
       "65535",  // ip   address max
   })
-  void fpToAcc(int returnAddress) {
+  void fpToAcc(int returnAddress) throws MiMaException {
     State state = getState().copy().withRegisters(
         getState().registers().copy().withFramePointer(returnAddress)
     );
@@ -106,7 +107,7 @@ class StackTest extends InstructionTest {
       "0",      // ip   address min
       "65535",  // ip   address max
   })
-  void accToFP(int accumulator) {
+  void accToFP(int accumulator) throws MiMaException {
     State state = getStateWithAccumulator(accumulator);
     State resultState = Stack.STFP.apply(state, 0);
 
@@ -146,7 +147,8 @@ class StackTest extends InstructionTest {
       "0, 20, 1048555",   // barely legal large offset (20)
       "10, 20, -5",       // barely legal large offset (-5)
   })
-  void loadRelativeToSP(int stackPointerAddress, int valueToLoad, int offset) {
+  void loadRelativeToSP(int stackPointerAddress, int valueToLoad, int offset)
+      throws MiMaException {
     State state = getState().copy()
         .withMemory(MainMemory.create().set(stackPointerAddress + offset, valueToLoad))
         .withRegisters(
@@ -187,7 +189,8 @@ class StackTest extends InstructionTest {
       "0, 20, 1048555",   // barely legal large offset (20)
       "10, 20, -5",       // barely legal large offset (-5)
   })
-  void storeRelativeToSP(int stackPointerAddress, int valueToStore, int offset) {
+  void storeRelativeToSP(int stackPointerAddress, int valueToStore, int offset)
+      throws MiMaException {
     State state = getState().copy()
         .withRegisters(
             getState().registers().copy()

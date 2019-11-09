@@ -22,7 +22,7 @@ public class ToMemoryValueConverter {
    * @param node the node to start with
    * @return all found memory values
    */
-  public List<MemoryValue> process(SyntaxTreeNode node) {
+  public List<MemoryValue> process(SyntaxTreeNode node) throws MiMaSyntaxError {
     List<MemoryValue> values = new ArrayList<>();
 
     node.accept(new ToMemoryValueConversionVisitor(values));
@@ -51,7 +51,7 @@ public class ToMemoryValueConverter {
     }
 
     @Override
-    public void visitInstructionNode(InstructionNode instructionNode) {
+    public void visitInstructionNode(InstructionNode instructionNode) throws MiMaSyntaxError {
       throw new MiMaSyntaxError(
           "Instruction call left over after parsing!" + instructionNode,
           instructionNode.getStringReader()
@@ -59,7 +59,7 @@ public class ToMemoryValueConverter {
     }
 
     @Override
-    public void visitLabelNode(LabelNode labelNode) {
+    public void visitLabelNode(LabelNode labelNode) throws MiMaSyntaxError {
       throw new MiMaSyntaxError(
           "Label left over after parsing!" + labelNode, labelNode.getStringReader()
       );

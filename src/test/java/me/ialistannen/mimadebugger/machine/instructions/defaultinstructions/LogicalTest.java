@@ -7,6 +7,7 @@ import static me.ialistannen.mimadebugger.machine.instructions.defaultinstructio
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
@@ -18,7 +19,7 @@ class LogicalTest extends InstructionTest {
 
   //<editor-fold desc="AND">
   @Test
-  void testAndZeros() {
+  void testAndZeros() throws MiMaException {
     assertThat(
         binaryOperatorResult(0, 0, AND),
         is(0)
@@ -26,7 +27,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithItself() {
+  void testAndWithItself() throws MiMaException {
     int number = getRandomValue();
     assertThat(
         binaryOperatorResult(number, number, AND),
@@ -35,7 +36,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithComplement() {
+  void testAndWithComplement() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
       assertThat(
@@ -46,7 +47,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithMinimum() {
+  void testAndWithMinimum() throws MiMaException {
     assertThat(
         binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, AND),
         is(MemoryFormat.VALUE_MINIMUM)
@@ -54,7 +55,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithMaximum() {
+  void testAndWithMaximum() throws MiMaException {
     assertThat(
         binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, AND),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -62,7 +63,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithMinusOne() {
+  void testAndWithMinusOne() throws MiMaException {
     assertThat(
         binaryOperatorResult(-1, -1, AND),
         is(-1)
@@ -70,7 +71,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithGivenValue() {
+  void testAndWithGivenValue() throws MiMaException {
     int first = 0b0001110101;
     int second = 0b11011010101;
     assertThat(
@@ -80,7 +81,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testAndWithTooBigValue() {
+  void testAndWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
     assertThat(
@@ -97,7 +98,7 @@ class LogicalTest extends InstructionTest {
 
   //<editor-fold desc="OR">
   @Test
-  void testOrZeros() {
+  void testOrZeros() throws MiMaException {
     assertThat(
         binaryOperatorResult(0, 0, OR),
         is(0)
@@ -105,7 +106,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithItself() {
+  void testOrWithItself() throws MiMaException {
     int number = getRandomValue();
     assertThat(
         binaryOperatorResult(number, number, OR),
@@ -114,7 +115,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithComplement() {
+  void testOrWithComplement() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
       assertThat(
@@ -125,7 +126,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithMinimum() {
+  void testOrWithMinimum() throws MiMaException {
     assertThat(
         binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, OR),
         is(MemoryFormat.VALUE_MINIMUM)
@@ -133,7 +134,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithMaximum() {
+  void testOrWithMaximum() throws MiMaException {
     assertThat(
         binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, OR),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -141,7 +142,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithMinusOne() {
+  void testOrWithMinusOne() throws MiMaException {
     assertThat(
         binaryOperatorResult(-1, -1, OR),
         is(-1)
@@ -149,7 +150,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithGivenValue() {
+  void testOrWithGivenValue() throws MiMaException {
     int first = 0b0001110101;
     int second = 0b11011010101;
     assertThat(
@@ -159,7 +160,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testOrWithTooBigValue() {
+  void testOrWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
     assertThat(
@@ -176,7 +177,7 @@ class LogicalTest extends InstructionTest {
 
   //<editor-fold desc="XOR">
   @Test
-  void testXorZeros() {
+  void testXorZeros() throws MiMaException {
     assertThat(
         binaryOperatorResult(0, 0, XOR),
         is(0)
@@ -184,7 +185,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithItself() {
+  void testXorWithItself() throws MiMaException {
     int number = getRandomValue();
     assertThat(
         binaryOperatorResult(number, number, XOR),
@@ -193,7 +194,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithComplement() {
+  void testXorWithComplement() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
       assertThat(
@@ -204,7 +205,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithMinimum() {
+  void testXorWithMinimum() throws MiMaException {
     assertThat(
         binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, XOR),
         is(0)
@@ -212,7 +213,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithMaximum() {
+  void testXorWithMaximum() throws MiMaException {
     assertThat(
         binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, XOR),
         is(0)
@@ -220,7 +221,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithMinusOne() {
+  void testXorWithMinusOne() throws MiMaException {
     assertThat(
         binaryOperatorResult(-1, -1, XOR),
         is(0)
@@ -228,7 +229,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithGivenValue() {
+  void testXorWithGivenValue() throws MiMaException {
     int first = 0b0001110101;
     int second = 0b11011010101;
     assertThat(
@@ -238,7 +239,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testXorWithTooBigValue() {
+  void testXorWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
     assertThat(
@@ -254,7 +255,7 @@ class LogicalTest extends InstructionTest {
 
   //<editor-fold desc="NOT">
   @Test
-  void testNotZero() {
+  void testNotZero() throws MiMaException {
     assertThat(
         notResult(0),
         is(-1)
@@ -262,7 +263,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testNotRandom() {
+  void testNotRandom() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
       assertThat(
@@ -273,7 +274,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testNotWithMinimum() {
+  void testNotWithMinimum() throws MiMaException {
     assertThat(
         notResult(MemoryFormat.VALUE_MINIMUM),
         is(~MemoryFormat.VALUE_MINIMUM)
@@ -281,7 +282,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testNotWithMaximum() {
+  void testNotWithMaximum() throws MiMaException {
     assertThat(
         notResult(MemoryFormat.VALUE_MAXIMUM),
         is(~MemoryFormat.VALUE_MAXIMUM)
@@ -289,7 +290,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testNotWithMinusOne() {
+  void testNotWithMinusOne() throws MiMaException {
     assertThat(
         notResult(-1),
         is(0)
@@ -297,7 +298,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testNotWithGivenValue() {
+  void testNotWithGivenValue() throws MiMaException {
     int value = 0b0001110101;
     assertThat(
         notResult(value),
@@ -306,7 +307,7 @@ class LogicalTest extends InstructionTest {
   }
 
   @Test
-  void testNotWithTooBigValue() {
+  void testNotWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
     assertThat(
@@ -316,7 +317,8 @@ class LogicalTest extends InstructionTest {
   }
   //</editor-fold>
 
-  private int binaryOperatorResult(int memory, int accumulator, Instruction instruction) {
+  private int binaryOperatorResult(int memory, int accumulator, Instruction instruction)
+      throws MiMaException {
     State state = getState().copy()
         .withMemory(
             MainMemory.create()
@@ -331,7 +333,7 @@ class LogicalTest extends InstructionTest {
     return instruction.apply(state, 0).registers().accumulator();
   }
 
-  private int notResult(int accumulator) {
+  private int notResult(int accumulator) throws MiMaException {
     State state = getState().copy()
         .withRegisters(
             ImmutableRegisters.builder()

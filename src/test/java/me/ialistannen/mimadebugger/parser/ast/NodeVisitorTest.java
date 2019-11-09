@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class NodeVisitorTest {
 
   @Test
-  void constantDispatchMethodCalled() {
+  void constantDispatchMethodCalled() throws MiMaSyntaxError {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
       @Override
@@ -29,7 +30,7 @@ class NodeVisitorTest {
   }
 
   @Test
-  void labelDispatchMethodCalled() {
+  void labelDispatchMethodCalled() throws MiMaSyntaxError {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
       @Override
@@ -45,7 +46,7 @@ class NodeVisitorTest {
   }
 
   @Test
-  void instructionNodeDispatchMethodCalled() {
+  void instructionNodeDispatchMethodCalled() throws MiMaSyntaxError {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
 
@@ -62,7 +63,7 @@ class NodeVisitorTest {
   }
 
   @Test
-  void instructionCallNodeDispatchMethodCalled() {
+  void instructionCallNodeDispatchMethodCalled() throws MiMaSyntaxError {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
 

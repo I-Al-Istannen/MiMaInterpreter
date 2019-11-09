@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
@@ -14,7 +15,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 class OtherTest extends InstructionTest {
 
   @Test
-  void testRotateOne() {
+  void testRotateOne() throws MiMaException {
     int input = 1;
 
     assertThat(
@@ -24,7 +25,7 @@ class OtherTest extends InstructionTest {
   }
 
   @Test
-  void testRotateZero() {
+  void testRotateZero() throws MiMaException {
     int input = 0;
 
     assertThat(
@@ -34,7 +35,7 @@ class OtherTest extends InstructionTest {
   }
 
   @Test
-  void testRotateMaximumValue() {
+  void testRotateMaximumValue() throws MiMaException {
     int input = 0b00000000_011111111111111111111111;
 
     assertThat(
@@ -44,7 +45,7 @@ class OtherTest extends InstructionTest {
   }
 
   @Test
-  void testRotateMinimumValue() {
+  void testRotateMinimumValue() throws MiMaException {
     int input = 0b00000000_111111111111111111111111;
 
     assertThat(
@@ -53,7 +54,7 @@ class OtherTest extends InstructionTest {
     );
   }
 
-  private int rotateRight(int input) {
+  private int rotateRight(int input) throws MiMaException {
     State state = getState().copy()
         .withRegisters(
             getState().registers().copy().withAccumulator(input)
@@ -75,7 +76,7 @@ class OtherTest extends InstructionTest {
       "0, -32767, -32767",      // sub max
       "0, -32768, -32768",      // sub largest negative
   })
-  void addFewConstants(int accumulator, int addition, int result) {
+  void addFewConstants(int accumulator, int addition, int result) throws MiMaException {
     assertThat(
         addConstant(accumulator, addition),
         is(result)
@@ -91,7 +92,7 @@ class OtherTest extends InstructionTest {
   }
 
 
-  private int addConstant(int accumulatorBefore, int param) {
+  private int addConstant(int accumulatorBefore, int param) throws MiMaException {
     State state = getState().copy().withRegisters(
         getState().registers().copy().withAccumulator(accumulatorBefore)
     );

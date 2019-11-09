@@ -5,6 +5,7 @@ import static me.ialistannen.mimadebugger.machine.instructions.defaultinstructio
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
@@ -17,7 +18,7 @@ class JumpTest extends InstructionTest {
   private static final int NO_JUMP = 0;
 
   @Test
-  void testUnconditionalJumpWithMinusOne() {
+  void testUnconditionalJumpWithMinusOne() throws MiMaException {
     assertThat(
         getJumpAddress(-1, JUMP),
         is(JUMP_TARGET)
@@ -25,7 +26,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testUnconditionalJumpWithPositiveValue() {
+  void testUnconditionalJumpWithPositiveValue() throws MiMaException {
     assertThat(
         getJumpAddress(1, JUMP),
         is(JUMP_TARGET)
@@ -33,7 +34,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testUnconditionalJumpWithZero() {
+  void testUnconditionalJumpWithZero() throws MiMaException {
     assertThat(
         getJumpAddress(0, JUMP),
         is(JUMP_TARGET)
@@ -41,7 +42,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testUnconditionalJumpWithNegativeNumber() {
+  void testUnconditionalJumpWithNegativeNumber() throws MiMaException {
     assertThat(
         getJumpAddress(-32, JUMP),
         is(JUMP_TARGET)
@@ -50,7 +51,7 @@ class JumpTest extends InstructionTest {
 
 
   @Test
-  void testConditionalJumpWithMinusOne() {
+  void testConditionalJumpWithMinusOne() throws MiMaException {
     assertThat(
         getJumpAddress(-1, JUMP_IF_NEGATIVE),
         is(JUMP_TARGET)
@@ -58,7 +59,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testConditionalJumpWithPositiveValue() {
+  void testConditionalJumpWithPositiveValue() throws MiMaException {
     assertThat(
         getJumpAddress(1, JUMP_IF_NEGATIVE),
         is(NO_JUMP)
@@ -66,7 +67,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testConditionalJumpWithMaximum() {
+  void testConditionalJumpWithMaximum() throws MiMaException {
     assertThat(
         getJumpAddress(MemoryFormat.VALUE_MAXIMUM, JUMP_IF_NEGATIVE),
         is(NO_JUMP)
@@ -74,7 +75,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testConditionalJumpWithZero() {
+  void testConditionalJumpWithZero() throws MiMaException {
     assertThat(
         getJumpAddress(0, JUMP_IF_NEGATIVE),
         is(NO_JUMP)
@@ -82,7 +83,7 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testConditionalJumpWithNegativeNumber() {
+  void testConditionalJumpWithNegativeNumber() throws MiMaException {
     assertThat(
         getJumpAddress(-32, JUMP_IF_NEGATIVE),
         is(JUMP_TARGET)
@@ -90,14 +91,14 @@ class JumpTest extends InstructionTest {
   }
 
   @Test
-  void testConditionalJumpWithMinimum() {
+  void testConditionalJumpWithMinimum() throws MiMaException {
     assertThat(
         getJumpAddress(MemoryFormat.VALUE_MINIMUM, JUMP_IF_NEGATIVE),
         is(JUMP_TARGET)
     );
   }
 
-  private int getJumpAddress(int accumulator, Instruction jumpInstruction) {
+  private int getJumpAddress(int accumulator, Instruction jumpInstruction) throws MiMaException {
     State state = getState().copy()
         .withRegisters(
             ImmutableRegisters.builder()

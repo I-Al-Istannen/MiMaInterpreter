@@ -96,7 +96,7 @@ class MemoryFormatTest {
   }
 
   @Test
-  void testCoerceZeroToAddress() {
+  void testCoerceZeroToAddress() throws NumberOverflowException {
     assertThat(
         MemoryFormat.coerceToAddress(0),
         is(0)
@@ -104,7 +104,7 @@ class MemoryFormatTest {
   }
 
   @Test
-  void testCoerceFittingNumberToAddress() {
+  void testCoerceFittingNumberToAddress() throws NumberOverflowException {
     int value = 20202;
     assertThat(
         MemoryFormat.coerceToAddress(value),
@@ -113,7 +113,7 @@ class MemoryFormatTest {
   }
 
   @Test
-  void testCoerceMaximumNumberToAddress() {
+  void testCoerceMaximumNumberToAddress() throws NumberOverflowException {
     int value = (int) (Math.pow(2, MemoryFormat.ADDRESS_LENGTH) - 1);
     assertThat(
         MemoryFormat.coerceToAddress(value),

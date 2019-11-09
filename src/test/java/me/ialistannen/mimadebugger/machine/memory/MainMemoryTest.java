@@ -23,7 +23,7 @@ class MainMemoryTest {
   }
 
   @Test
-  void testSetValue() {
+  void testSetValue() throws NumberOverflowException, MemoryNotInitializedException {
     testSetValue(getRandomAddress(), 32);
   }
 
@@ -44,12 +44,12 @@ class MainMemoryTest {
   }
 
   @Test
-  void testSetMaximumValue() {
+  void testSetMaximumValue() throws NumberOverflowException, MemoryNotInitializedException {
     testSetValue(getRandomAddress(), MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
-  void testSetTooLargeValue() {
+  void testSetTooLargeValue() throws NumberOverflowException, MemoryNotInitializedException {
     assertThat(
         memory.set(1, MemoryFormat.VALUE_MAXIMUM + 1).get(1),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1))
@@ -57,7 +57,7 @@ class MainMemoryTest {
   }
 
   @Test
-  void testSetNegativeValue() {
+  void testSetNegativeValue() throws NumberOverflowException, MemoryNotInitializedException {
     assertThat(
         memory.set(1, MemoryFormat.VALUE_MINIMUM).get(1),
         is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM))
@@ -65,7 +65,8 @@ class MainMemoryTest {
   }
 
   @Test
-  void testSetDoesNotMutateOriginalUnset() {
+  void testSetDoesNotMutateOriginalUnset()
+      throws NumberOverflowException, MemoryNotInitializedException {
     MainMemory setMemory = memory.set(0, 32);
     assertThat(
         setMemory.get(0),
@@ -79,7 +80,8 @@ class MainMemoryTest {
   }
 
   @Test
-  void testSetDoesNotMutateOriginalSetToSameSlot() {
+  void testSetDoesNotMutateOriginalSetToSameSlot()
+      throws NumberOverflowException, MemoryNotInitializedException {
     int originalValue = 30;
     memory = memory.set(0, originalValue);
     int changedValue = 32;
@@ -97,7 +99,7 @@ class MainMemoryTest {
   }
 
   @Test
-  void testGetMemory() {
+  void testGetMemory() throws NumberOverflowException {
     Map<Integer, Integer> map = new HashMap<>();
     map.put(2, 21);
     map.put(5, 30);
@@ -109,7 +111,7 @@ class MainMemoryTest {
   }
 
   @Test
-  void testHashcodeSimple() {
+  void testHashcodeSimple() throws NumberOverflowException {
     MainMemory first = MainMemory.create()
         .set(0, 20);
     MainMemory second = MainMemory.create()
@@ -130,7 +132,7 @@ class MainMemoryTest {
   }
 
   @Test
-  void verifyToString() {
+  void verifyToString() throws NumberOverflowException {
     MainMemory memory = MainMemory.create()
         .set(0, 20);
 
@@ -140,7 +142,8 @@ class MainMemoryTest {
     );
   }
 
-  private void testSetValue(int address, int value) {
+  private void testSetValue(int address, int value)
+      throws NumberOverflowException, MemoryNotInitializedException {
     assertThat(
         memory.set(address, value).get(address),
         is(value)

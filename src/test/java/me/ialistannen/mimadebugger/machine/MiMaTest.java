@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.exceptions.ProgramHaltException;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -28,7 +30,7 @@ class MiMaTest {
   private State initialState;
 
   @BeforeEach
-  void setup() {
+  void setup() throws NumberOverflowException {
     InstructionSet instructionSet = new InstructionSet();
 
     MainMemory memory = MainMemory.create()
@@ -52,7 +54,7 @@ class MiMaTest {
   }
 
   @Test
-  void testCopy() {
+  void testCopy() throws MiMaException {
     miMa.step();
     assertThat(
         miMa.copy(initialState).getCurrentState(),
@@ -65,7 +67,7 @@ class MiMaTest {
   }
 
   @Test
-  void testRegistersUpdatedAfterStep() {
+  void testRegistersUpdatedAfterStep() throws MiMaException {
     assertThat(
         miMa.step(),
         is(miMa.getCurrentState())
@@ -89,7 +91,7 @@ class MiMaTest {
   }
 
   @Test
-  void testThrowsHaltExceptionWhenFinished() {
+  void testThrowsHaltExceptionWhenFinished() throws MiMaException {
     miMa.step();
     miMa.step();
     miMa.step();
@@ -101,7 +103,7 @@ class MiMaTest {
   }
 
   @Test
-  void stepToIllegalOpcodeErrors() {
+  void stepToIllegalOpcodeErrors() throws NumberOverflowException {
     miMa = miMa.copy(
         ImmutableState.builder()
             .registers(ImmutableRegisters.builder().build())

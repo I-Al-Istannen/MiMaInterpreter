@@ -27,8 +27,10 @@ abstract class ExecutionStrategy {
    * @param runner the runner to use
    * @param breakpoints the breakpoints
    * @return the current step or en empty optional if it should terminate
+   * @throws MiMaException if an error occurs or the MiMa should halt (ProgramHaltException)
    */
-  protected Optional<State> singleStep(MiMaRunner runner, Set<Integer> breakpoints) {
+  protected Optional<State> singleStep(MiMaRunner runner, Set<Integer> breakpoints)
+      throws MiMaException {
     State step = runner.nextStep();
 
     if (step.registers().accumulator() == 0xFFFF) {

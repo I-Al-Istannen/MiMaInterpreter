@@ -1,6 +1,9 @@
 package me.ialistannen.mimadebugger.machine;
 
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 
@@ -24,8 +27,10 @@ public class MiMa {
    * Performs a single calculation step.
    *
    * @return the new state
+   * @throws InstructionNotFoundException if an instruction was not found
+   * @throws MiMaException if an instruction throws it
    */
-  public State step() {
+  public State step() throws MiMaException {
     currentState = fetchNextInstruction();
     int currentInstruction = currentState.registers().instruction();
 
@@ -52,7 +57,8 @@ public class MiMa {
         );
   }
 
-  private State fetchNextInstruction() {
+  private State fetchNextInstruction()
+      throws NumberOverflowException, MemoryNotInitializedException {
     return currentState.copy()
         .withRegisters(
             currentState.registers().copy()

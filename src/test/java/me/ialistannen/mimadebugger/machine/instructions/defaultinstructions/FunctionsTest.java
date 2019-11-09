@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.State;
@@ -22,7 +23,7 @@ class FunctionsTest extends InstructionTest {
       "65535, 20",  // ip   address max
       "20, 65535",  // ip   address max
   })
-  void callSetsReturnAddressAndIP(int ipAddress, int callAddress) {
+  void callSetsReturnAddressAndIP(int ipAddress, int callAddress) throws MiMaException {
     State state = getState().copy().withRegisters(
         getState().registers().copy().withInstructionPointer(ipAddress)
     );
@@ -59,7 +60,7 @@ class FunctionsTest extends InstructionTest {
       "65535, 20",  // ip   address max
       "20, 65535",  // ip   address max
   })
-  void retBasic(int startIpAddress, int retAddress) {
+  void retBasic(int startIpAddress, int retAddress) throws MiMaException {
     State state = getState().copy().withRegisters(
         getState().registers().copy()
             .withInstructionPointer(startIpAddress)
@@ -83,7 +84,7 @@ class FunctionsTest extends InstructionTest {
       "0",      // ip   address min
       "65535",  // ip   address max
   })
-  void raToAcc(int returnAddress) {
+  void raToAcc(int returnAddress) throws MiMaException {
     State state = getState().copy().withRegisters(
         getState().registers().copy().withReturnAddress(returnAddress)
     );
@@ -107,7 +108,7 @@ class FunctionsTest extends InstructionTest {
       "0",      // ip   address min
       "65535",  // ip   address max
   })
-  void accToRa(int accumulator) {
+  void accToRa(int accumulator) throws MiMaException {
     State state = getStateWithAccumulator(accumulator);
     State resultState = Functions.STRA.apply(state, 0);
 

@@ -1,7 +1,7 @@
 package me.ialistannen.mimadebugger.parser.processing;
 
 import java.util.List;
-import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
+import me.ialistannen.mimadebugger.exceptions.AssemblyInstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
@@ -20,8 +20,11 @@ public class InstructionCallResolver {
    *
    * @param root the root node to walk through
    * @param instructionSet the {@link InstructionSet} to use
+   * @throws AssemblyInstructionNotFoundException if an instruction could not be found
+   * @throws MiMaSyntaxError if another syntax error occurs
    */
-  public void resolveInstructions(SyntaxTreeNode root, InstructionSet instructionSet) {
+  public void resolveInstructions(SyntaxTreeNode root, InstructionSet instructionSet)
+      throws MiMaSyntaxError {
     root.accept(new InstructionCallResolveVisitor(instructionSet));
   }
 
@@ -34,16 +37,18 @@ public class InstructionCallResolver {
     }
 
     @Override
-    public void visit(SyntaxTreeNode node) {
+    public void visit(SyntaxTreeNode node) throws MiMaSyntaxError {
       NodeVisitor.super.visit(node);
     }
 
     @Override
-    public void visitInstructionNode(InstructionNode instructionNode) {
+    public void visitInstructionNode(InstructionNode instructionNode) throws MiMaSyntaxError {
       Instruction instruction = instructionSet
           .forName(instructionNode.getInstruction())
-          .orElseThrow(() -> new InstructionNotFoundException(
-              instructionNode.getInstruction(), instructionNode.getAddress()
+          .orElseThrow(() -> new AssemblyInstructionNotFoundException(
+              instructionNode.getInstruction(),
+              instructionNode.getAddress(),
+              instructionNode.getStringReader()
           ));
 
       List<SyntaxTreeNode> children = instructionNode.getChildren();

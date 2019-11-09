@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
@@ -19,7 +20,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadZero() {
+  void testLoadZero() throws MiMaException {
     assertThat(
         loadConstantResult(0),
         is(0)
@@ -27,7 +28,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadOne() {
+  void testLoadOne() throws MiMaException {
     assertThat(
         loadConstantResult(1),
         is(1)
@@ -35,7 +36,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadMaximumAddress() {
+  void testLoadMaximumAddress() throws MiMaException {
     assertThat(
         loadConstantResult(1 << MemoryFormat.ADDRESS_LENGTH - 1),
         is(1 << MemoryFormat.ADDRESS_LENGTH - 1)
@@ -62,7 +63,7 @@ class LoadTest extends InstructionTest {
 
   //<editor-fold desc="LDV">
   @Test
-  void testLoadAddressNegativeNumber() {
+  void testLoadAddressNegativeNumber() throws MiMaException {
     assertThat(
         loadFromMemoryResult(-1),
         is(-1)
@@ -70,7 +71,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressMinimum() {
+  void testLoadAddressMinimum() throws MiMaException {
     assertThat(
         loadFromMemoryResult(MemoryFormat.VALUE_MINIMUM),
         is(MemoryFormat.VALUE_MINIMUM)
@@ -78,7 +79,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressUnderflowNoException() {
+  void testLoadAddressUnderflowNoException() throws MiMaException {
     assertThat(
         loadFromMemoryResult(MemoryFormat.VALUE_MINIMUM - 1),
         is(Math.floorMod(MemoryFormat.VALUE_MINIMUM - 1, 1 << MemoryFormat.VALUE_LENGTH))
@@ -86,7 +87,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressZero() {
+  void testLoadAddressZero() throws MiMaException {
     assertThat(
         loadFromMemoryResult(0),
         is(0)
@@ -94,7 +95,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressOne() {
+  void testLoadAddressOne() throws MiMaException {
     assertThat(
         loadFromMemoryResult(1),
         is(1)
@@ -102,7 +103,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressMaximumAddress() {
+  void testLoadAddressMaximumAddress() throws MiMaException {
     assertThat(
         loadFromMemoryResult(1 << MemoryFormat.ADDRESS_LENGTH - 1),
         is(1 << MemoryFormat.ADDRESS_LENGTH - 1)
@@ -111,7 +112,7 @@ class LoadTest extends InstructionTest {
 
 
   @Test
-  void testLoadAddressBiggerNumber() {
+  void testLoadAddressBiggerNumber() throws MiMaException {
     assertThat(
         loadFromMemoryResult(1 << MemoryFormat.ADDRESS_LENGTH),
         is(1 << MemoryFormat.ADDRESS_LENGTH)
@@ -119,7 +120,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressMaximum() {
+  void testLoadAddressMaximum() throws MiMaException {
     assertThat(
         loadFromMemoryResult(MemoryFormat.VALUE_MAXIMUM),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -129,7 +130,7 @@ class LoadTest extends InstructionTest {
 
   //<editor-fold desc="LDIV">
   @Test
-  void testLoadAddressIndirectlyNegativeNumber() {
+  void testLoadAddressIndirectlyNegativeNumber() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(-1),
         is(-1)
@@ -137,7 +138,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressIndirectlyMinimum() {
+  void testLoadAddressIndirectlyMinimum() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(MemoryFormat.VALUE_MINIMUM),
         is(MemoryFormat.VALUE_MINIMUM)
@@ -145,7 +146,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressIndirectlyUnderflowNoException() {
+  void testLoadAddressIndirectlyUnderflowNoException() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(MemoryFormat.VALUE_MINIMUM - 1),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -153,7 +154,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressIndirectlyZero() {
+  void testLoadAddressIndirectlyZero() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(0),
         is(0)
@@ -161,7 +162,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressIndirectlyOne() {
+  void testLoadAddressIndirectlyOne() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(1),
         is(1)
@@ -169,7 +170,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressIndirectlyMaximumAddress() {
+  void testLoadAddressIndirectlyMaximumAddress() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(1 << MemoryFormat.ADDRESS_LENGTH - 1),
         is(1 << MemoryFormat.ADDRESS_LENGTH - 1)
@@ -178,7 +179,7 @@ class LoadTest extends InstructionTest {
 
 
   @Test
-  void testLoadAddressIndirectlyBiggerNumber() {
+  void testLoadAddressIndirectlyBiggerNumber() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(1 << MemoryFormat.ADDRESS_LENGTH),
         is(1 << MemoryFormat.ADDRESS_LENGTH)
@@ -186,7 +187,7 @@ class LoadTest extends InstructionTest {
   }
 
   @Test
-  void testLoadAddressIndirectlyMaximum() {
+  void testLoadAddressIndirectlyMaximum() throws MiMaException {
     assertThat(
         loadFromMemoryIndirectResult(MemoryFormat.VALUE_MAXIMUM),
         is(MemoryFormat.VALUE_MAXIMUM)
@@ -194,11 +195,11 @@ class LoadTest extends InstructionTest {
   }
   //</editor-fold>
 
-  private int loadConstantResult(int constant) {
+  private int loadConstantResult(int constant) throws MiMaException {
     return Load.LOAD_CONSTANT.apply(getState(), constant).registers().accumulator();
   }
 
-  private int loadFromMemoryResult(int memory) {
+  private int loadFromMemoryResult(int memory) throws MiMaException {
     State state = getState().copy()
         .withMemory(
             MainMemory.create()
@@ -208,7 +209,7 @@ class LoadTest extends InstructionTest {
     return Load.LOAD_FROM_ADDRESS.apply(state, 0).registers().accumulator();
   }
 
-  private int loadFromMemoryIndirectResult(int memory) {
+  private int loadFromMemoryIndirectResult(int memory) throws MiMaException {
     State state = getState().copy()
         .withMemory(
             MainMemory.create()

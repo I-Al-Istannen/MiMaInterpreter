@@ -1,6 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions;
 
-import java.util.function.BiFunction;
+import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
 import org.immutables.value.Value;
 
@@ -39,7 +39,7 @@ public abstract class Instruction {
    *
    * @return the action this instruction executes
    */
-  abstract BiFunction<State, Integer, State> action();
+  abstract InstructionAction action();
 
   /**
    * Applies this instruction to the given {@link State}.
@@ -47,8 +47,24 @@ public abstract class Instruction {
    * @param state the state to apply it to
    * @param argument the instruction argument
    * @return the resulting state
+   * @throws MiMaException if an error occurs
    */
-  public State apply(State state, int argument) {
+  public State apply(State state, int argument) throws MiMaException {
     return action().apply(state, argument);
+  }
+
+  /**
+   * Executes an instruction.
+   */
+  public interface InstructionAction {
+
+    /**
+     * Applies this function to the given arguments.
+     *
+     * @param state the current state
+     * @param address the argument or address
+     * @return the new state
+     */
+    State apply(State state, Integer address) throws MiMaException;
   }
 }

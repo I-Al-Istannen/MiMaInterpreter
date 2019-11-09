@@ -1,5 +1,7 @@
 package me.ialistannen.mimadebugger.parser.ast;
 
+import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
+
 /**
  * A visitor implementation for the {@link SyntaxTreeNode}.
  */
@@ -9,32 +11,37 @@ public interface NodeVisitor {
    * Visits an {@link InstructionNode}
    *
    * @param instructionNode the instruction node
+   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitInstructionNode(InstructionNode instructionNode) {
+  default void visitInstructionNode(InstructionNode instructionNode) throws MiMaSyntaxError {
   }
 
   /**
    * Visits a {@link LabelNode}.
    *
    * @param labelNode the label node
+   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitLabelNode(LabelNode labelNode) {
+  default void visitLabelNode(LabelNode labelNode) throws MiMaSyntaxError {
   }
 
   /**
    * Visits a {@link ConstantNode}.
    *
    * @param constantNode the constant node
+   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitConstantNode(ConstantNode constantNode) {
+  default void visitConstantNode(ConstantNode constantNode) throws MiMaSyntaxError {
   }
 
   /**
    * Visits a {@link InstructionCallNode}.
    *
    * @param instructionCallNode the instruction call node
+   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitInstructionCallNode(InstructionCallNode instructionCallNode) {
+  default void visitInstructionCallNode(InstructionCallNode instructionCallNode)
+      throws MiMaSyntaxError {
   }
 
   /**
@@ -43,7 +50,7 @@ public interface NodeVisitor {
    * @param node the node to visit
    * @throws IllegalArgumentException if the node type was not known
    */
-  default void visit(SyntaxTreeNode node) {
+  default void visit(SyntaxTreeNode node) throws MiMaSyntaxError {
     if (node instanceof LabelNode) {
       visitLabelNode((LabelNode) node);
     } else if (node instanceof InstructionNode) {

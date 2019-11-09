@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.exceptions.MemoryNotInitializedException;
 import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
+import me.ialistannen.mimadebugger.parser.util.DoUnchecked;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
 import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
@@ -31,7 +32,7 @@ public class MainMemory {
    * @throws MemoryNotInitializedException if the memory is not yet initialized
    * @throws NumberOverflowException if the value does not fit into an address
    */
-  public int get(int address) {
+  public int get(int address) throws MemoryNotInitializedException, NumberOverflowException {
     int fixedLengthAddress = MemoryFormat.coerceToAddress(address);
 
     if (!data.containsKey(fixedLengthAddress)) {
@@ -49,7 +50,7 @@ public class MainMemory {
    * @throws MemoryNotInitializedException if the memory is not yet initialized
    * @throws NumberOverflowException if the value does not fit into an address
    */
-  public MainMemory set(int address, int value) {
+  public MainMemory set(int address, int value) throws NumberOverflowException {
     int fixedLengthAddress = MemoryFormat.coerceToAddress(address);
 
     return new MainMemory(data.plus(fixedLengthAddress, MemoryFormat.coerceToValue(value)));
@@ -71,7 +72,7 @@ public class MainMemory {
                 entry.getKey(),
                 MemoryFormat.toString(entry.getValue(), 24, true),
                 MemoryFormat.extractLargeOpcode(entry.getValue()),
-                MemoryFormat.extractArgument(entry.getValue())
+                DoUnchecked.doIt(() -> MemoryFormat.extractArgument(entry.getValue()))
             ))
                 .append(System.lineSeparator())
         );

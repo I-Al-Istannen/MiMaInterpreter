@@ -2,6 +2,7 @@ package me.ialistannen.mimadebugger.fileio;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
+import me.ialistannen.mimadebugger.exceptions.NumberOverflowException;
 import me.ialistannen.mimadebugger.machine.ImmutableState;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
@@ -52,8 +53,25 @@ public class MimaBinaryFormat {
    *
    * @param data the data to read
    * @return the loaded state
+   * @throws IllegalArgumentException if the memory dump is not valid
    */
   public State load(byte[] data) {
+    try {
+      return loadUnsafe(data);
+    } catch (NumberOverflowException e) {
+      throw new IllegalArgumentException(e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Loads a memory dump back to a state.
+   *
+   * @param data the data to read
+   * @return the loaded state
+   * @throws IllegalArgumentException if the memory dump is not valid
+   * @throws NumberOverflowException if an address was too large
+   */
+  private State loadUnsafe(byte[] data) throws NumberOverflowException {
     if (data.length % 3 != 0) {
       throw new IllegalArgumentException("Invalid memory dump, not a multiple of 3");
     }
