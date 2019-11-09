@@ -88,8 +88,11 @@ public class InstructionCallResolver {
 
       parent.removeChild(instructionNode);
       parent.addChild(new InstructionCallNode(
-          instructionNode.getAddress(), instructionNode.getStringReader(), instructionCall)
-      );
+          instructionNode.getAddress(),
+          instructionNode.getStringReader(),
+          instructionCall,
+          instructionNode.getSpan()
+      ));
     }
   }
 }

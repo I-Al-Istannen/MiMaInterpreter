@@ -2,13 +2,15 @@ package me.ialistannen.mimadebugger.parser.ast;
 
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
+import me.ialistannen.mimadebugger.util.ClosedIntRange;
 
 public class InstructionCallNode extends AbstractSyntaxTreeNode {
 
   private InstructionCall instructionCall;
 
-  public InstructionCallNode(int address, StringReader reader, InstructionCall call) {
-    super(address, reader);
+  public InstructionCallNode(int address, StringReader reader, InstructionCall call,
+      ClosedIntRange span) {
+    super(address, reader, span);
     this.instructionCall = call;
   }
 

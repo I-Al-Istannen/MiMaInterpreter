@@ -8,6 +8,7 @@ import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
 import me.ialistannen.mimadebugger.parser.ast.LabelNode;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
+import me.ialistannen.mimadebugger.util.ClosedIntRange;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ class ToMemoryValueConverterTest {
   void failOnDanglingLabel() {
     RootNode rootNode = new RootNode(
         Collections.singletonList(
-            new LabelNode("test", false, 1, new MutableStringReader(""))
+            new LabelNode("test", false, 1, new MutableStringReader(""), ClosedIntRange.ZERO)
         ),
         new MutableStringReader("")
     );
@@ -39,7 +40,7 @@ class ToMemoryValueConverterTest {
   void failOnDanglingInstructionNode() {
     RootNode rootNode = new RootNode(
         Collections.singletonList(
-            new InstructionNode("HALT", 1, new MutableStringReader(""))
+            new InstructionNode("HALT", 1, new MutableStringReader(""), ClosedIntRange.ZERO)
         ),
         new MutableStringReader("")
     );

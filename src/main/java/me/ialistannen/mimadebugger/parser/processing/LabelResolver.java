@@ -70,7 +70,10 @@ public class LabelResolver {
         labelNode.getParent().ifPresent(node -> {
           node.removeChild(labelNode);
           node.addChild(new ConstantNode(
-              labels.get(labelNode.getName()), labelNode.getAddress(), labelNode.getStringReader()
+              labels.get(labelNode.getName()),
+              labelNode.getAddress(),
+              labelNode.getStringReader(),
+              labelNode.getSpan()
           ));
         });
       }

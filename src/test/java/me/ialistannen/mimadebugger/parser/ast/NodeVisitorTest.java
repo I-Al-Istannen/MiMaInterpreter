@@ -9,6 +9,7 @@ import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
+import me.ialistannen.mimadebugger.util.ClosedIntRange;
 import org.junit.jupiter.api.Test;
 
 class NodeVisitorTest {
@@ -21,7 +22,7 @@ class NodeVisitorTest {
       public void visitConstantNode(ConstantNode constantNode) {
         hit.set(true);
       }
-    }.visit(new ConstantNode(1, 1, new MutableStringReader("")));
+    }.visit(new ConstantNode(1, 1, new MutableStringReader(""), ClosedIntRange.ZERO));
 
     assertThat(
         hit.get(),
@@ -37,7 +38,7 @@ class NodeVisitorTest {
       public void visitLabelNode(LabelNode labelNode) {
         hit.set(true);
       }
-    }.visit(new LabelNode("", true, 1, new MutableStringReader("")));
+    }.visit(new LabelNode("", true, 1, new MutableStringReader(""), ClosedIntRange.ZERO));
 
     assertThat(
         hit.get(),
@@ -54,7 +55,7 @@ class NodeVisitorTest {
       public void visitInstructionNode(InstructionNode instructionNode) {
         hit.set(true);
       }
-    }.visit(new InstructionNode("", 1, new MutableStringReader("")));
+    }.visit(new InstructionNode("", 1, new MutableStringReader(""), ClosedIntRange.ZERO));
 
     assertThat(
         hit.get(),
@@ -78,7 +79,8 @@ class NodeVisitorTest {
             ImmutableInstructionCall.builder()
                 .argument(1)
                 .command(Load.LOAD_CONSTANT)
-                .build()
+                .build(),
+            ClosedIntRange.ZERO
         )
     );
 
@@ -93,7 +95,7 @@ class NodeVisitorTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> new NodeVisitor() {
-        }.visit(new AbstractSyntaxTreeNode(1, new MutableStringReader("")) {
+        }.visit(new AbstractSyntaxTreeNode(1, new MutableStringReader(""), ClosedIntRange.ZERO) {
         })
     );
   }

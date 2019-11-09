@@ -16,6 +16,7 @@ import me.ialistannen.mimadebugger.parser.processing.InstructionCallResolver;
 import me.ialistannen.mimadebugger.parser.processing.LabelResolver;
 import me.ialistannen.mimadebugger.parser.processing.ToMemoryValueConverter;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
+import me.ialistannen.mimadebugger.util.ClosedIntRange;
 
 /**
  * A parser for MiMa Assembly, supporting labels and comments.
@@ -152,23 +153,35 @@ public class MiMaAssemblyParser {
    * Reads a label declaration, so sth like {@code label:}.
    *
    * @return the read label declaration
-   * @throws MiMaSyntaxError if no label declaration was found
    */
   private LabelNode readLabelDeclaration() {
+    int startPos = reader.getCursor();
     String name = reader.read(LABEL_DECLARATION_PATTERN).trim();
     reader.read(1); // consume trailing ':'
-    return new LabelNode(name, true, address, reader.copy());
+    return new LabelNode(
+        name,
+        true,
+        address,
+        reader.copy(),
+        new ClosedIntRange(startPos, reader.getCursor() - 1)
+    );
   }
 
   /**
    * Reads a label usage, so sth like {@code JMP label}.
    *
    * @return the read label
-   * @throws MiMaSyntaxError if no label was found
    */
   private LabelNode readLabelUsage() {
+    int start = reader.getCursor();
     String name = reader.read(LABEL_JUMP_PATTERN).trim();
-    return new LabelNode(name, false, address, reader.copy());
+    return new LabelNode(
+        name,
+        false,
+        address,
+        reader.copy(),
+        new ClosedIntRange(start, reader.getCursor())
+    );
   }
 
   /**
@@ -193,10 +206,16 @@ public class MiMaAssemblyParser {
    * @throws MiMaSyntaxError if the value is no integer
    */
   private SyntaxTreeNode readValue() throws MiMaSyntaxError {
+    int start = reader.getCursor();
     String number = reader.read(VALUE_PATTERN).trim();
 
     try {
-      return new ConstantNode(Integer.parseInt(number), address, reader.copy());
+      return new ConstantNode(
+          Integer.parseInt(number),
+          address,
+          reader.copy(),
+          new ClosedIntRange(start, reader.getCursor())
+      );
     } catch (NumberFormatException e) {
       throw new MiMaSyntaxError(
           "Expected integer number", reader
@@ -211,8 +230,12 @@ public class MiMaAssemblyParser {
    * @throws MiMaSyntaxError if no instruction was found
    */
   private SyntaxTreeNode readInstruction() throws MiMaSyntaxError {
+    int start = reader.getCursor();
     InstructionNode instructionNode = new InstructionNode(
-        reader.read(INSTRUCTION_PATTERN).trim(), address, reader.copy()
+        reader.read(INSTRUCTION_PATTERN).trim(),
+        address,
+        reader.copy(),
+        new ClosedIntRange(start, reader.getCursor())
     );
 
     if (reader.peek(VALUE_PATTERN)) {
