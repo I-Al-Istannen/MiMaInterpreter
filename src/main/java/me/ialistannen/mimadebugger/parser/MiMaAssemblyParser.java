@@ -163,7 +163,7 @@ public class MiMaAssemblyParser {
         true,
         address,
         reader.copy(),
-        new ClosedIntRange(startPos, reader.getCursor() - 1)
+        new ClosedIntRange(startPos, reader.getCursor() - 2)
     );
   }
 
@@ -180,7 +180,7 @@ public class MiMaAssemblyParser {
         false,
         address,
         reader.copy(),
-        new ClosedIntRange(start, reader.getCursor())
+        new ClosedIntRange(start, reader.getCursor() - 1)
     );
   }
 
@@ -206,6 +206,7 @@ public class MiMaAssemblyParser {
    * @throws MiMaSyntaxError if the value is no integer
    */
   private SyntaxTreeNode readValue() throws MiMaSyntaxError {
+    reader.read(Pattern.compile("\\s*"));
     int start = reader.getCursor();
     String number = reader.read(VALUE_PATTERN).trim();
 
@@ -214,7 +215,7 @@ public class MiMaAssemblyParser {
           Integer.parseInt(number),
           address,
           reader.copy(),
-          new ClosedIntRange(start, reader.getCursor())
+          new ClosedIntRange(start, reader.getCursor() - 1)
       );
     } catch (NumberFormatException e) {
       throw new MiMaSyntaxError(
@@ -235,7 +236,7 @@ public class MiMaAssemblyParser {
         reader.read(INSTRUCTION_PATTERN).trim(),
         address,
         reader.copy(),
-        new ClosedIntRange(start, reader.getCursor())
+        new ClosedIntRange(start, reader.getCursor() - 1)
     );
 
     if (reader.peek(VALUE_PATTERN)) {

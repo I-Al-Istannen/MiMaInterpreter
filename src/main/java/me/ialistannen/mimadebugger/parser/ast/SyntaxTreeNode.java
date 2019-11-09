@@ -5,6 +5,7 @@ import java.util.Optional;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
+import me.ialistannen.mimadebugger.util.ClosedIntRange;
 
 /**
  * A single node in the parsed syntax tree.
@@ -60,6 +61,14 @@ public interface SyntaxTreeNode {
    * @return the string reader
    */
   StringReader getStringReader();
+
+  /**
+   * Returns the tokens this node spans.
+   *
+   * @return the tokens this node spans
+   */
+  ClosedIntRange getSpan();
+
 
   /**
    * Accepts a visitor and applies it to all child nodes.

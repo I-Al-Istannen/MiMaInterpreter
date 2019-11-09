@@ -70,11 +70,7 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
     return reader;
   }
 
-  /**
-   * Returns the tokens this node spans.
-   *
-   * @return the tokens this node spans
-   */
+  @Override
   public ClosedIntRange getSpan() {
     return span;
   }

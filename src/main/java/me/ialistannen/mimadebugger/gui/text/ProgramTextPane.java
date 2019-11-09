@@ -4,57 +4,38 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
+import me.ialistannen.mimadebugger.gui.highlighting.DiscontinuousSpans;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
-import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
+import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
+import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
+import me.ialistannen.mimadebugger.parser.ast.LabelNode;
+import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
+import me.ialistannen.mimadebugger.parser.ast.RootNode;
+import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 public class ProgramTextPane extends BorderPane {
 
+  private final InstructionSet instructionSet;
   private CodeArea codeArea;
-
-  private Pattern pattern;
 
   private ObservableSet<Integer> breakpoints;
 
   public ProgramTextPane(InstructionSet instructionSet) {
+    this.instructionSet = instructionSet;
     this.codeArea = new CodeArea();
     this.breakpoints = FXCollections.observableSet(new HashSet<>());
     getStylesheets().add("/css/Highlight.css");
-
-    List<String> instructions = instructionSet.getAll()
-        .stream()
-        .map(Instruction::name)
-        .collect(Collectors.toList());
-    Pattern instructionPattern = Pattern.compile(
-        "(\\b|\\s)(" + String.join("|", instructions) + ")\\b"
-    );
-    Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
-    Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
-    Pattern commentPattern = Pattern.compile("\\s*//.+");
-    Pattern labelDeclarationPattern = Pattern.compile("\\b[a-zA-Z]+(?=:)\\b");
-    Pattern labelUsagePattern = Pattern.compile(" \\b[a-zA-Z]+ *(?=(//|\\n|$))");
-
-    pattern = Pattern.compile(
-        "(?<INSTRUCTION>" + instructionPattern + ")"
-            + "|(?<VALUE>" + argumentPattern + ")"
-            + "|(?<BINARY>" + binaryValuePattern + ")"
-            + "|(?<COMMENT>" + commentPattern + ")"
-            + "|(?<LABELDECLARATION>" + labelDeclarationPattern + ")"
-            + "|(?<LABELUSAGE>" + labelUsagePattern + ")"
-    );
 
     updateLineIcons();
 
@@ -66,7 +47,9 @@ public class ProgramTextPane extends BorderPane {
 
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(100))
-        .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+        .subscribe(ignore -> computeHighlighting(codeArea.getText())
+            .ifPresent(styles -> codeArea.setStyleSpans(0, styles))
+        );
 
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(200))
@@ -104,34 +87,41 @@ public class ProgramTextPane extends BorderPane {
     );
   }
 
-  private StyleSpans<Collection<String>> computeHighlighting(String text) {
-    Matcher matcher = pattern.matcher(text);
-    int lastKwEnd = 0;
-    StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+  private Optional<StyleSpans<Collection<String>>> computeHighlighting(String text) {
+    try {
+      SyntaxTreeNode tree = new MiMaAssemblyParser(instructionSet).parseProgramToTree(text);
+      DiscontinuousSpans spans = new DiscontinuousSpans();
 
-    while (matcher.find()) {
-      String styleClass =
-          matcher.group("COMMENT") != null
-              ? HighlightingCategory.COMMENT.getCssClass()
-              : matcher.group("LABELDECLARATION") != null
-                  ? HighlightingCategory.LABEL_DECLARATION.getCssClass()
-                  : matcher.group("LABELUSAGE") != null
-                      ? HighlightingCategory.LABEL_USAGE.getCssClass()
-                      : matcher.group("INSTRUCTION") != null
-                          ? HighlightingCategory.INSTRUCTION.getCssClass()
-                          : matcher.group("BINARY") != null
-                              ? HighlightingCategory.BINARY.getCssClass()
-                              : matcher.group("VALUE") != null
-                                  ? HighlightingCategory.VALUE.getCssClass()
-                                  : null; /* never happens */
-      assert styleClass != null;
+      tree.accept(new NodeVisitor() {
+        @Override
+        public void visit(SyntaxTreeNode node) {
+          HighlightingCategory category = HighlightingCategory.COMMENT;
+          if (node instanceof ConstantNode) {
+            category = HighlightingCategory.VALUE;
+          } else if (node instanceof InstructionNode) {
+            category = HighlightingCategory.INSTRUCTION;
+          } else if (node instanceof LabelNode) {
+            if (((LabelNode) node).isDeclaration()) {
+              category = HighlightingCategory.LABEL_DECLARATION;
+            } else {
+              category = HighlightingCategory.LABEL_USAGE;
+            }
+          } else if (node instanceof RootNode) {
+            return;
+          } else {
+            System.err.println(
+                "Invalid highlighting node received: " + node.getClass() + "  " + node
+            );
+          }
 
-      spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
-      spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
-      lastKwEnd = matcher.end();
+          spans.addSpan(Collections.singletonList(category.getCssClass()), node.getSpan());
+        }
+      });
+
+      return Optional.ofNullable(spans.toStyleSpans());
+    } catch (MiMaSyntaxError ignored) {
+      return Optional.empty();
     }
-    spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
-    return spansBuilder.create();
   }
 
   private void breakpointToggled(int line) {
