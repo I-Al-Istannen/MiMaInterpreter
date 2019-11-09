@@ -45,6 +45,15 @@ public interface NodeVisitor {
   }
 
   /**
+   * Visits a {@link CommentNode}.
+   *
+   * @param commentNode the comment node
+   * @throws MiMaSyntaxError if a syntax error is encountered
+   */
+  default void visitCommentNode(CommentNode commentNode) throws MiMaSyntaxError {
+  }
+
+  /**
    * Visits the given node, dynamically dispatching to the right method and ignoring the root node.
    *
    * @param node the node to visit
@@ -59,6 +68,8 @@ public interface NodeVisitor {
       visitConstantNode((ConstantNode) node);
     } else if (node instanceof InstructionCallNode) {
       visitInstructionCallNode((InstructionCallNode) node);
+    } else if (node instanceof CommentNode) {
+      visitCommentNode((CommentNode) node);
     } else if (node instanceof RootNode) {
       // ignore root
     } else {

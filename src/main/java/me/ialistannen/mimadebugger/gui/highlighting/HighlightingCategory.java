@@ -6,7 +6,8 @@ public enum HighlightingCategory {
   BINARY("highlight-binary"),
   COMMENT("highlight-comment"),
   LABEL_DECLARATION("highlight-label-declaration"),
-  LABEL_USAGE("highlight-label-usage");
+  LABEL_USAGE("highlight-label-usage"),
+  NORMAL("highlight-normal");
 
   private String cssClass;
 

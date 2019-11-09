@@ -14,6 +14,7 @@ import me.ialistannen.mimadebugger.gui.highlighting.DiscontinuousSpans;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
+import me.ialistannen.mimadebugger.parser.ast.CommentNode;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
 import me.ialistannen.mimadebugger.parser.ast.LabelNode;
@@ -51,30 +52,6 @@ public class ProgramTextPane extends BorderPane {
             .ifPresent(styles -> codeArea.setStyleSpans(0, styles))
         );
 
-    codeArea.multiPlainChanges()
-        .successionEnds(Duration.ofMillis(200))
-        .subscribe(changes -> {
-          try {
-            new MiMaAssemblyParser(instructionSet).parseProgramToMemoryValues(codeArea.getText());
-          } catch (MiMaSyntaxError syntaxError) {
-            String text = syntaxError.getReader().getString();
-            int end = syntaxError.getReader().getCursor();
-            // find start of line. Good way to do this? Just a single char?
-            int start;
-            for (start = end - 1; start > 0; start--) {
-              if (text.charAt(start) == '\n') {
-                break;
-              }
-            }
-            codeArea.setStyleSpans(
-                start,
-                new StyleSpansBuilder<Collection<String>>()
-                    .add(Collections.singletonList("error"), end - start)
-                    .create()
-            );
-          }
-        });
-
     codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
     InstructionHelpPopup.attachTo(codeArea, instructionSet);
 
@@ -95,7 +72,7 @@ public class ProgramTextPane extends BorderPane {
       tree.accept(new NodeVisitor() {
         @Override
         public void visit(SyntaxTreeNode node) {
-          HighlightingCategory category = HighlightingCategory.COMMENT;
+          HighlightingCategory category = HighlightingCategory.NORMAL;
           if (node instanceof ConstantNode) {
             category = HighlightingCategory.VALUE;
           } else if (node instanceof InstructionNode) {
@@ -106,6 +83,8 @@ public class ProgramTextPane extends BorderPane {
             } else {
               category = HighlightingCategory.LABEL_USAGE;
             }
+          } else if (node instanceof CommentNode) {
+            category = HighlightingCategory.COMMENT;
           } else if (node instanceof RootNode) {
             return;
           } else {
@@ -123,9 +102,35 @@ public class ProgramTextPane extends BorderPane {
       }
 
       return Optional.ofNullable(spans.toStyleSpans());
-    } catch (MiMaSyntaxError ignored) {
-      return Optional.empty();
+    } catch (MiMaSyntaxError syntaxError) {
+      return handleSyntaxError(syntaxError);
     }
+  }
+
+  private Optional<StyleSpans<Collection<String>>> handleSyntaxError(MiMaSyntaxError syntaxError) {
+    String text = syntaxError.getReader().getString();
+    int end = syntaxError.getReader().getCursor();
+    // find start of line. Good way to do this? Just a single char?
+    int start = Math.max(0, end - 1);
+    for (; start > 0; start--) {
+      if (text.charAt(start) == '\n') {
+        break;
+      }
+    }
+
+    // If the error is at the very start, we can not display it before the offending token
+    if (end == 0) {
+      end = text.length();
+    }
+    StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
+    if (start > 0) {
+      builder.add(Collections.emptyList(), start);
+    }
+    return Optional.of(
+        builder
+            .add(Collections.singletonList("error"), end - start)
+            .create()
+    );
   }
 
   private void breakpointToggled(int line) {
