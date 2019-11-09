@@ -55,6 +55,9 @@ public class MimaDisassembler {
           if (call.command().opcode() == 0 && call.argument() == 0) {
             return "0";
           }
+          if (!call.command().hasArgument() && call.argument() == 0) {
+            return call.command().name();
+          }
           return call.command().name() + " " + call.argument();
         })
         .collect(Collectors.joining("\n"));
