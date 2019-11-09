@@ -1,9 +1,9 @@
 .highlight-instruction {
-  -fx-fill: tomato;
+  -fx-fill: #e265ff;
 }
 
 .highlight-value {
-  -fx-fill: royalblue;
+  -fx-fill: #434343;
 }
 
 .highlight-binary {
@@ -16,8 +16,13 @@
 
 .highlight-label-declaration {
   -fx-fill: #6699cc;
+  -fx-underline: true;
 }
 
 .highlight-label-usage {
   -fx-fill: #5fb3b3;
+}
+
+.error {
+  -fx-fill: tomato;
 }

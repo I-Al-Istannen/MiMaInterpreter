@@ -12,9 +12,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.scene.layout.BorderPane;
+import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
+import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -63,6 +65,30 @@ public class ProgramTextPane extends BorderPane {
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(100))
         .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+
+    codeArea.multiPlainChanges()
+        .successionEnds(Duration.ofMillis(200))
+        .subscribe(changes -> {
+          try {
+            new MiMaAssemblyParser(instructionSet).parseProgramToMemoryValues(codeArea.getText());
+          } catch (MiMaSyntaxError syntaxError) {
+            String text = syntaxError.getReader().getString();
+            int end = syntaxError.getReader().getCursor();
+            // find start of line. Good way to do this? Just a single char?
+            int start;
+            for (start = end - 1; start > 0; start--) {
+              if (text.charAt(start) == '\n') {
+                break;
+              }
+            }
+            codeArea.setStyleSpans(
+                start,
+                new StyleSpansBuilder<Collection<String>>()
+                    .add(Collections.singletonList("error"), end - start)
+                    .create()
+            );
+          }
+        });
 
     codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
     InstructionHelpPopup.attachTo(codeArea, instructionSet);
