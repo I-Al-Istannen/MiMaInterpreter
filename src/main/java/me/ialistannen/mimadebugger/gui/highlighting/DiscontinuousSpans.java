@@ -39,6 +39,15 @@ public class DiscontinuousSpans {
   }
 
   /**
+   * Checks whether this span has no entries.
+   *
+   * @return true if this span has no entries
+   */
+  public boolean isEmpty() {
+    return spans.isEmpty();
+  }
+
+  /**
    * Converts this discontinuous span to a continuous one.
    *
    * @return a continuous span

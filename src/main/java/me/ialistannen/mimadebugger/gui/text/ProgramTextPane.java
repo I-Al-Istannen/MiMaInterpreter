@@ -118,6 +118,10 @@ public class ProgramTextPane extends BorderPane {
         }
       });
 
+      if (spans.isEmpty()) {
+        return Optional.of(StyleSpans.singleton(Collections.emptyList(), text.length()));
+      }
+
       return Optional.ofNullable(spans.toStyleSpans());
     } catch (MiMaSyntaxError ignored) {
       return Optional.empty();
