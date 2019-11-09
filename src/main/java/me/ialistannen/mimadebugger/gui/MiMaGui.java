@@ -1,7 +1,5 @@
 package me.ialistannen.mimadebugger.gui;
 
-import static java.util.stream.Collectors.toList;
-
 import javafx.application.Application;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Scene;
@@ -14,7 +12,6 @@ import me.ialistannen.mimadebugger.gui.menu.Menubar;
 import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
 import me.ialistannen.mimadebugger.gui.state.StateView;
 import me.ialistannen.mimadebugger.gui.text.ProgramTextPane;
-import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 
 public class MiMaGui extends Application {
@@ -36,11 +33,7 @@ public class MiMaGui extends Application {
     ExecutionControls executionControls = new ExecutionControls(instructionSet);
     executionControls.setStateConsumer(stateView::setState);
 
-    ProgramTextPane programTextPane = new ProgramTextPane(
-        instructionSet.getAll().stream()
-            .map(Instruction::name)
-            .collect(toList())
-    );
+    ProgramTextPane programTextPane = new ProgramTextPane(instructionSet);
     programTextPane.getBreakpoints().addListener((SetChangeListener<Integer>) change -> {
       if (change.wasAdded()) {
         executionControls.addBreakpoint(change.getElementAdded());

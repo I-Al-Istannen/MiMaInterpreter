@@ -15,6 +15,7 @@ public class Arithmetic {
   public static final Instruction ADD = ImmutableInstruction.builder()
       .opcode(3)
       .name("ADD")
+      .description("memory[argument] + Accumulator -> Accumulator")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()

@@ -17,6 +17,7 @@ public class Stack {
   public static final Instruction LDVR = ImmutableInstruction.builder()
       .opcode(0xD)
       .name("LDVR")
+      .description("SP + argument -> Accumulator")
       .hasArgument(true)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy()
@@ -29,6 +30,7 @@ public class Stack {
   public static final Instruction STVR = ImmutableInstruction.builder()
       .opcode(0xE)
       .name("STVR")
+      .description("Accumulator -> memory[SP + argument]")
       .hasArgument(true)
       .action((state, address) -> state.copy().withMemory(
           state.memory().set(
@@ -41,6 +43,7 @@ public class Stack {
   public static final Instruction LDSP = ImmutableInstruction.builder()
       .opcode(0xF6)
       .name("LDSP")
+      .description("SP -> Accumulator")
       .hasArgument(false)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy().withAccumulator(
@@ -52,6 +55,7 @@ public class Stack {
   public static final Instruction STSP = ImmutableInstruction.builder()
       .opcode(0xF7)
       .name("STSP")
+      .description("Accumulator -> SP")
       .hasArgument(false)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy().withStackPointer(
@@ -63,6 +67,7 @@ public class Stack {
   public static final Instruction LDFP = ImmutableInstruction.builder()
       .opcode(0xF8)
       .name("LDFP")
+      .description("FP -> Accumulator")
       .hasArgument(false)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy().withAccumulator(
@@ -74,6 +79,7 @@ public class Stack {
   public static final Instruction STFP = ImmutableInstruction.builder()
       .opcode(0xF9)
       .name("STFP")
+      .description("Accumulator -> FP")
       .hasArgument(false)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy().withFramePointer(

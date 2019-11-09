@@ -21,6 +21,7 @@ public class Other {
   public static final Instruction ROTATE_RIGHT = ImmutableInstruction.builder()
       .name("RAR")
       .opcode(0xF2)
+      .description("Accumulator rotated right by argument -> Accumulator")
       .hasArgument(false)
       .action((state, ignored) -> {
         int accumulator = state.registers().accumulator();
@@ -47,6 +48,7 @@ public class Other {
   public static final Instruction ADC = ImmutableInstruction.builder()
       .opcode(0xFA)
       .name("ADC")
+      .description("Accumulator + argument -> Accumulator")
       .hasArgument(true)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy().withAccumulator(

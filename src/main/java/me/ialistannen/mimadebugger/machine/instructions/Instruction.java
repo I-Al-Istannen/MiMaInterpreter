@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions;
 
+import java.util.Optional;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
 import org.immutables.value.Value;
@@ -33,6 +34,13 @@ public abstract class Instruction {
   public boolean hasArgument() {
     return true;
   }
+
+  /**
+   * A short description of the instruction.
+   *
+   * @return a short description of the instruction.
+   */
+  public abstract Optional<String> description();
 
   /**
    * The action this instruction executes.

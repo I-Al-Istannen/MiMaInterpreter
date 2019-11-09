@@ -15,6 +15,7 @@ public class Equality {
   public static final Instruction EQUAL = ImmutableInstruction.builder()
       .opcode(7)
       .name("EQL")
+      .description("Accumulator == memory[argument] ? -1 : 0")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()

@@ -15,6 +15,7 @@ public class Logical {
   public static final Instruction AND = ImmutableInstruction.builder()
       .opcode(4)
       .name("AND")
+      .description("Accumulator & memory[argument] -> Accumulator")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()
@@ -28,6 +29,7 @@ public class Logical {
   public static final Instruction OR = ImmutableInstruction.builder()
       .opcode(5)
       .name("OR")
+      .description("Accumulator | memory[argument] -> Accumulator")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()
@@ -41,6 +43,7 @@ public class Logical {
   public static final Instruction XOR = ImmutableInstruction.builder()
       .opcode(6)
       .name("XOR")
+      .description("Accumulator ^ memory[argument] -> Accumulator")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()
@@ -54,6 +57,7 @@ public class Logical {
   public static final Instruction NOT = ImmutableInstruction.builder()
       .opcode(0xF1)
       .name("NOT")
+      .description("~Accumulator -> Accumulator")
       .hasArgument(false)
       .action((state, ignored) -> state.copy()
           .withRegisters(

@@ -1,0 +1,21 @@
+.root {
+  -fx-background-color: white;
+  -fx-padding: 5px;
+}
+
+.label {
+  -fx-font-size: 15pt;
+}
+
+.separator {
+  -fx-padding: 5px 0 5px 0;
+}
+
+.instruction {
+  -fx-text-fill: tomato;
+}
+
+.description {
+  -fx-margin: 10px;
+  -fx-text-fill: #0c6ec3;
+}

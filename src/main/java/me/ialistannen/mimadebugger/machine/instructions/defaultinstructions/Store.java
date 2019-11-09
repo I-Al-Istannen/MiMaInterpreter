@@ -14,6 +14,7 @@ public class Store {
   public static final Instruction STORE = ImmutableInstruction.builder()
       .opcode(2)
       .name("STV")
+      .description("Accumulator -> memory[argument]")
       .action((state, address) -> state.copy()
           .withMemory(
               state.memory()
@@ -25,6 +26,7 @@ public class Store {
   public static final Instruction STORE_INDIRECT = ImmutableInstruction.builder()
       .opcode(11)
       .name("STIV")
+      .description("Accumulator -> memory[ memory[argument] ]")
       .action((state, address) -> state.copy()
           .withMemory(
               state.memory()

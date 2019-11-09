@@ -4,13 +4,17 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
+import me.ialistannen.mimadebugger.machine.instructions.Instruction;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -23,11 +27,15 @@ public class ProgramTextPane extends BorderPane {
 
   private ObservableSet<Integer> breakpoints;
 
-  public ProgramTextPane(Collection<String> instructions) {
+  public ProgramTextPane(InstructionSet instructionSet) {
     this.codeArea = new CodeArea();
     this.breakpoints = FXCollections.observableSet(new HashSet<>());
     getStylesheets().add("/css/Highlight.css");
 
+    List<String> instructions = instructionSet.getAll()
+        .stream()
+        .map(Instruction::name)
+        .collect(Collectors.toList());
     Pattern instructionPattern = Pattern.compile("\\b(" + String.join("|", instructions) + ")\\b");
     Pattern argumentPattern = Pattern.compile("\\b\\d{1,8}\\b");
     Pattern binaryValuePattern = Pattern.compile("\\b[0,1]{8,}\\b");
@@ -55,6 +63,9 @@ public class ProgramTextPane extends BorderPane {
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(100))
         .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+
+    codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
+    InstructionHelpPopup.attachTo(codeArea, instructionSet);
 
     setCenter(codeArea);
   }

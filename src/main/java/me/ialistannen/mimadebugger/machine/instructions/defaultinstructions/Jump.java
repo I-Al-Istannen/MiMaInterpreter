@@ -15,6 +15,7 @@ public class Jump {
   public static final Instruction JUMP = ImmutableInstruction.builder()
       .opcode(8)
       .name("JMP")
+      .description("argument -> IAR")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()
@@ -26,6 +27,7 @@ public class Jump {
   public static final Instruction JUMP_IF_NEGATIVE = ImmutableInstruction.builder()
       .opcode(9)
       .name("JMN")
+      .description("Accumulator < 0 ? address -> IAR")
       .action((state, address) -> state.copy()
           .withRegisters(
               state.registers().copy()

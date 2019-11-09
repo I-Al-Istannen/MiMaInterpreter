@@ -15,6 +15,7 @@ public class Special {
   public static final Instruction HALT = ImmutableInstruction.builder()
       .opcode(0xF0)
       .name("HALT")
+      .description("Stops execution")
       .hasArgument(false)
       .action((state, address) -> {
         throw new ProgramHaltException();

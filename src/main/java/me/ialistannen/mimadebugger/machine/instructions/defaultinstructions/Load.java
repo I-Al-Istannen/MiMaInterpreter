@@ -15,6 +15,7 @@ public class Load {
   public static final Instruction LOAD_CONSTANT = ImmutableInstruction.builder()
       .opcode(0)
       .name("LDC")
+      .description("argument -> Accumulator")
       .action((state, argument) -> state.copy()
           .withRegisters(
               state.registers().copy()
@@ -26,6 +27,7 @@ public class Load {
   public static final Instruction LOAD_FROM_ADDRESS = ImmutableInstruction.builder()
       .opcode(1)
       .name("LDV")
+      .description("memory[argument] -> Accumulator")
       .action((state, argument) -> state.copy()
           .withRegisters(
               state.registers().copy()
@@ -37,6 +39,7 @@ public class Load {
   public static final Instruction LOAD_INDIRECT_FROM_ADDRESS = ImmutableInstruction.builder()
       .opcode(10)
       .name("LDIV")
+      .description("memory[ memory[argument] ] -> Accumulator")
       .action((state, argument) -> state.copy()
           .withRegisters(
               state.registers().copy()
