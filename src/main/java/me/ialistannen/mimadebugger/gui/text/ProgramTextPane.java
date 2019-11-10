@@ -109,19 +109,13 @@ public class ProgramTextPane extends BorderPane {
 
   private Optional<StyleSpans<Collection<String>>> handleSyntaxError(MiMaSyntaxError syntaxError) {
     String text = syntaxError.getReader().getString();
-    int end = syntaxError.getReader().getCursor();
-    // find start of line. Good way to do this? Just a single char?
-    int start = Math.max(0, end - 1);
-    for (; start > 0; start--) {
-      if (text.charAt(start) == '\n') {
-        break;
-      }
+    int start = syntaxError.getReader().getCursor();
+    int end = text.indexOf('\n', start) > 0 ? text.indexOf('\n', start) : text.length();
+
+    if (end <= start) {
+      return Optional.empty();
     }
 
-    // If the error is at the very start, we can not display it before the offending token
-    if (end == 0) {
-      end = text.length();
-    }
     StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
     if (start > 0) {
       builder.add(Collections.emptyList(), start);
