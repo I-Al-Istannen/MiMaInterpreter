@@ -78,6 +78,22 @@ public class MiMaAssemblyParser {
   }
 
   /**
+   * Parses the program to a syntax tree.
+   *
+   * @param program the program text
+   * @return the root of the validated syntax tree
+   * @throws MiMaSyntaxError if there is an error
+   */
+  public SyntaxTreeNode parseProgramToValidatedTree(String program) throws MiMaSyntaxError {
+    SyntaxTreeNode tree = parseProgramToTree(program);
+
+    // Fail if deeper constant validation fails
+    parseProgramToMemoryValues(program);
+
+    return tree;
+  }
+
+  /**
    * Parses the program to a list of {@link MemoryValue}s.
    *
    * @param program the program text

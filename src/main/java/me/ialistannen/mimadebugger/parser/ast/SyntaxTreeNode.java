@@ -2,7 +2,6 @@ package me.ialistannen.mimadebugger.parser.ast;
 
 import java.util.List;
 import java.util.Optional;
-import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
@@ -74,7 +73,7 @@ public interface SyntaxTreeNode {
    * Accepts a visitor and applies it to all child nodes.
    *
    * @param visitor the visitor
-   * @throws MiMaException if the visitor throws it
+   * @throws MiMaSyntaxError if the visitor throws it
    */
   void accept(NodeVisitor visitor) throws MiMaSyntaxError;
 }

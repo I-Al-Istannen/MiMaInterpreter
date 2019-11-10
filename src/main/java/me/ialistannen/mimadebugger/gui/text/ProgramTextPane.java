@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,6 +15,7 @@ import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.highlighting.DiscontinuousSpans;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
+import me.ialistannen.mimadebugger.gui.highlighting.PositionedHighlighting;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
@@ -54,9 +56,7 @@ public class ProgramTextPane extends BorderPane {
 
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(100))
-        .subscribe(ignore -> computeHighlighting(codeArea.getText())
-            .ifPresent(styles -> codeArea.setStyleSpans(0, styles))
-        );
+        .subscribe(ignore -> highlightCode(codeArea.getText()));
 
     codeArea.setMouseOverTextDelay(Duration.ofMillis(250));
     InstructionHelpPopup.attachTo(codeArea, instructionSet);
@@ -80,51 +80,74 @@ public class ProgramTextPane extends BorderPane {
     );
   }
 
-  private Optional<StyleSpans<Collection<String>>> computeHighlighting(String text) {
+  private void highlightCode(String text) {
+    Optional<StyleSpans<Collection<String>>> basicHighlighting = Optional.empty();
     try {
-      SyntaxTreeNode tree = new MiMaAssemblyParser(instructionSet).parseProgramToTree(text);
-      DiscontinuousSpans spans = new DiscontinuousSpans();
+      basicHighlighting = computeBasicHighlighting(text);
 
-      tree.accept(new NodeVisitor() {
-        @Override
-        public void visit(SyntaxTreeNode node) {
-          HighlightingCategory category = HighlightingCategory.NORMAL;
-          if (node instanceof ConstantNode) {
-            category = HighlightingCategory.VALUE;
-          } else if (node instanceof InstructionNode) {
-            category = HighlightingCategory.INSTRUCTION;
-          } else if (node instanceof LabelNode) {
-            if (((LabelNode) node).isDeclaration()) {
-              category = HighlightingCategory.LABEL_DECLARATION;
-            } else {
-              category = HighlightingCategory.LABEL_USAGE;
-            }
-          } else if (node instanceof CommentNode) {
-            category = HighlightingCategory.COMMENT;
-          } else if (node instanceof RootNode) {
-            return;
-          } else {
-            System.err.println(
-                "Invalid highlighting node received: " + node.getClass() + "  " + node
-            );
-          }
+      // TODO: Decouple validation from basic parsing?
+      // validate it
+      new MiMaAssemblyParser(instructionSet).parseProgramToValidatedTree(text);
 
-          spans.addSpan(Collections.singletonList(category.getCssClass()), node.getSpan());
-        }
-      });
-
-      if (spans.isEmpty()) {
-        return Optional.of(StyleSpans.singleton(Collections.emptyList(), text.length()));
-      }
-
-      error.set(null);
-      return Optional.ofNullable(spans.toStyleSpans());
+      basicHighlighting.ifPresent(this::applyBaseHighlighting);
     } catch (MiMaSyntaxError syntaxError) {
-      return handleSyntaxError(syntaxError);
+      basicHighlighting.ifPresent(this::applyBaseHighlighting);
+      handleSyntaxError(syntaxError).ifPresent(this::applyErrorHighlighting);
     }
   }
 
-  private Optional<StyleSpans<Collection<String>>> handleSyntaxError(MiMaSyntaxError syntaxError) {
+  private void applyBaseHighlighting(StyleSpans<Collection<String>> styles) {
+    codeArea.setStyleSpans(0, styles);
+  }
+
+  private void applyErrorHighlighting(List<PositionedHighlighting> errorStyles) {
+    for (PositionedHighlighting errorStyle : errorStyles) {
+      codeArea.setStyleSpans(errorStyle.getStart(), errorStyle.getStyles());
+    }
+  }
+
+  private Optional<StyleSpans<Collection<String>>> computeBasicHighlighting(String text)
+      throws MiMaSyntaxError {
+    SyntaxTreeNode tree = new MiMaAssemblyParser(instructionSet).parseProgramToTree(text);
+    DiscontinuousSpans spans = new DiscontinuousSpans();
+
+    tree.accept(new NodeVisitor() {
+      @Override
+      public void visit(SyntaxTreeNode node) {
+        HighlightingCategory category = HighlightingCategory.NORMAL;
+        if (node instanceof ConstantNode) {
+          category = HighlightingCategory.VALUE;
+        } else if (node instanceof InstructionNode) {
+          category = HighlightingCategory.INSTRUCTION;
+        } else if (node instanceof LabelNode) {
+          if (((LabelNode) node).isDeclaration()) {
+            category = HighlightingCategory.LABEL_DECLARATION;
+          } else {
+            category = HighlightingCategory.LABEL_USAGE;
+          }
+        } else if (node instanceof CommentNode) {
+          category = HighlightingCategory.COMMENT;
+        } else if (node instanceof RootNode) {
+          return;
+        } else {
+          System.err.println(
+              "Invalid highlighting node received: " + node.getClass() + "  " + node
+          );
+        }
+
+        spans.addSpan(Collections.singletonList(category.getCssClass()), node.getSpan());
+      }
+    });
+
+    if (spans.isEmpty()) {
+      return Optional.of(StyleSpans.singleton(Collections.emptyList(), text.length()));
+    }
+
+    error.set(null);
+    return Optional.ofNullable(spans.toStyleSpans());
+  }
+
+  private Optional<List<PositionedHighlighting>> handleSyntaxError(MiMaSyntaxError syntaxError) {
     int start = syntaxError.getSpan().getStart();
     int end = syntaxError.getSpan().getEnd();
 
@@ -133,16 +156,16 @@ public class ProgramTextPane extends BorderPane {
     }
 
     StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
-    if (start > 0) {
-      builder.add(Collections.emptyList(), start);
-    }
 
     error.set(syntaxError);
-    return Optional.of(
-        builder
-            .add(Collections.singletonList("error"), end - start)
-            .create()
-    );
+
+    StyleSpans<Collection<String>> style = builder
+        .add(Collections.singletonList("error"), end - start)
+        .create();
+
+    return Optional.of(Collections.singletonList(
+        new PositionedHighlighting(style, start)
+    ));
   }
 
   private void breakpointToggled(int line) {
