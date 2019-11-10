@@ -9,7 +9,7 @@ import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 import org.junit.jupiter.api.Test;
 
 class NodeVisitorTest {
@@ -22,7 +22,7 @@ class NodeVisitorTest {
       public void visitConstantNode(ConstantNode constantNode) {
         hit.set(true);
       }
-    }.visit(new ConstantNode(1, 1, new MutableStringReader(""), ClosedIntRange.ZERO));
+    }.visit(new ConstantNode(1, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
     assertThat(
         hit.get(),
@@ -38,7 +38,7 @@ class NodeVisitorTest {
       public void visitLabelNode(LabelNode labelNode) {
         hit.set(true);
       }
-    }.visit(new LabelNode("", true, 1, new MutableStringReader(""), ClosedIntRange.ZERO));
+    }.visit(new LabelNode("", true, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
     assertThat(
         hit.get(),
@@ -55,7 +55,7 @@ class NodeVisitorTest {
       public void visitInstructionNode(InstructionNode instructionNode) {
         hit.set(true);
       }
-    }.visit(new InstructionNode("", 1, new MutableStringReader(""), ClosedIntRange.ZERO));
+    }.visit(new InstructionNode("", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
     assertThat(
         hit.get(),
@@ -80,7 +80,7 @@ class NodeVisitorTest {
                 .argument(1)
                 .command(Load.LOAD_CONSTANT)
                 .build(),
-            ClosedIntRange.ZERO
+            HalfOpenIntRange.ZERO
         )
     );
 
@@ -95,7 +95,7 @@ class NodeVisitorTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> new NodeVisitor() {
-        }.visit(new AbstractSyntaxTreeNode(1, new MutableStringReader(""), ClosedIntRange.ZERO) {
+        }.visit(new AbstractSyntaxTreeNode(1, new MutableStringReader(""), HalfOpenIntRange.ZERO) {
         })
     );
   }

@@ -5,9 +5,9 @@ import java.util.Objects;
 /**
  * A closed integer range.
  */
-public class ClosedIntRange {
+public class HalfOpenIntRange {
 
-  public static ClosedIntRange ZERO = new ClosedIntRange(0, 0);
+  public static HalfOpenIntRange ZERO = new HalfOpenIntRange(0, 0);
 
   private int start;
   private int end;
@@ -18,7 +18,7 @@ public class ClosedIntRange {
    * @param start the start value (inclusive)
    * @param end the end value (inclusive)
    */
-  public ClosedIntRange(int start, int end) {
+  public HalfOpenIntRange(int start, int end) {
     this.start = start;
     this.end = end;
   }
@@ -33,9 +33,9 @@ public class ClosedIntRange {
   }
 
   /**
-   * The end value (inclusive).
+   * The end value (exclusive).
    *
-   * @return the end value (inclusive)
+   * @return the end value (exclusive)
    */
   public int getEnd() {
     return end;
@@ -47,7 +47,7 @@ public class ClosedIntRange {
    * @return the length of this range
    */
   public int getLength() {
-    return end - start + 1;
+    return end - start;
   }
 
   /**
@@ -57,7 +57,7 @@ public class ClosedIntRange {
    * @return true of the range contains the given value
    */
   public boolean contains(int n) {
-    return n >= getStart() && n <= getEnd();
+    return n >= getStart() && n < getEnd();
   }
 
   /**
@@ -66,9 +66,9 @@ public class ClosedIntRange {
    * @param other the other range
    * @return true of the range overlaps another one
    */
-  public boolean intersects(ClosedIntRange other) {
-    boolean thisInOther = getStart() >= other.getStart() && getStart() <= other.getEnd();
-    boolean otherInThis = other.getStart() >= getStart() && other.getStart() <= getEnd();
+  public boolean intersects(HalfOpenIntRange other) {
+    boolean thisInOther = getStart() >= other.getStart() && getStart() < other.getEnd();
+    boolean otherInThis = other.getStart() >= getStart() && other.getStart() < getEnd();
 
     return thisInOther || otherInThis;
   }
@@ -81,7 +81,7 @@ public class ClosedIntRange {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ClosedIntRange that = (ClosedIntRange) o;
+    HalfOpenIntRange that = (HalfOpenIntRange) o;
     return start == that.start &&
         end == that.end;
   }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 
 /**
  * A skeleton {@link SyntaxTreeNode}.
@@ -17,14 +17,14 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
   private List<SyntaxTreeNode> children;
   private int address;
   private StringReader reader;
-  private ClosedIntRange span;
+  private HalfOpenIntRange span;
 
-  public AbstractSyntaxTreeNode(int address, StringReader reader, ClosedIntRange span) {
+  public AbstractSyntaxTreeNode(int address, StringReader reader, HalfOpenIntRange span) {
     this(Collections.emptyList(), address, reader, span);
   }
 
   public AbstractSyntaxTreeNode(List<SyntaxTreeNode> children, int address, StringReader reader,
-      ClosedIntRange span) {
+      HalfOpenIntRange span) {
     this.children = new ArrayList<>(children);
     this.address = address;
     this.reader = reader;
@@ -71,7 +71,7 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
   }
 
   @Override
-  public ClosedIntRange getSpan() {
+  public HalfOpenIntRange getSpan() {
     return span;
   }
 

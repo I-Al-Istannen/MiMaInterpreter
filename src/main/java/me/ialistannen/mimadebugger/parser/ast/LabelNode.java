@@ -2,7 +2,7 @@ package me.ialistannen.mimadebugger.parser.ast;
 
 import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 
 /**
  * Represents a label declaration or usage.
@@ -13,7 +13,7 @@ public class LabelNode extends AbstractSyntaxTreeNode {
   private boolean declaration;
 
   public LabelNode(String name, boolean declaration, int address, StringReader reader,
-      ClosedIntRange span) {
+      HalfOpenIntRange span) {
     super(address, reader, span);
     this.name = name;
     this.declaration = declaration;

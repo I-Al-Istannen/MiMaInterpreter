@@ -4,24 +4,24 @@ import java.util.Collections;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 import org.junit.jupiter.api.Test;
 
 public class NodeToStringTest {
 
   @Test
   void constantToStringCompletesNormally() {
-    new ConstantNode(1, 20, new MutableStringReader(""), ClosedIntRange.ZERO);
+    new ConstantNode(1, 20, new MutableStringReader(""), HalfOpenIntRange.ZERO);
   }
 
   @Test
   void labelToStringCompletesNormally() {
-    new LabelNode("", true, 1, new MutableStringReader(""), ClosedIntRange.ZERO);
+    new LabelNode("", true, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO);
   }
 
   @Test
   void instructionToStringCompletesNormally() {
-    new InstructionNode(" ", 1, new MutableStringReader(""), ClosedIntRange.ZERO);
+    new InstructionNode(" ", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO);
   }
 
   @Test
@@ -34,7 +34,7 @@ public class NodeToStringTest {
         1,
         new MutableStringReader(""),
         instructionCall,
-        ClosedIntRange.ZERO
+        HalfOpenIntRange.ZERO
     );
   }
 

@@ -2,7 +2,7 @@ package me.ialistannen.mimadebugger.parser.ast;
 
 import java.util.stream.Collectors;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 
 /**
  * A node representing a possible instruction.
@@ -12,7 +12,7 @@ public class InstructionNode extends AbstractSyntaxTreeNode {
   private String instruction;
 
   public InstructionNode(String instruction, int address, StringReader reader,
-      ClosedIntRange span) {
+      HalfOpenIntRange span) {
     super(address, reader, span);
     this.instruction = instruction;
   }

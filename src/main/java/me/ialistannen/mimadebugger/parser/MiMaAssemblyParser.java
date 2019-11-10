@@ -17,7 +17,7 @@ import me.ialistannen.mimadebugger.parser.processing.InstructionCallResolver;
 import me.ialistannen.mimadebugger.parser.processing.LabelResolver;
 import me.ialistannen.mimadebugger.parser.processing.ToMemoryValueConverter;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 
 /**
  * A parser for MiMa Assembly, supporting labels and comments.
@@ -148,7 +148,7 @@ public class MiMaAssemblyParser {
     return new CommentNode(
         address,
         reader,
-        new ClosedIntRange(start, reader.getCursor() - 1),
+        new HalfOpenIntRange(start, reader.getCursor()),
         readCommentText
     );
   }
@@ -168,7 +168,7 @@ public class MiMaAssemblyParser {
         true,
         address,
         reader.copy(),
-        new ClosedIntRange(startPos, reader.getCursor() - 2)
+        new HalfOpenIntRange(startPos, reader.getCursor() - 1)
     );
   }
 
@@ -186,7 +186,7 @@ public class MiMaAssemblyParser {
         false,
         address,
         reader.copy(),
-        new ClosedIntRange(start, reader.getCursor() - 1)
+        new HalfOpenIntRange(start, reader.getCursor())
     );
   }
 
@@ -222,7 +222,7 @@ public class MiMaAssemblyParser {
           Integer.parseInt(number),
           address,
           reader.copy(),
-          new ClosedIntRange(start, reader.getCursor() - 1)
+          new HalfOpenIntRange(start, reader.getCursor())
       );
     } catch (NumberFormatException e) {
       throw new MiMaSyntaxError(
@@ -250,7 +250,7 @@ public class MiMaAssemblyParser {
         instructionName,
         address,
         reader.copy(),
-        new ClosedIntRange(start, reader.getCursor() - 1)
+        new HalfOpenIntRange(start, reader.getCursor())
     );
 
     eatWhitespace();

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import me.ialistannen.mimadebugger.util.ClosedIntRange;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
@@ -26,7 +26,7 @@ public class DiscontinuousSpans {
    * @param range the range to add it at
    * @throws IllegalArgumentException if the range overlaps another one
    */
-  public void addSpan(List<String> cssClasses, ClosedIntRange range) {
+  public void addSpan(List<String> cssClasses, HalfOpenIntRange range) {
     Optional<StyleSpan> overlapping = findOverlapping(range);
 
     if (overlapping.isPresent()) {
@@ -58,8 +58,8 @@ public class DiscontinuousSpans {
     int lastEnd = 0;
 
     for (StyleSpan span : spans) {
-      if (span.range.getStart() > lastEnd + 1) {
-        styleSpansBuilder.add(Collections.emptyList(), span.range.getStart() - lastEnd - 1);
+      if (span.range.getStart() > lastEnd) {
+        styleSpansBuilder.add(Collections.emptyList(), span.range.getStart() - lastEnd);
       }
 
       styleSpansBuilder.add(span.cssClass, span.range.getLength());
@@ -70,7 +70,7 @@ public class DiscontinuousSpans {
     return styleSpansBuilder.create();
   }
 
-  private Optional<StyleSpan> findOverlapping(ClosedIntRange range) {
+  private Optional<StyleSpan> findOverlapping(HalfOpenIntRange range) {
     for (StyleSpan span : spans) {
       if (span.range.intersects(range)) {
         return Optional.of(span);
@@ -89,9 +89,9 @@ public class DiscontinuousSpans {
   private static class StyleSpan implements Comparable<StyleSpan> {
 
     private List<String> cssClass;
-    private ClosedIntRange range;
+    private HalfOpenIntRange range;
 
-    private StyleSpan(List<String> cssClasses, ClosedIntRange range) {
+    private StyleSpan(List<String> cssClasses, HalfOpenIntRange range) {
       this.cssClass = new ArrayList<>(cssClasses);
       this.range = range;
     }
