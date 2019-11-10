@@ -2,7 +2,9 @@ package me.ialistannen.mimadebugger.gui.text;
 
 import java.util.Optional;
 import java.util.function.Function;
+import javafx.geometry.Bounds;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
@@ -25,7 +27,7 @@ public class SyntaxErrorPopup extends Popup {
     getContent().add(parent);
   }
 
-  private void setError(MiMaSyntaxError error) {
+  public void setError(MiMaSyntaxError error) {
     parent.getChildren().clear();
     parent.getChildren().add(
         labelWithClass(error.getOriginalMessage(), "syntax-error")
@@ -63,5 +65,22 @@ public class SyntaxErrorPopup extends Popup {
         MouseOverTextEvent.MOUSE_OVER_TEXT_END,
         event -> popup.hide()
     );
+
+    area.setOnKeyPressed(event -> {
+      if (event.getCode() == KeyCode.SPACE && event.isControlDown()) {
+        errorFunction.apply(area.getCaretPosition()).ifPresent(syntaxError -> {
+          Optional<Bounds> caretBounds = area.getCaretBounds();
+          if (!caretBounds.isPresent()) {
+            return;
+          }
+          double x = caretBounds.get().getMaxX();
+          double y = caretBounds.get().getMaxY();
+          popup.setError(syntaxError);
+          popup.show(area, x, y);
+        });
+      } else {
+        popup.hide();
+      }
+    });
   }
 }
