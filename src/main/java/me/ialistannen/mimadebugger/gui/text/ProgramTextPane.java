@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
@@ -12,6 +14,7 @@ import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.highlighting.DiscontinuousSpans;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
+import me.ialistannen.mimadebugger.gui.util.UiSyntaxError;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
@@ -21,6 +24,7 @@ import me.ialistannen.mimadebugger.parser.ast.LabelNode;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
+import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -32,10 +36,13 @@ public class ProgramTextPane extends BorderPane {
 
   private ObservableSet<Integer> breakpoints;
 
+  private ObjectProperty<UiSyntaxError> error;
+
   public ProgramTextPane(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
     this.codeArea = new CodeArea();
     this.breakpoints = FXCollections.observableSet(new HashSet<>());
+    this.error = new SimpleObjectProperty<>();
     getStylesheets().add("/css/Highlight.css");
 
     updateLineIcons();
@@ -52,8 +59,18 @@ public class ProgramTextPane extends BorderPane {
             .ifPresent(styles -> codeArea.setStyleSpans(0, styles))
         );
 
-    codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
+    codeArea.setMouseOverTextDelay(Duration.ofMillis(250));
     InstructionHelpPopup.attachTo(codeArea, instructionSet);
+    SyntaxErrorPopup.attachTo(codeArea, position -> {
+      if (error.get() == null) {
+        return Optional.empty();
+      }
+      HalfOpenIntRange span = error.get().getSpan();
+      if (span.contains(position)) {
+        return Optional.of(error.getValue());
+      }
+      return Optional.empty();
+    });
 
     setCenter(codeArea);
   }
@@ -101,6 +118,7 @@ public class ProgramTextPane extends BorderPane {
         return Optional.of(StyleSpans.singleton(Collections.emptyList(), text.length()));
       }
 
+      error.set(null);
       return Optional.ofNullable(spans.toStyleSpans());
     } catch (MiMaSyntaxError syntaxError) {
       return handleSyntaxError(syntaxError);
@@ -120,6 +138,11 @@ public class ProgramTextPane extends BorderPane {
     if (start > 0) {
       builder.add(Collections.emptyList(), start);
     }
+
+    error.set(new UiSyntaxError(
+        new HalfOpenIntRange(start, end + 1),
+        syntaxError.getOriginalMessage()
+    ));
     return Optional.of(
         builder
             .add(Collections.singletonList("error"), end - start)

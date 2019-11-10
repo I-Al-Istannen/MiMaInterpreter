@@ -5,10 +5,13 @@ import me.ialistannen.mimadebugger.parser.util.StringReader;
 public class MiMaSyntaxError extends MiMaException {
 
   private static final int CONTEXT_AMOUNT = 10;
+  private final String originalMessage;
   private StringReader reader;
 
   public MiMaSyntaxError(String message, StringReader reader) {
     super(message + " at '" + getContext(reader) + "'");
+
+    this.originalMessage = message;
     this.reader = reader.copy();
   }
 
@@ -24,6 +27,15 @@ public class MiMaSyntaxError extends MiMaException {
     }
 
     return beforeMarker + "<--[HERE]";
+  }
+
+  /**
+   * Returns the original error message without context.
+   *
+   * @return the original error message
+   */
+  public String getOriginalMessage() {
+    return originalMessage;
   }
 
   /**

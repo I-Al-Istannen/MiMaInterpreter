@@ -1,0 +1,9 @@
+.root {
+  -fx-background-color: white;
+  -fx-padding: 5px;
+}
+
+.syntax-error {
+  -fx-text-fill: tomato;
+  -fx-font-size: 14pt;
+}
