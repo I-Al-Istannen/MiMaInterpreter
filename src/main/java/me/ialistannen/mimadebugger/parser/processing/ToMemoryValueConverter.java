@@ -54,15 +54,17 @@ public class ToMemoryValueConverter {
     public void visitInstructionNode(InstructionNode instructionNode) throws MiMaSyntaxError {
       throw new MiMaSyntaxError(
           "Instruction call left over after parsing!" + instructionNode,
-          instructionNode.getStringReader()
+          instructionNode.getStringReader(),
+          instructionNode.getSpan()
       );
     }
 
     @Override
     public void visitLabelNode(LabelNode labelNode) throws MiMaSyntaxError {
       throw new MiMaSyntaxError(
-          "Label left over after parsing!" + labelNode, labelNode.getStringReader()
-      );
+          "Label left over after parsing!" + labelNode,
+          labelNode.getStringReader(),
+          labelNode.getSpan());
     }
 
     @Override

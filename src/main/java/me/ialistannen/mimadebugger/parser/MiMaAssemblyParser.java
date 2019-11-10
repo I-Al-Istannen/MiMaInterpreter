@@ -101,6 +101,8 @@ public class MiMaAssemblyParser {
   private SyntaxTreeNode readLine() throws MiMaSyntaxError {
     eatWhitespace();
 
+    int start = reader.getCursor();
+
     SyntaxTreeNode node;
     if (reader.peek(COMMENT_PATTERN)) {
       node = readComment();
@@ -128,8 +130,13 @@ public class MiMaAssemblyParser {
       reader.read(WHITE_SPACE);
       node = null;
     } else {
+      int end = reader.getCursor() == start
+          ? Math.min(reader.getString().length(), start + 5)
+          : reader.getCursor();
       throw new MiMaSyntaxError(
-          "Expected comment, label or instruction", reader
+          "Expected comment, label or instruction",
+          reader,
+          new HalfOpenIntRange(start, end)
       );
     }
 
@@ -225,10 +232,10 @@ public class MiMaAssemblyParser {
           new HalfOpenIntRange(start, reader.getCursor())
       );
     } catch (NumberFormatException e) {
+      int endPosition = reader.getCursor();
       reader.setCursor(start);
       throw new MiMaSyntaxError(
-          "Expected integer number", reader
-      );
+          "Expected integer number", reader, new HalfOpenIntRange(start, endPosition));
     }
   }
 
@@ -244,8 +251,13 @@ public class MiMaAssemblyParser {
     String instructionName = assertRead(INSTRUCTION_PATTERN);
 
     if (!instructionSet.forName(instructionName).isPresent()) {
+      int failingCursorPosition = reader.getCursor();
       reader.setCursor(start);
-      throw new MiMaSyntaxError("Unknown instruction: '" + instructionName + "'", reader);
+      throw new MiMaSyntaxError(
+          "Unknown instruction: '" + instructionName + "'",
+          reader,
+          new HalfOpenIntRange(start, failingCursorPosition)
+      );
     }
 
     InstructionNode instructionNode = new InstructionNode(
@@ -271,8 +283,15 @@ public class MiMaAssemblyParser {
   private String assertRead(Pattern pattern) throws MiMaSyntaxError {
     int start = reader.getCursor();
     if (!reader.peek(pattern)) {
-      reader.setCursor(start);
-      throw new MiMaSyntaxError("Expected " + pattern.pattern(), reader);
+      int failingCursorPosition = reader.getCursor();
+      if (failingCursorPosition == start) {
+        failingCursorPosition = Math.min(start, failingCursorPosition + 5);
+      }
+      throw new MiMaSyntaxError(
+          "Expected " + pattern.pattern(),
+          reader,
+          new HalfOpenIntRange(start, failingCursorPosition)
+      );
     }
     return reader.read(pattern);
   }

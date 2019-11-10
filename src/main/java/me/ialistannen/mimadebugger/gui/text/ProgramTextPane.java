@@ -14,7 +14,6 @@ import javafx.scene.layout.BorderPane;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.highlighting.DiscontinuousSpans;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
-import me.ialistannen.mimadebugger.gui.util.UiSyntaxError;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
@@ -36,7 +35,7 @@ public class ProgramTextPane extends BorderPane {
 
   private ObservableSet<Integer> breakpoints;
 
-  private ObjectProperty<UiSyntaxError> error;
+  private ObjectProperty<MiMaSyntaxError> error;
 
   public ProgramTextPane(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
@@ -126,9 +125,8 @@ public class ProgramTextPane extends BorderPane {
   }
 
   private Optional<StyleSpans<Collection<String>>> handleSyntaxError(MiMaSyntaxError syntaxError) {
-    String text = syntaxError.getReader().getString();
-    int start = syntaxError.getReader().getCursor();
-    int end = text.indexOf('\n', start) > 0 ? text.indexOf('\n', start) : text.length();
+    int start = syntaxError.getSpan().getStart();
+    int end = syntaxError.getSpan().getEnd();
 
     if (end <= start) {
       return Optional.empty();
@@ -139,10 +137,7 @@ public class ProgramTextPane extends BorderPane {
       builder.add(Collections.emptyList(), start);
     }
 
-    error.set(new UiSyntaxError(
-        new HalfOpenIntRange(start, end + 1),
-        syntaxError.getOriginalMessage()
-    ));
+    error.set(syntaxError);
     return Optional.of(
         builder
             .add(Collections.singletonList("error"), end - start)

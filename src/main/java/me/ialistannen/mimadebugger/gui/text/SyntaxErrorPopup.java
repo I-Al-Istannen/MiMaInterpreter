@@ -5,7 +5,7 @@ import java.util.function.Function;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
-import me.ialistannen.mimadebugger.gui.util.UiSyntaxError;
+import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.event.MouseOverTextEvent;
 
@@ -25,10 +25,10 @@ public class SyntaxErrorPopup extends Popup {
     getContent().add(parent);
   }
 
-  private void setError(UiSyntaxError error) {
+  private void setError(MiMaSyntaxError error) {
     parent.getChildren().clear();
     parent.getChildren().add(
-        labelWithClass(error.getMessage(), "syntax-error")
+        labelWithClass(error.getOriginalMessage(), "syntax-error")
     );
   }
 
@@ -45,7 +45,7 @@ public class SyntaxErrorPopup extends Popup {
    * @param errorFunction the function that extracts errors from the character position
    */
   public static void attachTo(StyledTextArea<?, ?> area,
-      Function<Integer, Optional<UiSyntaxError>> errorFunction) {
+      Function<Integer, Optional<MiMaSyntaxError>> errorFunction) {
     SyntaxErrorPopup popup = new SyntaxErrorPopup();
 
     area.addEventHandler(

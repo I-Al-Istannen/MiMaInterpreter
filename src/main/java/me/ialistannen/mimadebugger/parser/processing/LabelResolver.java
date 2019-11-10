@@ -64,7 +64,7 @@ public class LabelResolver {
       } else {
         if (!labels.containsKey(labelNode.getName())) {
           throw new MiMaSyntaxError(
-              "Label unknown", labelNode.getStringReader()
+              "Label unknown", labelNode.getStringReader(), labelNode.getSpan()
           );
         }
         labelNode.getParent().ifPresent(node -> {

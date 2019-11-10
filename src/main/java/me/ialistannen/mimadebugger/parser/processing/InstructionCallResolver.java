@@ -48,7 +48,8 @@ public class InstructionCallResolver {
           .orElseThrow(() -> new AssemblyInstructionNotFoundException(
               instructionNode.getInstruction(),
               instructionNode.getAddress(),
-              instructionNode.getStringReader()
+              instructionNode.getStringReader(),
+              instructionNode.getSpan()
           ));
 
       List<SyntaxTreeNode> children = instructionNode.getChildren();
@@ -56,7 +57,8 @@ public class InstructionCallResolver {
       if (instruction.hasArgument() && children.isEmpty()) {
         throw new MiMaSyntaxError(
             String.format("Expected argument for instruction %s", instruction.name()),
-            instructionNode.getStringReader()
+            instructionNode.getStringReader(),
+            instructionNode.getSpan()
         );
       }
 
@@ -66,7 +68,8 @@ public class InstructionCallResolver {
         if (!(node instanceof ConstantNode)) {
           throw new MiMaSyntaxError(
               String.format("Expected constant number for instruction '%s'", instruction.name()),
-              instructionNode.getStringReader()
+              instructionNode.getStringReader(),
+              node.getSpan()
           );
         }
 
@@ -82,7 +85,8 @@ public class InstructionCallResolver {
       SyntaxTreeNode parent = instructionNode.getParent()
           .orElseThrow(() -> new MiMaSyntaxError(
                   "Dangling instruction node: " + instructionNode,
-                  instructionNode.getStringReader()
+              instructionNode.getStringReader(),
+              instructionNode.getSpan()
               )
           );
 

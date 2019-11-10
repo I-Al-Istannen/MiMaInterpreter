@@ -30,12 +30,16 @@ public class ConstantVerification {
     if (parent instanceof InstructionNode) {
       if (value < 0 || value > MAX_ADDRESS) {
         throw new MiMaSyntaxError(
-            "Address negative or larger than " + MAX_ADDRESS, node.getStringReader()
+            "Address negative or larger than " + MAX_ADDRESS,
+            node.getStringReader(),
+            node.getSpan()
         );
       }
     } else if (value < MemoryFormat.VALUE_MINIMUM || value > MemoryFormat.VALUE_MAXIMUM) {
       throw new MiMaSyntaxError(
-          "Value too small or too large (24 bit)", node.getStringReader()
+          "Value too small or too large (24 bit)",
+          node.getStringReader(),
+          node.getSpan()
       );
     }
   }
