@@ -24,7 +24,7 @@ import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
  */
 public class MiMaAssemblyParser {
 
-  private static final Pattern COMMENT_PATTERN = Pattern.compile("//");
+  private static final Pattern COMMENT_PATTERN = Pattern.compile(";");
   private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile("[a-zA-Z]+(?=:)");
   private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z]+");
   private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("[A-Za-z]{1,5}");
