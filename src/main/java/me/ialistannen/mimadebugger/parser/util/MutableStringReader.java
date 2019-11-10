@@ -30,6 +30,15 @@ public class MutableStringReader implements StringReader {
     return cursor;
   }
 
+  /**
+   * Sets the cursor position.
+   *
+   * @param cursor the cursor position
+   */
+  public void setCursor(int cursor) {
+    this.cursor = cursor;
+  }
+
   @Override
   public boolean canRead() {
     return cursor < string.length();
@@ -102,5 +111,13 @@ public class MutableStringReader implements StringReader {
   @Override
   public StringReader copy() {
     return new MutableStringReader(string, cursor);
+  }
+
+  @Override
+  public String toString() {
+    return "MutableStringReader{" +
+        "string='" + string + '\'' +
+        ", cursor=" + cursor +
+        '}';
   }
 }

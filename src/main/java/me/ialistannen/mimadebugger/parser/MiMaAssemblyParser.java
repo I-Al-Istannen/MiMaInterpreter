@@ -225,6 +225,7 @@ public class MiMaAssemblyParser {
           new HalfOpenIntRange(start, reader.getCursor())
       );
     } catch (NumberFormatException e) {
+      reader.setCursor(start);
       throw new MiMaSyntaxError(
           "Expected integer number", reader
       );
@@ -243,6 +244,7 @@ public class MiMaAssemblyParser {
     String instructionName = assertRead(INSTRUCTION_PATTERN);
 
     if (!instructionSet.forName(instructionName).isPresent()) {
+      reader.setCursor(start);
       throw new MiMaSyntaxError("Unknown instruction: '" + instructionName + "'", reader);
     }
 
@@ -267,7 +269,9 @@ public class MiMaAssemblyParser {
   }
 
   private String assertRead(Pattern pattern) throws MiMaSyntaxError {
+    int start = reader.getCursor();
     if (!reader.peek(pattern)) {
+      reader.setCursor(start);
       throw new MiMaSyntaxError("Expected " + pattern.pattern(), reader);
     }
     return reader.read(pattern);
