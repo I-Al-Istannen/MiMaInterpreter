@@ -82,14 +82,16 @@ public class InstructionHelpPopup extends Popup {
         Character::isWhitespace,
         i -> i + 1
     );
+    // string end is exclusive, so add one
+    wordEnd = Math.min(wordEnd + 1, text.length());
+
     int wordStart = findNextOccurrence(
         text,
         event.getCharacterIndex(),
         Character::isWhitespace,
         i -> i - 1
     );
-    // space position is returned
-    return text.substring(wordStart + 1, wordEnd);
+    return text.substring(wordStart, wordEnd);
   }
 
   private static int findNextOccurrence(String text, int start,
@@ -97,10 +99,14 @@ public class InstructionHelpPopup extends Popup {
 
     int i = start;
 
+    int previousI = i;
     for (; i < text.length() && i >= 0; i = update.apply(i)) {
       if (predicate.test(text.charAt(i))) {
+        // Do not return the occurrence, but the position before
+        i = previousI;
         break;
       }
+      previousI = i;
     }
 
     return Math.max(0, i);
