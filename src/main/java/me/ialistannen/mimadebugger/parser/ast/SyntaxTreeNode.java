@@ -1,9 +1,11 @@
 package me.ialistannen.mimadebugger.parser.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
+import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 
 /**
@@ -68,6 +70,31 @@ public interface SyntaxTreeNode {
    */
   HalfOpenIntRange getSpan();
 
+  /**
+   * Returns a list with all parsing problems,
+   *
+   * @return a list with all parsing problems for this node
+   */
+  List<ParsingProblem> getProblems();
+
+  /**
+   * Adds a parsing problem to this node.
+   *
+   * @param problem the problem
+   */
+  void addProblem(ParsingProblem problem);
+
+  /**
+   * Returns all parsing problems in the whole subtree with this node as root.
+   *
+   * @return all parsing problems in the whole subtree with this node as root
+   */
+  default List<ParsingProblem> getAllParsingProblems() {
+    List<ParsingProblem> problems = new ArrayList<>(getProblems());
+    getChildren().forEach(child -> problems.addAll(child.getAllParsingProblems()));
+
+    return problems;
+  }
 
   /**
    * Accepts a visitor and applies it to all child nodes.

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
+import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 
 /**
@@ -15,6 +16,7 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
 
   private SyntaxTreeNode parent;
   private List<SyntaxTreeNode> children;
+  private List<ParsingProblem> problems;
   private int address;
   private StringReader reader;
   private HalfOpenIntRange span;
@@ -26,6 +28,7 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
   public AbstractSyntaxTreeNode(List<SyntaxTreeNode> children, int address, StringReader reader,
       HalfOpenIntRange span) {
     this.children = new ArrayList<>(children);
+    this.problems = new ArrayList<>();
     this.address = address;
     this.reader = reader;
     this.span = span;
@@ -73,6 +76,16 @@ public abstract class AbstractSyntaxTreeNode implements SyntaxTreeNode {
   @Override
   public HalfOpenIntRange getSpan() {
     return span;
+  }
+
+  @Override
+  public List<ParsingProblem> getProblems() {
+    return Collections.unmodifiableList(problems);
+  }
+
+  @Override
+  public void addProblem(ParsingProblem problem) {
+    problems.add(problem);
   }
 
   @Override
