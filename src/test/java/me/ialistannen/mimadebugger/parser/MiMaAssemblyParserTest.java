@@ -180,7 +180,7 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureBlankLineisSkipped() throws MiMaSyntaxError {
+  void ensureBlankLineIsSkipped() throws MiMaSyntaxError {
     String program = "\n\n";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
@@ -392,7 +392,7 @@ class MiMaAssemblyParserTest {
 
   @Test
   void ensureReadComment() throws MiMaSyntaxError {
-    String program = "// this is a comment\nLDC 10";
+    String program = "; this is a comment\nLDC 10";
 
     List<MemoryValue> values = parser.parseProgramToMemoryValues(program);
     assertThat(

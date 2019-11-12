@@ -47,7 +47,6 @@ public class InstructionCallResolver {
           .forName(instructionNode.getInstruction())
           .orElseThrow(() -> new AssemblyInstructionNotFoundException(
               instructionNode.getInstruction(),
-              instructionNode.getAddress(),
               instructionNode.getStringReader(),
               instructionNode.getSpan()
           ));

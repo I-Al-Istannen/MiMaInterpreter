@@ -3,6 +3,7 @@ package me.ialistannen.mimadebugger.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import me.ialistannen.mimadebugger.exceptions.AssemblyInstructionNotFoundException;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
@@ -116,6 +117,10 @@ public class MiMaAssemblyParser {
    */
   private SyntaxTreeNode readLine() throws MiMaSyntaxError {
     eatWhitespace();
+
+    if (!reader.canRead()) {
+      return null;
+    }
 
     int start = reader.getCursor();
 
@@ -269,8 +274,8 @@ public class MiMaAssemblyParser {
     if (!instructionSet.forName(instructionName).isPresent()) {
       int failingCursorPosition = reader.getCursor();
       reader.setCursor(start);
-      throw new MiMaSyntaxError(
-          "Unknown instruction: '" + instructionName + "'",
+      throw new AssemblyInstructionNotFoundException(
+          instructionName,
           reader,
           new HalfOpenIntRange(start, failingCursorPosition)
       );
