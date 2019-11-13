@@ -25,6 +25,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
+import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
@@ -89,7 +90,10 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
         .map(it -> it.equals(lineNumber))
         .orElse(false);
 
-    container.setOnMouseClicked(event -> breakpointToggleListener.accept(lineNumber));
+    if (lineNumber >= 0) {
+      container.setOnMouseClicked(event -> breakpointToggleListener.accept(lineNumber));
+      updateIndicatorFill(breakpointIndicator, lineNumber);
+    }
     if (sameAsBefore || lineNumber < 0) {
       lineNumberLabel.setText("");
     }
@@ -158,6 +162,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
 
     return collectingNodeVisitor.getDepths().stream()
         .filter(nodeWithDepth -> nodeWithDepth.getNode().getSpan().intersects(lineSpan))
+        .filter(node -> !(node.getNode() instanceof RootNode))
         .max(
             Comparator.comparing(nodeWithDepth -> nodeWithDepth.getNode().getAddress())
         )
