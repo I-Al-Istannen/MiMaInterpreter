@@ -314,7 +314,7 @@ class MiMaAssemblyParserTest {
     assertThat(
         values,
         is(Collections.singletonList(
-            execute(1, 0, Jump.JUMP)
+            execute(0, 0, Jump.JUMP)
         ))
     );
   }

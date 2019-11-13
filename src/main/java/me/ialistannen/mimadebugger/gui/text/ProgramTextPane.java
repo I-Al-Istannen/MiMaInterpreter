@@ -27,6 +27,7 @@ import me.ialistannen.mimadebugger.parser.ast.LabelUsageNode;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
+import me.ialistannen.mimadebugger.parser.ast.UnparsableNode;
 import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -48,13 +49,8 @@ public class ProgramTextPane extends BorderPane {
     this.syntaxTree = new SimpleObjectProperty<>();
     getStylesheets().add("/css/Highlight.css");
 
+    syntaxTree.addListener((observable, oldValue, newValue) -> updateLineIcons());
     updateLineIcons();
-
-    // Update the icons when a new line is added to keep the gutter size consistent
-    codeArea.getParagraphs()
-        .changes()
-        .successionEnds(Duration.ofMillis(100))
-        .subscribe(changes -> updateLineIcons());
 
     codeArea.multiPlainChanges()
         .successionEnds(Duration.ofMillis(100))
@@ -76,7 +72,7 @@ public class ProgramTextPane extends BorderPane {
 
   private void updateLineIcons() {
     codeArea.setParagraphGraphicFactory(
-        new LineGutterWithBreakpoint(codeArea, breakpoints, this::breakpointToggled)
+        new LineGutterWithBreakpoint(codeArea, breakpoints, syntaxTree, this::breakpointToggled)
     );
   }
 
@@ -125,6 +121,9 @@ public class ProgramTextPane extends BorderPane {
           visitChildren(node);
           return;
         } else if (node instanceof InstructionCallNode) {
+          visitChildren(node);
+          return;
+        } else if (node instanceof UnparsableNode) {
           visitChildren(node);
           return;
         } else {

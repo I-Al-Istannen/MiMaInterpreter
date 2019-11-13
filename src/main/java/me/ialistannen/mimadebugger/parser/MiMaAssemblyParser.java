@@ -32,7 +32,7 @@ public class MiMaAssemblyParser {
   private static final Pattern COMMENT_PATTERN = Pattern.compile(";");
   private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile("[a-zA-Z]+(?=:)");
   private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z]+");
-  private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("[A-Za-z]{1,5}");
+  private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("[A-Za-z]+");
   private static final Pattern VALUE_PATTERN = Pattern.compile("[+\\-]?\\d+");
   private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
   private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
@@ -149,9 +149,8 @@ public class MiMaAssemblyParser {
 
       if (instructionOrValue != null) {
         labelNode.addChild(instructionOrValue);
+        address++;
       }
-
-      address++;
 
       node = labelNode;
     } else if (reader.peek(INSTRUCTION_PATTERN)) {
@@ -162,7 +161,6 @@ public class MiMaAssemblyParser {
       address++;
     } else if (reader.peek(NEW_LINE_PATTERN)) {
       node = null;
-      address++;
     } else if (reader.peek(WHITE_SPACE)) {
       reader.read(WHITE_SPACE);
       node = null;
@@ -318,7 +316,7 @@ public class MiMaAssemblyParser {
       return instructionNode;
     }
 
-    eatWhitespace();
+    eatWhitespaceNoNewline();
 
     if (reader.peek(VALUE_PATTERN)) {
       instructionNode.addChild(readValue());
