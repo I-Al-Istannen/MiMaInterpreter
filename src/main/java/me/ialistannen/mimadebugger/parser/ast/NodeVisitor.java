@@ -62,6 +62,15 @@ public interface NodeVisitor {
   }
 
   /**
+   * Visits a {@link LiteralNode}.
+   *
+   * @param literalNode the literal node
+   */
+  default void visitLiteralNode(LiteralNode literalNode) {
+    visitChildren(literalNode);
+  }
+
+  /**
    * Visits an {@link UnparsableNode}.
    *
    * @param unparsableNode the unparsable node
@@ -99,6 +108,8 @@ public interface NodeVisitor {
       visitChildren(node);
     } else if (node instanceof UnparsableNode) {
       visitUnparsableNode((UnparsableNode) node);
+    } else if (node instanceof LiteralNode) {
+      visitLiteralNode((LiteralNode) node);
     } else {
       throw new IllegalArgumentException("Unknown node type: " + node);
     }

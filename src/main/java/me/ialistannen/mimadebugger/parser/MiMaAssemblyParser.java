@@ -11,6 +11,7 @@ import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
 import me.ialistannen.mimadebugger.parser.ast.LabelDeclarationNode;
 import me.ialistannen.mimadebugger.parser.ast.LabelUsageNode;
+import me.ialistannen.mimadebugger.parser.ast.LiteralNode;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
 import me.ialistannen.mimadebugger.parser.ast.UnparsableNode;
@@ -263,7 +264,7 @@ public class MiMaAssemblyParser {
    * @return the read integer value
    * @throws UnexpectedParseError if no value could be read
    */
-  private SyntaxTreeNode readValue() throws UnexpectedParseError {
+  private ConstantNode readValue() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String number = assertRead(VALUE_PATTERN);
@@ -284,7 +285,7 @@ public class MiMaAssemblyParser {
     }
   }
 
-  private SyntaxTreeNode constantNodeWithProblem(int start, String problem) {
+  private ConstantNode constantNodeWithProblem(int start, String problem) {
     ConstantNode constantNode = new ConstantNode(
         0,
         address,
@@ -309,6 +310,14 @@ public class MiMaAssemblyParser {
     eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String instructionName = assertRead(INSTRUCTION_PATTERN);
+
+    if (instructionName.equals("LIT")) {
+      int end = reader.getCursor();
+      ConstantNode value = readValue();
+      return new LiteralNode(
+          address, reader, new HalfOpenIntRange(start, end), value
+      );
+    }
 
     InstructionNode instructionNode = new InstructionNode(
         instructionName,

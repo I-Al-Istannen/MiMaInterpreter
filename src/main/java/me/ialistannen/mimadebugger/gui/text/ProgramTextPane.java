@@ -24,6 +24,7 @@ import me.ialistannen.mimadebugger.parser.ast.InstructionCallNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
 import me.ialistannen.mimadebugger.parser.ast.LabelDeclarationNode;
 import me.ialistannen.mimadebugger.parser.ast.LabelUsageNode;
+import me.ialistannen.mimadebugger.parser.ast.LiteralNode;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
@@ -117,6 +118,8 @@ public class ProgramTextPane extends BorderPane {
           category = HighlightingCategory.COMMENT;
         } else if (node instanceof LabelDeclarationNode) {
           category = HighlightingCategory.LABEL_DECLARATION;
+        } else if (node instanceof LiteralNode) {
+          category = HighlightingCategory.INSTRUCTION;
         } else if (node instanceof RootNode) {
           visitChildren(node);
           return;
