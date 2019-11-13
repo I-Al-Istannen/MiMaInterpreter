@@ -36,6 +36,16 @@ public abstract class Instruction {
   }
 
   /**
+   * Returns< the bit length of the argument. Only valid if {@link #hasArgument()} is true.
+   *
+   * @return the bit length of the argument
+   */
+  @Value.Default
+  public int argumentWidth() {
+    return 20;
+  }
+
+  /**
    * A short description of the instruction.
    *
    * @return a short description of the instruction.

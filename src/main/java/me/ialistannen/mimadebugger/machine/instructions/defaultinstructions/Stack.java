@@ -19,6 +19,7 @@ public class Stack {
       .name("LDRS")
       .description("SP + argument -> Accumulator")
       .hasArgument(true)
+      .argumentWidth(16)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy()
               .withAccumulator(state.memory().get(
@@ -32,6 +33,7 @@ public class Stack {
       .name("STRS")
       .description("Accumulator -> memory[SP + argument]")
       .hasArgument(true)
+      .argumentWidth(16)
       .action((state, address) -> state.copy().withMemory(
           state.memory().set(
               state.registers().stackPointer() + MemoryFormat.coerceToValue(address),
@@ -45,6 +47,7 @@ public class Stack {
       .name("LDRF")
       .description("FP + argument -> Accumulator")
       .hasArgument(true)
+      .argumentWidth(16)
       .action((state, address) -> state.copy().withRegisters(
           state.registers().copy()
               .withAccumulator(state.memory().get(
@@ -58,6 +61,7 @@ public class Stack {
       .name("STRF")
       .description("Accumulator -> memory[FP + argument]")
       .hasArgument(true)
+      .argumentWidth(16)
       .action((state, address) -> state.copy().withMemory(
           state.memory().set(
               state.registers().stackPointer() + MemoryFormat.coerceToValue(address),

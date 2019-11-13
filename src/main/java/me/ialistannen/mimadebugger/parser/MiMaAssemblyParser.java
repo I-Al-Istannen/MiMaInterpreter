@@ -57,7 +57,7 @@ public class MiMaAssemblyParser {
     this.instructionSet = instructionSet;
 
     this.labelResolver = new LabelResolver();
-    this.constantVerification = new ConstantVerification();
+    this.constantVerification = new ConstantVerification(instructionSet);
     this.instructionCallResolver = new InstructionCallResolver();
     this.toMemoryValueConverter = new ToMemoryValueConverter();
   }

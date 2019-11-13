@@ -1,5 +1,8 @@
 package me.ialistannen.mimadebugger.parser.processing;
 
+import java.util.Optional;
+import me.ialistannen.mimadebugger.machine.instructions.Instruction;
+import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
@@ -10,6 +13,12 @@ import me.ialistannen.mimadebugger.util.MemoryFormat;
 public class ConstantVerification {
 
   private static final int MAX_ADDRESS = 1 << MemoryFormat.ADDRESS_LENGTH - 1;
+
+  private InstructionSet instructionSet;
+
+  public ConstantVerification(InstructionSet instructionSet) {
+    this.instructionSet = instructionSet;
+  }
 
   /**
    * Validates that all constants have an appropriate size and do not overflow.
@@ -28,9 +37,20 @@ public class ConstantVerification {
   private void validateSize(SyntaxTreeNode parent, ConstantNode node) {
     int value = node.getValue();
     if (parent instanceof InstructionNode) {
-      if (value < 0 || value > MAX_ADDRESS) {
+      String instructionName = ((InstructionNode) parent).getInstruction();
+      Optional<Instruction> instruction = instructionSet.forName(instructionName);
+
+      if (!instruction.isPresent()) {
+        return;
+      }
+
+      int minimumValue = MemoryFormat.getMinimumValue(instruction.get().argumentWidth());
+      int maximumValue = MemoryFormat.getMaximumValue(instruction.get().argumentWidth());
+      boolean tooSmall = value < minimumValue;
+      boolean tooLarge = value > maximumValue;
+      if (tooSmall || tooLarge) {
         node.addProblem(ImmutableParsingProblem.builder()
-            .message("Address negative or larger than " + MAX_ADDRESS)
+            .message(String.format("Address not in (%s, %s)", minimumValue, maximumValue))
             .approximateSpan(node.getSpan())
             .build()
         );

@@ -7,11 +7,19 @@ public class MemoryFormat {
 
   public static final int ADDRESS_LENGTH = 20;
   public static final int VALUE_LENGTH = 24;
-  public static final int VALUE_MAXIMUM = (int) (Math.pow(2, 24 - 1) - 1);
-  public static final int VALUE_MINIMUM = (int) -(Math.pow(2, 24 - 1));
+  public static final int VALUE_MAXIMUM = getMaximumValue(VALUE_LENGTH);
+  public static final int VALUE_MINIMUM = getMinimumValue(VALUE_LENGTH);
 
   private MemoryFormat() {
     //no instance
+  }
+
+  public static int getMaximumValue(int bitWidth) {
+    return (int) (Math.pow(2, bitWidth - 1) - 1);
+  }
+
+  public static int getMinimumValue(int bitWidth) {
+    return (int) -(Math.pow(2, bitWidth - 1));
   }
 
   /**
