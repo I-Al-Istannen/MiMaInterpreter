@@ -27,7 +27,7 @@ class InstructionSetTest {
   void testHasCorrectNumberOfInstructions() {
     assertThat(
         instructionSet.getAll().size(),
-        is(26)
+        is(28)
     );
   }
 

@@ -10,13 +10,13 @@ public class Stack {
 
   public static List<Instruction> getInstructions() {
     return Arrays.asList(
-        LDVR, STVR, LDSP, STSP, LDFP, STFP
+        LDRF, STRF, LDRS, STRS, LDSP, STSP, LDFP, STFP
     );
   }
 
-  public static final Instruction LDVR = ImmutableInstruction.builder()
-      .opcode(0xD)
-      .name("LDVR")
+  public static final Instruction LDRS = ImmutableInstruction.builder()
+      .opcode(0xFA)
+      .name("LDRS")
       .description("SP + argument -> Accumulator")
       .hasArgument(true)
       .action((state, address) -> state.copy().withRegisters(
@@ -27,10 +27,36 @@ public class Stack {
       ))
       .build();
 
-  public static final Instruction STVR = ImmutableInstruction.builder()
-      .opcode(0xE)
-      .name("STVR")
+  public static final Instruction STRS = ImmutableInstruction.builder()
+      .opcode(0xFB)
+      .name("STRS")
       .description("Accumulator -> memory[SP + argument]")
+      .hasArgument(true)
+      .action((state, address) -> state.copy().withMemory(
+          state.memory().set(
+              state.registers().stackPointer() + MemoryFormat.coerceToValue(address),
+              state.registers().accumulator()
+          )
+      ))
+      .build();
+
+  public static final Instruction LDRF = ImmutableInstruction.builder()
+      .opcode(0xFC)
+      .name("LDRF")
+      .description("FP + argument -> Accumulator")
+      .hasArgument(true)
+      .action((state, address) -> state.copy().withRegisters(
+          state.registers().copy()
+              .withAccumulator(state.memory().get(
+                  state.registers().stackPointer() + MemoryFormat.coerceToValue(address)
+              ))
+      ))
+      .build();
+
+  public static final Instruction STRF = ImmutableInstruction.builder()
+      .opcode(0xFD)
+      .name("STRF")
+      .description("Accumulator -> memory[FP + argument]")
       .hasArgument(true)
       .action((state, address) -> state.copy().withMemory(
           state.memory().set(

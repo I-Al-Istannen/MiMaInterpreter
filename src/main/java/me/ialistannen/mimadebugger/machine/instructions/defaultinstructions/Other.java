@@ -46,7 +46,7 @@ public class Other {
 
 
   public static final Instruction ADC = ImmutableInstruction.builder()
-      .opcode(0xFA)
+      .opcode(0xD)
       .name("ADC")
       .description("Accumulator + argument -> Accumulator")
       .hasArgument(true)

@@ -156,7 +156,7 @@ class StackTest extends InstructionTest {
         );
 
     assertThat(
-        Stack.LDVR.apply(state, offset),
+        Stack.LDRS.apply(state, offset),
         is(
             state.copy().withRegisters(
                 state.registers().copy().withAccumulator(valueToLoad)
@@ -169,12 +169,12 @@ class StackTest extends InstructionTest {
   void loadRelativeToSPHandlesOverflow() {
     assertThrows(
         NumberOverflowException.class,
-        () -> Stack.LDVR.apply(getStateWithStackPointer(0), 0xFFFFF + 1)
+        () -> Stack.LDRS.apply(getStateWithStackPointer(0), 0xFFFFF + 1)
     );
 
     assertThrows(
         NumberOverflowException.class,
-        () -> Stack.LDVR.apply(getStateWithStackPointer(20), 0xFFFFF - 19)
+        () -> Stack.LDRS.apply(getStateWithStackPointer(20), 0xFFFFF - 19)
     );
   }
 
@@ -199,7 +199,7 @@ class StackTest extends InstructionTest {
         );
 
     assertThat(
-        Stack.STVR.apply(state, offset),
+        Stack.STRS.apply(state, offset),
         is(
             state.copy().withMemory(
                 MainMemory.create().set(stackPointerAddress + offset, valueToStore)
@@ -212,12 +212,12 @@ class StackTest extends InstructionTest {
   void storeRelativeToSPHandlesOverflow() {
     assertThrows(
         NumberOverflowException.class,
-        () -> Stack.STVR.apply(getStateWithStackPointer(0), 0xFFFFF + 1)
+        () -> Stack.STRS.apply(getStateWithStackPointer(0), 0xFFFFF + 1)
     );
 
     assertThrows(
         NumberOverflowException.class,
-        () -> Stack.STVR.apply(getStateWithStackPointer(20), 0xFFFFF - 19)
+        () -> Stack.STRS.apply(getStateWithStackPointer(20), 0xFFFFF - 19)
     );
   }
 
