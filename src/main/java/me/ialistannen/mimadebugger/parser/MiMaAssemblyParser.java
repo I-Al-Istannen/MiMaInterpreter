@@ -30,8 +30,10 @@ import org.reactfx.util.Either;
 public class MiMaAssemblyParser {
 
   private static final Pattern COMMENT_PATTERN = Pattern.compile(";");
-  private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile("[a-zA-Z]+(?=:)");
-  private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z]+");
+  private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9-]*");
+  private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile(
+      LABEL_JUMP_PATTERN.pattern() + "(?=:)"
+  );
   private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("[A-Za-z]+");
   private static final Pattern VALUE_PATTERN = Pattern.compile("[+\\-]?\\d+");
   private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
@@ -266,6 +268,10 @@ public class MiMaAssemblyParser {
     int start = reader.getCursor();
     String number = assertRead(VALUE_PATTERN);
 
+    if (!reader.peek(Pattern.compile("\\s|$"))) {
+      return constantNodeWithProblem(start, "Expected a space character after a value");
+    }
+
     try {
       return new ConstantNode(
           Integer.parseInt(number),
@@ -274,19 +280,23 @@ public class MiMaAssemblyParser {
           new HalfOpenIntRange(start, reader.getCursor())
       );
     } catch (NumberFormatException e) {
-      ConstantNode constantNode = new ConstantNode(
-          0,
-          address,
-          reader.copy(),
-          new HalfOpenIntRange(start, reader.getCursor())
-      );
-      constantNode.addProblem(ImmutableParsingProblem.builder()
-          .approximateSpan(constantNode.getSpan())
-          .message("Expected integer number")
-          .build()
-      );
-      return constantNode;
+      return constantNodeWithProblem(start, "Expected integer number");
     }
+  }
+
+  private SyntaxTreeNode constantNodeWithProblem(int start, String problem) {
+    ConstantNode constantNode = new ConstantNode(
+        0,
+        address,
+        reader.copy(),
+        new HalfOpenIntRange(start, reader.getCursor())
+    );
+    constantNode.addProblem(ImmutableParsingProblem.builder()
+        .approximateSpan(constantNode.getSpan())
+        .message(problem)
+        .build()
+    );
+    return constantNode;
   }
 
   /**

@@ -22,6 +22,8 @@ import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Jump;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Load;
 import me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Other;
+import me.ialistannen.mimadebugger.parser.ast.LabelDeclarationNode;
+import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
 import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
 import me.ialistannen.mimadebugger.util.MemoryFormat;
@@ -221,6 +223,17 @@ class MiMaAssemblyParserTest {
     return result.asRight().get();
   }
 
+  private SyntaxTreeNode parseProgramToTreeOrThrow(String program) throws MiMaSyntaxError {
+    SyntaxTreeNode tree = parser.parseProgramToValidatedTree(program);
+    if (tree.hasProblem()) {
+      ParsingProblem problem = tree.getAllParsingProblems().get(0);
+      throw new MiMaSyntaxError(
+          problem.message(), tree.getStringReader(), problem.approximateSpan()
+      );
+    }
+    return tree;
+  }
+
   @Test
   void ensureNegativeValueIsReadCorrectly() throws MiMaSyntaxError {
     String program = "-12345";
@@ -329,6 +342,48 @@ class MiMaAssemblyParserTest {
         is(Collections.singletonList(
             execute(0, 1, Jump.JUMP)
         ))
+    );
+  }
+
+  @Test
+  void ensureLabelWithHyphensIsAllowed() throws MiMaSyntaxError {
+    String program = "hey-there:";
+
+    SyntaxTreeNode tree = parseProgramToTreeOrThrow(program);
+    assertThat(
+        ((LabelDeclarationNode) tree.getChildren().get(0)).getName(),
+        is("hey-there")
+    );
+  }
+
+  @Test
+  void ensureLabelWithHyphensIsNotAllowedAtStart() {
+    String program = "-hey-there:";
+
+    assertThrows(
+        MiMaSyntaxError.class,
+        () -> parseProgramToTreeOrThrow(program)
+    );
+  }
+
+  @Test
+  void ensureLabelWithNumberIsAllowed() throws MiMaSyntaxError {
+    String program = "heyThere2:";
+
+    SyntaxTreeNode tree = parseProgramToTreeOrThrow(program);
+    assertThat(
+        ((LabelDeclarationNode) tree.getChildren().get(0)).getName(),
+        is("heyThere2")
+    );
+  }
+
+  @Test
+  void ensureLabelWithNumberIsNotAllowedAtStart() {
+    String program = "2heyThere:";
+
+    assertThrows(
+        MiMaSyntaxError.class,
+        () -> System.out.println(parseProgramToTreeOrThrow(program))
     );
   }
 
