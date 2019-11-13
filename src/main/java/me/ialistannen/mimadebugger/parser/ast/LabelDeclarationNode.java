@@ -7,16 +7,14 @@ import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 /**
  * Represents a label declaration or usage.
  */
-public class LabelNode extends AbstractSyntaxTreeNode {
+public class LabelDeclarationNode extends AbstractSyntaxTreeNode implements LiteralValueNode {
 
   private String name;
-  private boolean declaration;
 
-  public LabelNode(String name, boolean declaration, int address, StringReader reader,
+  public LabelDeclarationNode(String name, int address, StringReader reader,
       HalfOpenIntRange span) {
     super(address, reader, span);
     this.name = name;
-    this.declaration = declaration;
   }
 
   /**
@@ -29,17 +27,18 @@ public class LabelNode extends AbstractSyntaxTreeNode {
   }
 
   /**
-   * Returns whether this is a label declaration or usage.
+   * Returns the address this label points to. An alias for {@link #getAddress()}.
    *
-   * @return whether this is a label declaration or usage
+   * @return the address this label points to
    */
-  public boolean isDeclaration() {
-    return declaration;
+  @Override
+  public int getValue() {
+    return getAddress();
   }
 
   @Override
   public String toString() {
-    return "LabelNode<" + name + ", " + getChildren().stream()
+    return "LabelDeclarationNode<" + name + ", " + getChildren().stream()
         .map(Object::toString)
         .collect(Collectors.joining(", "))
         + "(" + getAddress() + ")>";

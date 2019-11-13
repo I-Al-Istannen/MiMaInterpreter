@@ -6,7 +6,7 @@ import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
 /**
  * A node with a constant value.
  */
-public class ConstantNode extends AbstractSyntaxTreeNode {
+public class ConstantNode extends AbstractSyntaxTreeNode implements LiteralValueNode {
 
   private int value;
 
@@ -20,6 +20,7 @@ public class ConstantNode extends AbstractSyntaxTreeNode {
    *
    * @return the value of this node
    */
+  @Override
   public int getValue() {
     return value;
   }

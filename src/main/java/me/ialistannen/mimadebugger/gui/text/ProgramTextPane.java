@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.scene.layout.BorderPane;
-import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.highlighting.DiscontinuousSpans;
 import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
 import me.ialistannen.mimadebugger.gui.highlighting.PositionedHighlighting;
@@ -20,12 +20,14 @@ import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
+import me.ialistannen.mimadebugger.parser.ast.InstructionCallNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
-import me.ialistannen.mimadebugger.parser.ast.LabelNode;
+import me.ialistannen.mimadebugger.parser.ast.LabelDeclarationNode;
+import me.ialistannen.mimadebugger.parser.ast.LabelUsageNode;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
-import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
+import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -37,13 +39,13 @@ public class ProgramTextPane extends BorderPane {
 
   private ObservableSet<Integer> breakpoints;
 
-  private ObjectProperty<MiMaSyntaxError> error;
+  private ObjectProperty<SyntaxTreeNode> syntaxTree;
 
   public ProgramTextPane(InstructionSet instructionSet) {
     this.instructionSet = instructionSet;
     this.codeArea = new CodeArea();
     this.breakpoints = FXCollections.observableSet(new HashSet<>());
-    this.error = new SimpleObjectProperty<>();
+    this.syntaxTree = new SimpleObjectProperty<>();
     getStylesheets().add("/css/Highlight.css");
 
     updateLineIcons();
@@ -61,14 +63,12 @@ public class ProgramTextPane extends BorderPane {
     codeArea.setMouseOverTextDelay(Duration.ofMillis(250));
     InstructionHelpPopup.attachTo(codeArea, instructionSet);
     SyntaxErrorPopup.attachTo(codeArea, position -> {
-      if (error.get() == null) {
+      if (syntaxTree.get() == null) {
         return Optional.empty();
       }
-      HalfOpenIntRange span = error.get().getSpan();
-      if (span.contains(position)) {
-        return Optional.of(error.getValue());
-      }
-      return Optional.empty();
+      return syntaxTree.get().getAllParsingProblems().stream()
+          .filter(it -> it.approximateSpan().contains(position))
+          .findFirst();
     });
 
     setCenter(codeArea);
@@ -81,19 +81,17 @@ public class ProgramTextPane extends BorderPane {
   }
 
   private void highlightCode(String text) {
-    Optional<StyleSpans<Collection<String>>> basicHighlighting = Optional.empty();
-    try {
-      basicHighlighting = computeBasicHighlighting(text);
+    SyntaxTreeNode tree = new MiMaAssemblyParser(instructionSet).parseProgramToValidatedTree(text);
+    syntaxTree.set(tree);
 
-      // TODO: Decouple validation from basic parsing?
-      // validate it
-      new MiMaAssemblyParser(instructionSet).parseProgramToValidatedTree(text);
+    computeBasicHighlighting(tree).ifPresent(this::applyBaseHighlighting);
 
-      basicHighlighting.ifPresent(this::applyBaseHighlighting);
-    } catch (MiMaSyntaxError syntaxError) {
-      basicHighlighting.ifPresent(this::applyBaseHighlighting);
-      handleSyntaxError(syntaxError).ifPresent(this::applyErrorHighlighting);
-    }
+    List<PositionedHighlighting> problems = tree.getAllParsingProblems().stream()
+        .map(this::handleSyntaxError)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toList());
+    applyErrorHighlighting(problems);
   }
 
   private void applyBaseHighlighting(StyleSpans<Collection<String>> styles) {
@@ -106,50 +104,53 @@ public class ProgramTextPane extends BorderPane {
     }
   }
 
-  private Optional<StyleSpans<Collection<String>>> computeBasicHighlighting(String text)
-      throws MiMaSyntaxError {
-    SyntaxTreeNode tree = new MiMaAssemblyParser(instructionSet).parseProgramToTree(text);
+  private Optional<StyleSpans<Collection<String>>> computeBasicHighlighting(SyntaxTreeNode tree) {
     DiscontinuousSpans spans = new DiscontinuousSpans();
 
     tree.accept(new NodeVisitor() {
       @Override
       public void visit(SyntaxTreeNode node) {
-        HighlightingCategory category = HighlightingCategory.NORMAL;
+        HighlightingCategory category;
         if (node instanceof ConstantNode) {
           category = HighlightingCategory.VALUE;
         } else if (node instanceof InstructionNode) {
           category = HighlightingCategory.INSTRUCTION;
-        } else if (node instanceof LabelNode) {
-          if (((LabelNode) node).isDeclaration()) {
-            category = HighlightingCategory.LABEL_DECLARATION;
-          } else {
-            category = HighlightingCategory.LABEL_USAGE;
-          }
+        } else if (node instanceof LabelUsageNode) {
+          category = HighlightingCategory.LABEL_USAGE;
         } else if (node instanceof CommentNode) {
           category = HighlightingCategory.COMMENT;
+        } else if (node instanceof LabelDeclarationNode) {
+          category = HighlightingCategory.LABEL_DECLARATION;
         } else if (node instanceof RootNode) {
+          visitChildren(node);
+          return;
+        } else if (node instanceof InstructionCallNode) {
+          visitChildren(node);
           return;
         } else {
           System.err.println(
               "Invalid highlighting node received: " + node.getClass() + "  " + node
           );
+          return;
         }
 
         spans.addSpan(Collections.singletonList(category.getCssClass()), node.getSpan());
+
+        visitChildren(node);
       }
     });
 
     if (spans.isEmpty()) {
-      return Optional.of(StyleSpans.singleton(Collections.emptyList(), text.length()));
+      int length = tree.getStringReader().getString().length();
+      return Optional.of(StyleSpans.singleton(Collections.emptyList(), length));
     }
 
-    error.set(null);
     return Optional.ofNullable(spans.toStyleSpans());
   }
 
-  private Optional<List<PositionedHighlighting>> handleSyntaxError(MiMaSyntaxError syntaxError) {
-    int start = syntaxError.getSpan().getStart();
-    int end = syntaxError.getSpan().getEnd();
+  private Optional<PositionedHighlighting> handleSyntaxError(ParsingProblem problem) {
+    int start = problem.approximateSpan().getStart();
+    int end = problem.approximateSpan().getEnd();
 
     if (end <= start) {
       return Optional.empty();
@@ -157,15 +158,11 @@ public class ProgramTextPane extends BorderPane {
 
     StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
 
-    error.set(syntaxError);
-
     StyleSpans<Collection<String>> style = builder
         .add(Collections.singletonList("error"), end - start)
         .create();
 
-    return Optional.of(Collections.singletonList(
-        new PositionedHighlighting(style, start)
-    ));
+    return Optional.of(new PositionedHighlighting(style, start));
   }
 
   private void breakpointToggled(int line) {

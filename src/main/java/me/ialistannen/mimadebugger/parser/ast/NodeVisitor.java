@@ -1,6 +1,6 @@
 package me.ialistannen.mimadebugger.parser.ast;
 
-import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
+import java.util.ArrayList;
 
 /**
  * A visitor implementation for the {@link SyntaxTreeNode}.
@@ -11,46 +11,69 @@ public interface NodeVisitor {
    * Visits an {@link InstructionNode}
    *
    * @param instructionNode the instruction node
-   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitInstructionNode(InstructionNode instructionNode) throws MiMaSyntaxError {
+  default void visitInstructionNode(InstructionNode instructionNode) {
+    visitChildren(instructionNode);
   }
 
   /**
-   * Visits a {@link LabelNode}.
+   * Visits a {@link LabelDeclarationNode}.
    *
    * @param labelNode the label node
-   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitLabelNode(LabelNode labelNode) throws MiMaSyntaxError {
+  default void visitLabelDeclarationNode(LabelDeclarationNode labelNode) {
+    visitChildren(labelNode);
+  }
+
+  /**
+   * Visits a {@link LabelUsageNode}.
+   *
+   * @param labelNode the label node
+   */
+  default void visitLabelUsageNode(LabelUsageNode labelNode) {
+    visitChildren(labelNode);
   }
 
   /**
    * Visits a {@link ConstantNode}.
    *
    * @param constantNode the constant node
-   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitConstantNode(ConstantNode constantNode) throws MiMaSyntaxError {
+  default void visitConstantNode(ConstantNode constantNode) {
+    visitChildren(constantNode);
   }
 
   /**
    * Visits a {@link InstructionCallNode}.
    *
    * @param instructionCallNode the instruction call node
-   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitInstructionCallNode(InstructionCallNode instructionCallNode)
-      throws MiMaSyntaxError {
+  default void visitInstructionCallNode(InstructionCallNode instructionCallNode) {
+    visitChildren(instructionCallNode);
   }
 
   /**
    * Visits a {@link CommentNode}.
    *
    * @param commentNode the comment node
-   * @throws MiMaSyntaxError if a syntax error is encountered
    */
-  default void visitCommentNode(CommentNode commentNode) throws MiMaSyntaxError {
+  default void visitCommentNode(CommentNode commentNode) {
+    visitChildren(commentNode);
+  }
+
+  /**
+   * Visits an {@link UnparsableNode}.
+   *
+   * @param unparsableNode the unparsable node
+   */
+  default void visitUnparsableNode(UnparsableNode unparsableNode) {
+    visitChildren(unparsableNode);
+  }
+
+  default void visitChildren(SyntaxTreeNode node) {
+    for (SyntaxTreeNode child : new ArrayList<>(node.getChildren())) {
+      child.accept(this);
+    }
   }
 
   /**
@@ -59,9 +82,11 @@ public interface NodeVisitor {
    * @param node the node to visit
    * @throws IllegalArgumentException if the node type was not known
    */
-  default void visit(SyntaxTreeNode node) throws MiMaSyntaxError {
-    if (node instanceof LabelNode) {
-      visitLabelNode((LabelNode) node);
+  default void visit(SyntaxTreeNode node) {
+    if (node instanceof LabelUsageNode) {
+      visitLabelUsageNode((LabelUsageNode) node);
+    } else if (node instanceof LabelDeclarationNode) {
+      visitLabelDeclarationNode((LabelDeclarationNode) node);
     } else if (node instanceof InstructionNode) {
       visitInstructionNode((InstructionNode) node);
     } else if (node instanceof ConstantNode) {
@@ -71,7 +96,9 @@ public interface NodeVisitor {
     } else if (node instanceof CommentNode) {
       visitCommentNode((CommentNode) node);
     } else if (node instanceof RootNode) {
-      // ignore root
+      visitChildren(node);
+    } else if (node instanceof UnparsableNode) {
+      visitUnparsableNode((UnparsableNode) node);
     } else {
       throw new IllegalArgumentException("Unknown node type: " + node);
     }

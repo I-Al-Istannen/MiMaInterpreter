@@ -1,11 +1,11 @@
 package me.ialistannen.mimadebugger.parser.processing;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
-import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
+import java.util.Optional;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
-import me.ialistannen.mimadebugger.parser.ast.LabelNode;
+import me.ialistannen.mimadebugger.parser.ast.LabelUsageNode;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
@@ -25,14 +25,14 @@ class ToMemoryValueConverterTest {
   void failOnDanglingLabel() {
     RootNode rootNode = new RootNode(
         Collections.singletonList(
-            new LabelNode("test", false, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO)
+            new LabelUsageNode("test", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO)
         ),
         new MutableStringReader("")
     );
 
-    assertThrows(
-        MiMaSyntaxError.class,
-        () -> converter.process(rootNode)
+    assertEquals(
+        Optional.empty(),
+        converter.process(rootNode)
     );
   }
 
@@ -45,9 +45,9 @@ class ToMemoryValueConverterTest {
         new MutableStringReader("")
     );
 
-    assertThrows(
-        MiMaSyntaxError.class,
-        () -> converter.process(rootNode)
+    assertEquals(
+        Optional.empty(),
+        converter.process(rootNode)
     );
   }
 

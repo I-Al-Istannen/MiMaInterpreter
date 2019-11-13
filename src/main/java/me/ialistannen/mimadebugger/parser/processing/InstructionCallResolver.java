@@ -1,17 +1,17 @@
 package me.ialistannen.mimadebugger.parser.processing;
 
 import java.util.List;
-import me.ialistannen.mimadebugger.exceptions.AssemblyInstructionNotFoundException;
-import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
+import java.util.Optional;
 import me.ialistannen.mimadebugger.machine.instructions.ImmutableInstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.Instruction;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
-import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionCallNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
+import me.ialistannen.mimadebugger.parser.ast.LiteralValueNode;
 import me.ialistannen.mimadebugger.parser.ast.NodeVisitor;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
+import me.ialistannen.mimadebugger.parser.validation.ImmutableParsingProblem;
 
 public class InstructionCallResolver {
 
@@ -20,11 +20,8 @@ public class InstructionCallResolver {
    *
    * @param root the root node to walk through
    * @param instructionSet the {@link InstructionSet} to use
-   * @throws AssemblyInstructionNotFoundException if an instruction could not be found
-   * @throws MiMaSyntaxError if another syntax error occurs
    */
-  public void resolveInstructions(SyntaxTreeNode root, InstructionSet instructionSet)
-      throws MiMaSyntaxError {
+  public void resolveInstructions(SyntaxTreeNode root, InstructionSet instructionSet) {
     root.accept(new InstructionCallResolveVisitor(instructionSet));
   }
 
@@ -37,43 +34,38 @@ public class InstructionCallResolver {
     }
 
     @Override
-    public void visit(SyntaxTreeNode node) throws MiMaSyntaxError {
-      NodeVisitor.super.visit(node);
-    }
-
-    @Override
-    public void visitInstructionNode(InstructionNode instructionNode) throws MiMaSyntaxError {
+    public void visitInstructionNode(InstructionNode instructionNode) {
+      if (instructionNode.hasProblem()) {
+        return;
+      }
       Instruction instruction = instructionSet
           .forName(instructionNode.getInstruction())
-          .orElseThrow(() -> new AssemblyInstructionNotFoundException(
-              instructionNode.getInstruction(),
-              instructionNode.getStringReader(),
-              instructionNode.getSpan()
-          ));
+          .orElseThrow(() -> new RuntimeException("Instruction unknown :("));
 
       List<SyntaxTreeNode> children = instructionNode.getChildren();
 
       if (instruction.hasArgument() && children.isEmpty()) {
-        throw new MiMaSyntaxError(
-            String.format("Expected argument for instruction %s", instruction.name()),
-            instructionNode.getStringReader(),
-            instructionNode.getSpan()
+        instructionNode.addProblem(ImmutableParsingProblem.builder()
+            .message(String.format("Expected argument for instruction %s", instruction.name()))
+            .approximateSpan(instructionNode.getSpan())
+            .build()
         );
+        return;
       }
 
       int argument = 0;
       if (!children.isEmpty()) {
         SyntaxTreeNode node = children.get(0);
-        if (!(node instanceof ConstantNode)) {
-          throw new MiMaSyntaxError(
-              String.format("Expected constant number for instruction '%s'", instruction.name()),
-              instructionNode.getStringReader(),
-              node.getSpan()
+        if (!(node instanceof LiteralValueNode)) {
+          instructionNode.addProblem(ImmutableParsingProblem.builder()
+              .approximateSpan(instructionNode.getSpan())
+              .message("Expected a literal value, got " + node)
+              .build()
           );
+          return;
         }
 
-        argument = ((ConstantNode) node).getValue();
-        instructionNode.removeChild(node);
+        argument = ((LiteralValueNode) node).getValue();
       }
 
       InstructionCall instructionCall = ImmutableInstructionCall.builder()
@@ -81,21 +73,26 @@ public class InstructionCallResolver {
           .command(instruction)
           .build();
 
-      SyntaxTreeNode parent = instructionNode.getParent()
-          .orElseThrow(() -> new MiMaSyntaxError(
-                  "Dangling instruction node: " + instructionNode,
-              instructionNode.getStringReader(),
-              instructionNode.getSpan()
-              )
-          );
+      Optional<SyntaxTreeNode> parent = instructionNode.getParent();
 
-      parent.removeChild(instructionNode);
-      parent.addChild(new InstructionCallNode(
+      if (!parent.isPresent()) {
+        instructionNode.addProblem(ImmutableParsingProblem.builder()
+            .message("Dangling instruction node: " + instructionNode)
+            .approximateSpan(instructionNode.getSpan())
+            .build()
+        );
+        return;
+      }
+
+      parent.get().removeChild(instructionNode);
+      InstructionCallNode callNode = new InstructionCallNode(
           instructionNode.getAddress(),
           instructionNode.getStringReader(),
           instructionCall,
           instructionNode.getSpan()
-      ));
+      );
+      callNode.addChild(instructionNode);
+      parent.get().addChild(callNode);
     }
   }
 }

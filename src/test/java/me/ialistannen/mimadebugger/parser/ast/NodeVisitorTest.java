@@ -35,10 +35,10 @@ class NodeVisitorTest {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
       @Override
-      public void visitLabelNode(LabelNode labelNode) {
+      public void visitLabelDeclarationNode(LabelDeclarationNode labelNode) {
         hit.set(true);
       }
-    }.visit(new LabelNode("", true, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
+    }.visit(new LabelDeclarationNode("", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
     assertThat(
         hit.get(),

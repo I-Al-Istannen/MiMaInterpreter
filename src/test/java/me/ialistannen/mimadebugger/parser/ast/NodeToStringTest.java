@@ -16,7 +16,7 @@ public class NodeToStringTest {
 
   @Test
   void labelToStringCompletesNormally() {
-    new LabelNode("", true, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO);
+    new LabelDeclarationNode("", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO);
   }
 
   @Test

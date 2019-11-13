@@ -2,23 +2,27 @@ package me.ialistannen.mimadebugger.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
-import me.ialistannen.mimadebugger.exceptions.AssemblyInstructionNotFoundException;
-import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
-import me.ialistannen.mimadebugger.parser.ast.LabelNode;
+import me.ialistannen.mimadebugger.parser.ast.LabelDeclarationNode;
+import me.ialistannen.mimadebugger.parser.ast.LabelUsageNode;
 import me.ialistannen.mimadebugger.parser.ast.RootNode;
 import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
+import me.ialistannen.mimadebugger.parser.ast.UnparsableNode;
 import me.ialistannen.mimadebugger.parser.processing.ConstantVerification;
 import me.ialistannen.mimadebugger.parser.processing.InstructionCallResolver;
 import me.ialistannen.mimadebugger.parser.processing.LabelResolver;
 import me.ialistannen.mimadebugger.parser.processing.ToMemoryValueConverter;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
+import me.ialistannen.mimadebugger.parser.validation.ImmutableParsingProblem;
+import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
+import org.reactfx.util.Either;
 
 /**
  * A parser for MiMa Assembly, supporting labels and comments.
@@ -61,17 +65,24 @@ public class MiMaAssemblyParser {
    * @param program the program text
    * @return the root of the parsed syntax tree
    */
-  public SyntaxTreeNode parseProgramToTree(String program) throws MiMaSyntaxError {
+  private SyntaxTreeNode parseProgramToTree(String program) {
     this.reader = new MutableStringReader(program);
     this.address = 0;
 
     List<SyntaxTreeNode> syntaxTreeNodes = new ArrayList<>();
 
     while (reader.canRead()) {
-      SyntaxTreeNode syntaxTreeNode = readLine();
+      try {
+        SyntaxTreeNode syntaxTreeNode = readLine();
 
-      if (syntaxTreeNode != null) {
-        syntaxTreeNodes.add(syntaxTreeNode);
+        if (syntaxTreeNode != null) {
+          syntaxTreeNodes.add(syntaxTreeNode);
+        }
+      } catch (UnexpectedParseError unexpectedParseError) {
+        syntaxTreeNodes.add(new UnparsableNode(
+            address, reader, unexpectedParseError.getSpan(), unexpectedParseError.getMessage()
+        ));
+        readToSavepoint();
       }
     }
 
@@ -83,13 +94,13 @@ public class MiMaAssemblyParser {
    *
    * @param program the program text
    * @return the root of the validated syntax tree
-   * @throws MiMaSyntaxError if there is an error
    */
-  public SyntaxTreeNode parseProgramToValidatedTree(String program) throws MiMaSyntaxError {
+  public SyntaxTreeNode parseProgramToValidatedTree(String program) {
     SyntaxTreeNode tree = parseProgramToTree(program);
 
-    // Fail if deeper constant validation fails
-    parseProgramToMemoryValues(program);
+    labelResolver.resolve(tree);
+    constantVerification.validateConstants(tree);
+    instructionCallResolver.resolveInstructions(tree, instructionSet);
 
     return tree;
   }
@@ -99,23 +110,28 @@ public class MiMaAssemblyParser {
    *
    * @param program the program text
    * @return the parsed memory values
-   * @throws MiMaSyntaxError if the program has a syntax error
    */
-  public List<MemoryValue> parseProgramToMemoryValues(String program) throws MiMaSyntaxError {
-    SyntaxTreeNode rootNode = parseProgramToTree(program);
-    labelResolver.resolve(rootNode);
-    constantVerification.validateConstants(rootNode);
-    instructionCallResolver.resolveInstructions(rootNode, instructionSet);
+  public Either<List<ParsingProblem>, List<MemoryValue>> parseProgramToMemoryValues(
+      String program) {
+    SyntaxTreeNode rootNode = parseProgramToValidatedTree(program);
 
-    return toMemoryValueConverter.process(rootNode);
+    Optional<List<MemoryValue>> values = toMemoryValueConverter.process(rootNode);
+
+    //noinspection OptionalIsPresent
+    if (values.isPresent()) {
+      return Either.right(values.get());
+    }
+
+    return Either.left(rootNode.getAllParsingProblems());
   }
 
   /**
    * Reads a single line of input from the file, which should equal one instruction.
    *
    * @return the read value or null if none
+   * @throws UnexpectedParseError if a value could not be read after peeking its start
    */
-  private SyntaxTreeNode readLine() throws MiMaSyntaxError {
+  private SyntaxTreeNode readLine() throws UnexpectedParseError {
     eatWhitespace();
 
     if (!reader.canRead()) {
@@ -128,7 +144,7 @@ public class MiMaAssemblyParser {
     if (reader.peek(COMMENT_PATTERN)) {
       node = readComment();
     } else if (reader.peek(LABEL_DECLARATION_PATTERN)) {
-      LabelNode labelNode = readLabelDeclaration();
+      LabelDeclarationNode labelNode = readLabelDeclaration();
       SyntaxTreeNode instructionOrValue = readInstructionOrValue();
 
       if (instructionOrValue != null) {
@@ -154,10 +170,11 @@ public class MiMaAssemblyParser {
       int end = reader.getCursor() == start
           ? Math.min(reader.getString().length(), start + 5)
           : reader.getCursor();
-      throw new MiMaSyntaxError(
-          "Expected comment, label or instruction",
-          reader,
-          new HalfOpenIntRange(start, end)
+
+      readToSavepoint();
+      return new UnparsableNode(
+          address, reader, new HalfOpenIntRange(start, end),
+          "Expected comment, label or instruction"
       );
     }
 
@@ -166,7 +183,11 @@ public class MiMaAssemblyParser {
     return node;
   }
 
-  private CommentNode readComment() throws MiMaSyntaxError {
+  private void readToSavepoint() {
+    reader.read(Pattern.compile("[^\\n]+"));
+  }
+
+  private CommentNode readComment() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     int start = reader.getCursor();
     assertRead(COMMENT_PATTERN);
@@ -185,15 +206,15 @@ public class MiMaAssemblyParser {
    * Reads a label declaration, so sth like {@code label:}.
    *
    * @return the read label declaration
+   * @throws UnexpectedParseError if no name could be read
    */
-  private LabelNode readLabelDeclaration() throws MiMaSyntaxError {
+  private LabelDeclarationNode readLabelDeclaration() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     int startPos = reader.getCursor();
     String name = assertRead(LABEL_DECLARATION_PATTERN);
     reader.read(1); // consume trailing ':'
-    return new LabelNode(
+    return new LabelDeclarationNode(
         name,
-        true,
         address,
         reader.copy(),
         new HalfOpenIntRange(startPos, reader.getCursor() - 1)
@@ -204,14 +225,14 @@ public class MiMaAssemblyParser {
    * Reads a label usage, so sth like {@code JMP label}.
    *
    * @return the read label
+   * @throws UnexpectedParseError if no name could be read
    */
-  private LabelNode readLabelUsage() throws MiMaSyntaxError {
+  private LabelUsageNode readLabelUsage() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String name = assertRead(LABEL_JUMP_PATTERN);
-    return new LabelNode(
+    return new LabelUsageNode(
         name,
-        false,
         address,
         reader.copy(),
         new HalfOpenIntRange(start, reader.getCursor())
@@ -222,8 +243,10 @@ public class MiMaAssemblyParser {
    * Tries to read an instruction or a value.
    *
    * @return the read value or instruction node, null if nothing found
+   * @throws UnexpectedParseError if no value or instruction could be read after peeking their
+   *     pattern
    */
-  private SyntaxTreeNode readInstructionOrValue() throws MiMaSyntaxError {
+  private SyntaxTreeNode readInstructionOrValue() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     if (reader.peek(VALUE_PATTERN)) {
       return readValue();
@@ -238,9 +261,9 @@ public class MiMaAssemblyParser {
    * Tries to read an integer value.
    *
    * @return the read integer value
-   * @throws MiMaSyntaxError if the value is no integer
+   * @throws UnexpectedParseError if no value could be read
    */
-  private SyntaxTreeNode readValue() throws MiMaSyntaxError {
+  private SyntaxTreeNode readValue() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String number = assertRead(VALUE_PATTERN);
@@ -253,10 +276,18 @@ public class MiMaAssemblyParser {
           new HalfOpenIntRange(start, reader.getCursor())
       );
     } catch (NumberFormatException e) {
-      int endPosition = reader.getCursor();
-      reader.setCursor(start);
-      throw new MiMaSyntaxError(
-          "Expected integer number", reader, new HalfOpenIntRange(start, endPosition));
+      ConstantNode constantNode = new ConstantNode(
+          0,
+          address,
+          reader.copy(),
+          new HalfOpenIntRange(start, reader.getCursor())
+      );
+      constantNode.addProblem(ImmutableParsingProblem.builder()
+          .approximateSpan(constantNode.getSpan())
+          .message("Expected integer number")
+          .build()
+      );
+      return constantNode;
     }
   }
 
@@ -264,22 +295,12 @@ public class MiMaAssemblyParser {
    * Tries to read an instruction.
    *
    * @return the read instruction
-   * @throws MiMaSyntaxError if no instruction was found
+   * @throws UnexpectedParseError if no instruction was found
    */
-  private SyntaxTreeNode readInstruction() throws MiMaSyntaxError {
+  private SyntaxTreeNode readInstruction() throws UnexpectedParseError {
     eatWhitespaceNoNewline();
     int start = reader.getCursor();
     String instructionName = assertRead(INSTRUCTION_PATTERN);
-
-    if (!instructionSet.forName(instructionName).isPresent()) {
-      int failingCursorPosition = reader.getCursor();
-      reader.setCursor(start);
-      throw new AssemblyInstructionNotFoundException(
-          instructionName,
-          reader,
-          new HalfOpenIntRange(start, failingCursorPosition)
-      );
-    }
 
     InstructionNode instructionNode = new InstructionNode(
         instructionName,
@@ -287,6 +308,15 @@ public class MiMaAssemblyParser {
         reader.copy(),
         new HalfOpenIntRange(start, reader.getCursor())
     );
+
+    if (!instructionSet.forName(instructionName).isPresent()) {
+      instructionNode.addProblem(ImmutableParsingProblem.builder()
+          .approximateSpan(instructionNode.getSpan())
+          .message("Instruction '" + instructionName + "' not found")
+          .build()
+      );
+      return instructionNode;
+    }
 
     eatWhitespace();
 
@@ -301,16 +331,15 @@ public class MiMaAssemblyParser {
     return instructionNode;
   }
 
-  private String assertRead(Pattern pattern) throws MiMaSyntaxError {
+  private String assertRead(Pattern pattern) throws UnexpectedParseError {
     int start = reader.getCursor();
     if (!reader.peek(pattern)) {
       int failingCursorPosition = reader.getCursor();
       if (failingCursorPosition == start) {
         failingCursorPosition = Math.min(start, failingCursorPosition + 5);
       }
-      throw new MiMaSyntaxError(
+      throw new UnexpectedParseError(
           "Expected " + pattern.pattern(),
-          reader,
           new HalfOpenIntRange(start, failingCursorPosition)
       );
     }
@@ -325,4 +354,17 @@ public class MiMaAssemblyParser {
     reader.read(Pattern.compile("[\t ]"));
   }
 
+  private static class UnexpectedParseError extends Exception {
+
+    private HalfOpenIntRange span;
+
+    UnexpectedParseError(String message, HalfOpenIntRange span) {
+      super(message);
+      this.span = span;
+    }
+
+    HalfOpenIntRange getSpan() {
+      return span;
+    }
+  }
 }

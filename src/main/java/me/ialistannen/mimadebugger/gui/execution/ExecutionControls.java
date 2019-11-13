@@ -35,6 +35,9 @@ import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
 import me.ialistannen.mimadebugger.parser.util.MiMaExceptionRunnable;
+import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
+import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
+import org.reactfx.util.Either;
 
 public class ExecutionControls extends BorderPane {
 
@@ -153,14 +156,30 @@ public class ExecutionControls extends BorderPane {
    */
   public State getCurrentState() throws MiMaSyntaxError {
     if (runner.get() == null || programOutOfDate.get()) {
-      List<MemoryValue> memoryValues = new MiMaAssemblyParser(instructionSet)
-          .parseProgramToMemoryValues(programTextProperty.get());
+      List<MemoryValue> memoryValues = parseOrThrow(programTextProperty.get());
       return ImmutableState.builder()
           .memory(MainMemory.create(memoryValues))
           .registers(ImmutableRegisters.builder().build())
           .build();
     }
     return runner.get().getCurrent();
+  }
+
+  private List<MemoryValue> parseOrThrow(String text) throws MiMaSyntaxError {
+    Either<List<ParsingProblem>, List<MemoryValue>> memoryValues = programParser
+        .parseProgramToMemoryValues(text);
+
+    if (memoryValues.isLeft()) {
+      @SuppressWarnings("OptionalGetWithoutIsPresent")
+      ParsingProblem problem = memoryValues.asLeft().get().get(0);
+      throw new MiMaSyntaxError(
+          problem.message(),
+          new MutableStringReader(text),
+          problem.approximateSpan()
+      );
+    }
+    //noinspection OptionalGetWithoutIsPresent
+    return memoryValues.asRight().get();
   }
 
   /**
@@ -189,7 +208,7 @@ public class ExecutionControls extends BorderPane {
    * @throws NumberOverflowException if the program's addresses were too large
    */
   private void setProgram(String program) throws MiMaSyntaxError, NumberOverflowException {
-    List<MemoryValue> values = programParser.parseProgramToMemoryValues(program);
+    List<MemoryValue> values = parseOrThrow(program);
 
     MainMemory memory = MainMemory.create();
 
