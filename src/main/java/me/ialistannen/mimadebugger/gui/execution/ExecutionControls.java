@@ -111,6 +111,8 @@ public class ExecutionControls extends BorderPane {
 
     programTextProperty.addListener((observable, oldValue, newValue) -> programOutOfDate.set(true));
 
+    programOutOfDate.addListener((observable, oldValue, newValue) -> stopRunningProgram());
+
     disableStepButtons.addListener((observable, oldValue, newValue) -> {
       if (newValue) {
         stateConsumer.accept(null);
@@ -267,8 +269,7 @@ public class ExecutionControls extends BorderPane {
   @FXML
   private void onExecute() {
     if (executionTask != null && executionTask.isRunning()) {
-      executionTask.cancel();
-      currentlyRunning.set(false);
+      stopRunningProgram();
       return;
     }
     if (runner.get().isFinished()) {
@@ -325,6 +326,13 @@ public class ExecutionControls extends BorderPane {
     Thread worker = new Thread(executionTask);
     worker.setDaemon(true);
     worker.start();
+  }
+
+  private void stopRunningProgram() {
+    if (executionTask != null && executionTask.isRunning()) {
+      executionTask.cancel();
+      currentlyRunning.set(false);
+    }
   }
 
   private void stepGuardException(MiMaExceptionRunnable runnable) {
