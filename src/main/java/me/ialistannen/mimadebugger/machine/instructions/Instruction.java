@@ -42,7 +42,7 @@ public abstract class Instruction {
    */
   @Value.Default
   public int argumentWidth() {
-    return 20;
+    return opcode() >= 0xF ? 16 : 20;
   }
 
   /**

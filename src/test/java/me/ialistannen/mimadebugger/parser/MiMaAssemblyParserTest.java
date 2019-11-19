@@ -422,7 +422,7 @@ class MiMaAssemblyParserTest {
 
   @Test
   void ensureTooLargeAddressThrowsException() {
-    String program = "LDC 524289";
+    String program = "LDC " + (1 << MemoryFormat.ADDRESS_LENGTH);
 
     assertThrows(
         MiMaSyntaxError.class,
@@ -432,38 +432,41 @@ class MiMaAssemblyParserTest {
 
   @Test
   void ensureMaximumAddressIsRead() throws MiMaSyntaxError {
-    String program = "LDC 524288";
+    String program = "LDC 1048575";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
     assertThat(
         values,
         is(Collections.singletonList(
-            execute(0, 524288, Load.LOAD_CONSTANT)
+            execute(0, 1048575, Load.LOAD_CONSTANT)
         ))
     );
   }
 
   @Test
   void ensureMaximumAddressForTwoBitOpcodeIsRead() throws MiMaSyntaxError {
-    String program = "RAR 32768";
+    String program = "RAR 65535";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
     assertThat(
         values,
         is(Collections.singletonList(
-            execute(0, 32768, Other.ROTATE_RIGHT)
+            execute(0, 65535, Other.ROTATE_RIGHT)
         ))
     );
   }
 
-//  void ensureTooLargeAddressForTwoBitOpcode() {
-//    String program = "RAR 32769";
-//
-//    assertThrows(
-//        MiMaSyntaxError.class,
-//        () -> parser.parseProgramToMemoryValues(program)
-//    );
-//  }
+  @Test
+  void ensureTooLargeAddressForTwoBitOpcodeThrows() {
+    String program = "RAR 65536";
+
+    Either<List<ParsingProblem>, List<MemoryValue>> result = parser
+        .parseProgramToMemoryValues(program);
+    assertThat(
+        result.isLeft(),
+        is(true)
+    );
+  }
 
   @Test
   void ensureReadingInvalidNumberThrowsException() {

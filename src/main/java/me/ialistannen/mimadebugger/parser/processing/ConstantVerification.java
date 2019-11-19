@@ -44,7 +44,7 @@ public class ConstantVerification {
         return;
       }
 
-      int maximumValue = 1 << instruction.get().argumentWidth() - 1;
+      int maximumValue = (1 << instruction.get().argumentWidth()) - 1;
       boolean tooSmall = value < -maximumValue;
       boolean tooLarge = value > maximumValue;
       if (tooSmall || tooLarge) {
