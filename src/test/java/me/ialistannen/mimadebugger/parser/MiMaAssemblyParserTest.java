@@ -399,12 +399,24 @@ class MiMaAssemblyParserTest {
   }
 
   @Test
-  void ensureNegativeAddressThrowsException() {
+  void ensureNegativeLoadConstantIsValid() throws MiMaSyntaxError {
     String program = "LDC -1";
 
-    assertThrows(
-        MiMaSyntaxError.class,
-        () -> parseProgramOrThrow(program)
+    List<MemoryValue> values = parseProgramOrThrow(program);
+    InstructionCall call = ImmutableInstructionCall.builder()
+        .argument(-1)
+        .command(Load.LOAD_CONSTANT)
+        .build();
+
+    assertThat(
+        values.get(0),
+        is(
+            ImmutableEncodedInstructionCall.builder()
+                .address(0)
+                .representation(Load.LOAD_CONSTANT.opcode() | 0x0FFFFF)
+                .instructionCall(call)
+                .build()
+        )
     );
   }
 

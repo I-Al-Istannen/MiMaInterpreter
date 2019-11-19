@@ -59,7 +59,7 @@ public class ToMemoryValueConverter {
     @Override
     public void visitInstructionNode(InstructionNode instructionNode) {
       instructionNode.addProblem(ImmutableParsingProblem.builder()
-          .message("Instruction call left over after parsing: " + instructionNode)
+          .message("Instruction node left over after parsing: " + instructionNode)
           .approximateSpan(instructionNode.getSpan())
           .build()
       );

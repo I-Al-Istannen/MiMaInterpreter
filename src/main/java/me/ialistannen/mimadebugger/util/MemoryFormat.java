@@ -7,19 +7,11 @@ public class MemoryFormat {
 
   public static final int ADDRESS_LENGTH = 20;
   public static final int VALUE_LENGTH = 24;
-  public static final int VALUE_MAXIMUM = getMaximumValue(VALUE_LENGTH);
-  public static final int VALUE_MINIMUM = getMinimumValue(VALUE_LENGTH);
+  public static final int VALUE_MAXIMUM = (int) (Math.pow(2, VALUE_LENGTH - 1) - 1);
+  public static final int VALUE_MINIMUM = (int) -(Math.pow(2, VALUE_LENGTH - 1));
 
   private MemoryFormat() {
     //no instance
-  }
-
-  public static int getMaximumValue(int bitWidth) {
-    return (int) (Math.pow(2, bitWidth - 1) - 1);
-  }
-
-  public static int getMinimumValue(int bitWidth) {
-    return (int) -(Math.pow(2, bitWidth - 1));
   }
 
   /**
@@ -88,9 +80,7 @@ public class MemoryFormat {
    * @return the masked value
    */
   public static int maskToValue(int value) {
-    int mask = 0x00ffffff;
-
-    return value & mask;
+    return maskToWordOfSize(VALUE_LENGTH, value);
   }
 
   /**
@@ -98,7 +88,6 @@ public class MemoryFormat {
    *
    * @param value the value, 24 bits wide
    * @return the extracted opcode
-   * @throws NumberOverflowException if the number was more than 24 bits wide
    */
   public static int extractOpcode(int value) {
     return (value & 0x00f00000) >>> 20;
@@ -112,7 +101,6 @@ public class MemoryFormat {
    *
    * @param value the value, 24 bits wide
    * @return the extracted opcode
-   * @throws NumberOverflowException if the number was more than 24 bits wide
    */
   public static int extractLargeOpcode(int value) {
     return (value & 0x00ff0000) >>> 16;
@@ -154,9 +142,22 @@ public class MemoryFormat {
    */
   private static int combineInstruction(int opcode, boolean large, int argument) {
     int result = large ? opcode << 16 : opcode << 20;
-    result = result | argument;
+    result = result | maskToWordOfSize(large ? 16 : 20, argument);
 
     return result;
+  }
+
+  /**
+   * Masks off the first {@code Integer.SIZE - bitLength} bits, to only leave the
+   * <strong>lower</strong> {@code bitLength} bits.
+   *
+   * @param bitLength the target bit length
+   * @param value the value
+   * @return the value
+   */
+  private static int maskToWordOfSize(int bitLength, int value) {
+    int mask = ~0 >>> (Integer.SIZE - bitLength);
+    return value & mask;
   }
 
   /**

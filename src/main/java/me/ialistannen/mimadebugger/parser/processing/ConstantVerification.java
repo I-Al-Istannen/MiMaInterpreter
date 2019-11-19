@@ -44,13 +44,12 @@ public class ConstantVerification {
         return;
       }
 
-      int minimumValue = MemoryFormat.getMinimumValue(instruction.get().argumentWidth());
-      int maximumValue = MemoryFormat.getMaximumValue(instruction.get().argumentWidth());
-      boolean tooSmall = value < minimumValue;
+      int maximumValue = 1 << instruction.get().argumentWidth() - 1;
+      boolean tooSmall = value < -maximumValue;
       boolean tooLarge = value > maximumValue;
       if (tooSmall || tooLarge) {
         node.addProblem(ImmutableParsingProblem.builder()
-            .message(String.format("Address not in (%s, %s)", minimumValue, maximumValue))
+            .message(String.format("Address not in (%s, %s)", -maximumValue, maximumValue))
             .approximateSpan(node.getSpan())
             .build()
         );
