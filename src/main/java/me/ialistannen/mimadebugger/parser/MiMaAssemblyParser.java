@@ -36,7 +36,7 @@ public class MiMaAssemblyParser {
       LABEL_JUMP_PATTERN.pattern() + "(?=:)"
   );
   private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("[A-Za-z]+");
-  private static final Pattern VALUE_PATTERN = Pattern.compile("[+\\-]?\\d+");
+  private static final Pattern VALUE_PATTERN = Pattern.compile("[+\\-]?(0x)?\\d+");
   private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
   private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
 
@@ -274,8 +274,14 @@ public class MiMaAssemblyParser {
     }
 
     try {
+      int value;
+      if (number.contains("0x")) {
+        value = Integer.parseInt(number.replace("0x", ""));
+      } else {
+        value = Integer.parseInt(number);
+      }
       return new ConstantNode(
-          Integer.parseInt(number),
+          value,
           address,
           reader.copy(),
           new HalfOpenIntRange(start, reader.getCursor())
