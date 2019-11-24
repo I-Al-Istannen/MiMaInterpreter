@@ -258,7 +258,7 @@ public class MiMaAssemblyParser {
       return node;
     }
 
-    reader.read(Pattern.compile("\\s*=\\s*"));
+    eatWhitespaceNoNewline();
 
     if (reader.peek(VALUE_PATTERN)) {
       return AssemblerDirectiveRegister.of(
