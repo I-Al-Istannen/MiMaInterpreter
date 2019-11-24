@@ -1,5 +1,6 @@
 package me.ialistannen.mimadebugger.parser.ast;
 
+import java.util.Optional;
 import me.ialistannen.mimadebugger.machine.MiMaRegister;
 import me.ialistannen.mimadebugger.parser.util.StringReader;
 import me.ialistannen.mimadebugger.util.HalfOpenIntRange;
@@ -16,8 +17,8 @@ public class AssemblerDirectiveRegister extends AbstractSyntaxTreeNode {
     this.value = value;
   }
 
-  public LiteralValueNode getValue() {
-    return value;
+  public Optional<LiteralValueNode> getValue() {
+    return Optional.ofNullable(value);
   }
 
   public MiMaRegister getRegister() {
@@ -31,7 +32,9 @@ public class AssemblerDirectiveRegister extends AbstractSyntaxTreeNode {
         address, reader, span, register, value
     );
 
-    node.addChild(value);
+    if (value != null) {
+      node.addChild(value);
+    }
 
     return node;
   }

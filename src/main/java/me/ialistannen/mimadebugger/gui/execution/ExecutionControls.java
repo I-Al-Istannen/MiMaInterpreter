@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javafx.beans.binding.BooleanBinding;
@@ -19,6 +20,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Pair;
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.exceptions.MiMaSyntaxError;
 import me.ialistannen.mimadebugger.exceptions.NamedExecutionError;
@@ -31,13 +33,15 @@ import me.ialistannen.mimadebugger.machine.MiMa;
 import me.ialistannen.mimadebugger.machine.MiMaRunner;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
-import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.MainMemory;
+import me.ialistannen.mimadebugger.machine.memory.Registers;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
+import me.ialistannen.mimadebugger.parser.ast.SyntaxTreeNode;
+import me.ialistannen.mimadebugger.parser.processing.ToMemoryValueConverter;
+import me.ialistannen.mimadebugger.parser.processing.ToRegistersConverter;
 import me.ialistannen.mimadebugger.parser.util.MiMaExceptionRunnable;
 import me.ialistannen.mimadebugger.parser.util.MutableStringReader;
 import me.ialistannen.mimadebugger.parser.validation.ParsingProblem;
-import org.reactfx.util.Either;
 
 public class ExecutionControls extends BorderPane {
 
@@ -158,30 +162,31 @@ public class ExecutionControls extends BorderPane {
    */
   public State getCurrentState() throws MiMaSyntaxError {
     if (runner.get() == null || programOutOfDate.get()) {
-      List<MemoryValue> memoryValues = parseOrThrow(programTextProperty.get());
+      Pair<List<MemoryValue>, Registers> memoryValues = parseOrThrow(programTextProperty.get());
       return ImmutableState.builder()
-          .memory(MainMemory.create(memoryValues))
-          .registers(ImmutableRegisters.builder().build())
+          .memory(MainMemory.create(memoryValues.getKey()))
+          .registers(memoryValues.getValue())
           .build();
     }
     return runner.get().getCurrent();
   }
 
-  private List<MemoryValue> parseOrThrow(String text) throws MiMaSyntaxError {
-    Either<List<ParsingProblem>, List<MemoryValue>> memoryValues = programParser
-        .parseProgramToMemoryValues(text);
+  private Pair<List<MemoryValue>, Registers> parseOrThrow(String text) throws MiMaSyntaxError {
+    SyntaxTreeNode astRoot = programParser.parseProgramToValidatedTree(text);
+    Optional<List<MemoryValue>> memoryValues = new ToMemoryValueConverter().process(astRoot);
 
-    if (memoryValues.isLeft()) {
-      @SuppressWarnings("OptionalGetWithoutIsPresent")
-      ParsingProblem problem = memoryValues.asLeft().get().get(0);
+    if (!memoryValues.isPresent()) {
+      ParsingProblem problem = astRoot.getAllParsingProblems().get(0);
       throw new MiMaSyntaxError(
           problem.message(),
           new MutableStringReader(text),
           problem.approximateSpan()
       );
     }
-    //noinspection OptionalGetWithoutIsPresent
-    return memoryValues.asRight().get();
+    return new Pair<>(
+        memoryValues.get(),
+        new ToRegistersConverter().toRegisters(astRoot)
+    );
   }
 
   /**
@@ -210,17 +215,17 @@ public class ExecutionControls extends BorderPane {
    * @throws NumberOverflowException if the program's addresses were too large
    */
   private void setProgram(String program) throws MiMaSyntaxError, NumberOverflowException {
-    List<MemoryValue> values = parseOrThrow(program);
+    Pair<List<MemoryValue>, Registers> programValues = parseOrThrow(program);
 
     MainMemory memory = MainMemory.create();
 
-    for (MemoryValue value : values) {
+    for (MemoryValue value : programValues.getKey()) {
       memory = memory.set(value.address(), value.representation());
     }
 
     State initialState = ImmutableState.builder()
         .memory(memory)
-        .registers(ImmutableRegisters.builder().build())
+        .registers(programValues.getValue())
         .build();
 
     MiMa miMa = new MiMa(initialState, instructionSet);

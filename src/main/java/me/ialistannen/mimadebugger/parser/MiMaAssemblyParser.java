@@ -233,25 +233,28 @@ public class MiMaAssemblyParser {
   }
 
   private SyntaxTreeNode readRegisterDirective(int start) throws UnexpectedParseError {
-    String name = reader.read(Pattern.compile("[A-Za-z]+"));
+    int directiveNameEnd = reader.getCursor();
+    String registerName = reader.read(Pattern.compile("[A-Za-z]+"));
     MiMaRegister register = null;
     for (MiMaRegister miMaRegister : MiMaRegister.values()) {
-      if (miMaRegister.getAbbreviation().equalsIgnoreCase(name)) {
+      if (miMaRegister.getAbbreviation().equalsIgnoreCase(registerName)) {
         register = miMaRegister;
         break;
       }
     }
 
+    int registerNameEnd = reader.getCursor();
+
     if (register == null) {
       SyntaxTreeNode node = AssemblerDirectiveRegister.of(
-          address, reader, new HalfOpenIntRange(start, reader.getCursor()), null,
-          new ConstantNode(0, address, reader, new HalfOpenIntRange(start, start))
+          address, reader, new HalfOpenIntRange(start, registerNameEnd), null, null
       );
       node.addProblem(ImmutableParsingProblem.builder()
-          .approximateSpan(new HalfOpenIntRange(start, reader.getCursor()))
+          .approximateSpan(new HalfOpenIntRange(directiveNameEnd, registerNameEnd))
           .message("Invalid register")
           .build()
       );
+      readToSavepoint();
       return node;
     }
 
@@ -259,20 +262,21 @@ public class MiMaAssemblyParser {
 
     if (reader.peek(VALUE_PATTERN)) {
       return AssemblerDirectiveRegister.of(
-          address, reader, new HalfOpenIntRange(start, reader.getCursor()), register, readValue()
+          address, reader, new HalfOpenIntRange(start, registerNameEnd), register, readValue()
       );
     } else if (reader.peek(LABEL_JUMP_PATTERN)) {
       return AssemblerDirectiveRegister.of(
-          address, reader, new HalfOpenIntRange(start, reader.getCursor()), register,
-          readLabelUsage()
+          address, reader, new HalfOpenIntRange(start, registerNameEnd), register, readLabelUsage()
       );
     } else {
       SyntaxTreeNode node = AssemblerDirectiveRegister.of(
-          address, reader, new HalfOpenIntRange(start, reader.getCursor()), null,
-          new ConstantNode(0, address, reader, new HalfOpenIntRange(start, start))
+          address, reader, new HalfOpenIntRange(start, registerNameEnd), null, null
       );
+      int errorHighlightStart =
+          registerNameEnd == reader.getCursor() ? directiveNameEnd : registerNameEnd;
+      readToSavepoint();
       node.addProblem(ImmutableParsingProblem.builder()
-          .approximateSpan(new HalfOpenIntRange(start, reader.getCursor()))
+          .approximateSpan(new HalfOpenIntRange(errorHighlightStart, reader.getCursor()))
           .message("Invalid value")
           .build()
       );

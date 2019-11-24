@@ -73,28 +73,28 @@ public interface NodeVisitor {
   /**
    * Visits a {@link AssemblerDirectiveOrigin}.
    *
-   * @param Node the origin node
+   * @param node the origin node
    */
-  default void visitAssemblerDirectiveOrigin(AssemblerDirectiveOrigin Node) {
-    visitChildren(Node);
+  default void visitAssemblerDirectiveOrigin(AssemblerDirectiveOrigin node) {
+    visitChildren(node);
   }
 
   /**
    * Visits a {@link AssemblerDirectiveLit}.
    *
-   * @param Node the literal node
+   * @param node the literal node
    */
-  default void visitAssemblerDirectiveLit(AssemblerDirectiveLit Node) {
-    visitChildren(Node);
+  default void visitAssemblerDirectiveLit(AssemblerDirectiveLit node) {
+    visitChildren(node);
   }
 
   /**
    * Visits a {@link AssemblerDirectiveRegister}.
    *
-   * @param Node the register node
+   * @param node the register node
    */
-  default void visitAssemblerDirectiveRegister(AssemblerDirectiveRegister Node) {
-    visitChildren(Node);
+  default void visitAssemblerDirectiveRegister(AssemblerDirectiveRegister node) {
+    visitChildren(node);
   }
 
   /**
