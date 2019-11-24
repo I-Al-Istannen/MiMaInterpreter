@@ -164,7 +164,8 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
         .filter(nodeWithDepth -> nodeWithDepth.getNode().getSpan().intersects(lineSpan))
         .filter(node -> !(node.getNode() instanceof RootNode))
         .max(
-            Comparator.comparing(nodeWithDepth -> nodeWithDepth.getNode().getAddress())
+            Comparator.comparing(NodeWithDepth::getDepth)
+                .thenComparing(nodeWithDepth -> nodeWithDepth.getNode().getAddress())
         )
         .map(NodeWithDepth::getNode);
   }
