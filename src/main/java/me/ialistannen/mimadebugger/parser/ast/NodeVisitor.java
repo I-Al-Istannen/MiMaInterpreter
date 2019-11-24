@@ -71,6 +71,33 @@ public interface NodeVisitor {
   }
 
   /**
+   * Visits a {@link AssemblerDirectiveOrigin}.
+   *
+   * @param Node the origin node
+   */
+  default void visitAssemblerDirectiveOrigin(AssemblerDirectiveOrigin Node) {
+    visitChildren(Node);
+  }
+
+  /**
+   * Visits a {@link AssemblerDirectiveLit}.
+   *
+   * @param Node the literal node
+   */
+  default void visitAssemblerDirectiveLit(AssemblerDirectiveLit Node) {
+    visitChildren(Node);
+  }
+
+  /**
+   * Visits a {@link AssemblerDirectiveRegister}.
+   *
+   * @param Node the register node
+   */
+  default void visitAssemblerDirectiveRegister(AssemblerDirectiveRegister Node) {
+    visitChildren(Node);
+  }
+
+  /**
    * Visits an {@link UnparsableNode}.
    *
    * @param unparsableNode the unparsable node
@@ -110,6 +137,12 @@ public interface NodeVisitor {
       visitUnparsableNode((UnparsableNode) node);
     } else if (node instanceof LiteralNode) {
       visitLiteralNode((LiteralNode) node);
+    } else if (node instanceof AssemblerDirectiveRegister) {
+      visitAssemblerDirectiveRegister((AssemblerDirectiveRegister) node);
+    } else if (node instanceof AssemblerDirectiveLit) {
+      visitAssemblerDirectiveLit((AssemblerDirectiveLit) node);
+    } else if (node instanceof AssemblerDirectiveOrigin) {
+      visitAssemblerDirectiveOrigin((AssemblerDirectiveOrigin) node);
     } else {
       throw new IllegalArgumentException("Unknown node type: " + node);
     }

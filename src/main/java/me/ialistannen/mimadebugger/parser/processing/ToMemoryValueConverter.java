@@ -6,6 +6,7 @@ import java.util.Optional;
 import me.ialistannen.mimadebugger.gui.state.ImmutableEncodedInstructionCall;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveRegister;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionCallNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
@@ -75,6 +76,11 @@ public class ToMemoryValueConverter {
           .approximateSpan(labelNode.getSpan())
           .build()
       );
+    }
+
+    @Override
+    public void visitAssemblerDirectiveRegister(AssemblerDirectiveRegister Node) {
+      // do nothing
     }
 
     @Override

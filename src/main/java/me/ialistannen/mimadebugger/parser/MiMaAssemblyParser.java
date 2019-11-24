@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import me.ialistannen.mimadebugger.gui.state.MemoryValue;
+import me.ialistannen.mimadebugger.machine.MiMaRegister;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveLit;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveOrigin;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveRegister;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionNode;
@@ -31,7 +35,7 @@ import org.reactfx.util.Either;
 public class MiMaAssemblyParser {
 
   private static final Pattern COMMENT_PATTERN = Pattern.compile(";");
-  private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9-]*");
+  private static final Pattern LABEL_JUMP_PATTERN = Pattern.compile("[a-zA-Z][_fa-zA-Z0-9-]*");
   private static final Pattern LABEL_DECLARATION_PATTERN = Pattern.compile(
       LABEL_JUMP_PATTERN.pattern() + "(?=:)"
   );
@@ -39,6 +43,7 @@ public class MiMaAssemblyParser {
   private static final Pattern VALUE_PATTERN = Pattern.compile("[+\\-]?(0x)?\\d+");
   private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
   private static final Pattern WHITE_SPACE = Pattern.compile("\\s+");
+  private static final Pattern ASSEMBLER_DIRECTIVE = Pattern.compile("\\.[^\n]*");
 
   private MutableStringReader reader;
   private int address;
@@ -146,6 +151,12 @@ public class MiMaAssemblyParser {
     SyntaxTreeNode node;
     if (reader.peek(COMMENT_PATTERN)) {
       node = readComment();
+    } else if (reader.peek(ASSEMBLER_DIRECTIVE)) {
+      node = readAssemblerDirective();
+      // This is called "hackish" in official jargon
+      if (node instanceof AssemblerDirectiveLit) {
+        address++;
+      }
     } else if (reader.peek(LABEL_DECLARATION_PATTERN)) {
       LabelDeclarationNode labelNode = readLabelDeclaration();
       SyntaxTreeNode instructionOrValue = readInstructionOrValue();
@@ -186,6 +197,87 @@ public class MiMaAssemblyParser {
 
   private void readToSavepoint() {
     reader.read(Pattern.compile("[^\\n]+"));
+  }
+
+  private SyntaxTreeNode readAssemblerDirective() throws UnexpectedParseError {
+    eatWhitespaceNoNewline();
+    int start = reader.getCursor();
+    assertRead(Pattern.compile("\\."));
+    String directive = assertRead(Pattern.compile("\\w+"));
+    eatWhitespaceNoNewline();
+
+    int afterDirective = reader.getCursor();
+
+    switch (directive) {
+      case "org": {
+        ConstantNode value;
+        value = readValue();
+        address = value.getValue();
+        return new AssemblerDirectiveOrigin(
+            value, address, reader, new HalfOpenIntRange(start, afterDirective)
+        );
+      }
+      case "lit":
+        ConstantNode value = readValue();
+        return new AssemblerDirectiveLit(
+            address, reader, new HalfOpenIntRange(start, afterDirective), value
+        );
+      case "reg":
+        return readRegisterDirective(start);
+      default:
+        throw new UnexpectedParseError(
+            "Invalid assembly directive '" + directive + "'",
+            new HalfOpenIntRange(start, reader.getCursor())
+        );
+    }
+  }
+
+  private SyntaxTreeNode readRegisterDirective(int start) throws UnexpectedParseError {
+    String name = reader.read(Pattern.compile("[A-Za-z]+"));
+    MiMaRegister register = null;
+    for (MiMaRegister miMaRegister : MiMaRegister.values()) {
+      if (miMaRegister.getAbbreviation().equalsIgnoreCase(name)) {
+        register = miMaRegister;
+        break;
+      }
+    }
+
+    if (register == null) {
+      SyntaxTreeNode node = AssemblerDirectiveRegister.of(
+          address, reader, new HalfOpenIntRange(start, reader.getCursor()), null,
+          new ConstantNode(0, address, reader, new HalfOpenIntRange(start, start))
+      );
+      node.addProblem(ImmutableParsingProblem.builder()
+          .approximateSpan(new HalfOpenIntRange(start, reader.getCursor()))
+          .message("Invalid register")
+          .build()
+      );
+      return node;
+    }
+
+    reader.read(Pattern.compile("\\s*=\\s*"));
+
+    if (reader.peek(VALUE_PATTERN)) {
+      return AssemblerDirectiveRegister.of(
+          address, reader, new HalfOpenIntRange(start, reader.getCursor()), register, readValue()
+      );
+    } else if (reader.peek(LABEL_JUMP_PATTERN)) {
+      return AssemblerDirectiveRegister.of(
+          address, reader, new HalfOpenIntRange(start, reader.getCursor()), register,
+          readLabelUsage()
+      );
+    } else {
+      SyntaxTreeNode node = AssemblerDirectiveRegister.of(
+          address, reader, new HalfOpenIntRange(start, reader.getCursor()), null,
+          new ConstantNode(0, address, reader, new HalfOpenIntRange(start, start))
+      );
+      node.addProblem(ImmutableParsingProblem.builder()
+          .approximateSpan(new HalfOpenIntRange(start, reader.getCursor()))
+          .message("Invalid value")
+          .build()
+      );
+      return node;
+    }
   }
 
   private CommentNode readComment() throws UnexpectedParseError {
@@ -274,12 +366,7 @@ public class MiMaAssemblyParser {
     }
 
     try {
-      int value;
-      if (number.contains("0x")) {
-        value = Integer.parseInt(number.replace("0x", ""));
-      } else {
-        value = Integer.parseInt(number);
-      }
+      int value = parseInt(number);
       return new ConstantNode(
           value,
           address,
@@ -289,6 +376,16 @@ public class MiMaAssemblyParser {
     } catch (NumberFormatException e) {
       return constantNodeWithProblem(start, "Expected integer number");
     }
+  }
+
+  private int parseInt(String number) {
+    int value;
+    if (number.contains("0x")) {
+      value = Integer.parseInt(number.replace("0x", ""), 16);
+    } else {
+      value = Integer.parseInt(number);
+    }
+    return value;
   }
 
   private ConstantNode constantNodeWithProblem(int start, String problem) {
@@ -349,6 +446,10 @@ public class MiMaAssemblyParser {
 
     if (reader.peek(LABEL_JUMP_PATTERN)) {
       instructionNode.addChild(readLabelUsage());
+    }
+
+    if (reader.peek(Pattern.compile("\\.lit"))) {
+      instructionNode.addChild(readAssemblerDirective());
     }
 
     return instructionNode;
