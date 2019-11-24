@@ -18,6 +18,9 @@ import me.ialistannen.mimadebugger.gui.highlighting.HighlightingCategory;
 import me.ialistannen.mimadebugger.gui.highlighting.PositionedHighlighting;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
 import me.ialistannen.mimadebugger.parser.MiMaAssemblyParser;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveLit;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveOrigin;
+import me.ialistannen.mimadebugger.parser.ast.AssemblerDirectiveRegister;
 import me.ialistannen.mimadebugger.parser.ast.CommentNode;
 import me.ialistannen.mimadebugger.parser.ast.ConstantNode;
 import me.ialistannen.mimadebugger.parser.ast.InstructionCallNode;
@@ -119,6 +122,12 @@ public class ProgramTextPane extends BorderPane {
         } else if (node instanceof LabelDeclarationNode) {
           category = HighlightingCategory.LABEL_DECLARATION;
         } else if (node instanceof LiteralNode) {
+          category = HighlightingCategory.INSTRUCTION;
+        } else if (node instanceof AssemblerDirectiveRegister) {
+          category = HighlightingCategory.INSTRUCTION;
+        } else if (node instanceof AssemblerDirectiveLit) {
+          category = HighlightingCategory.INSTRUCTION;
+        } else if (node instanceof AssemblerDirectiveOrigin) {
           category = HighlightingCategory.INSTRUCTION;
         } else if (node instanceof RootNode) {
           visitChildren(node);
