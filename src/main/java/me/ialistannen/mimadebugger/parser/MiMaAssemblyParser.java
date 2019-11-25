@@ -153,10 +153,6 @@ public class MiMaAssemblyParser {
       node = readComment();
     } else if (reader.peek(ASSEMBLER_DIRECTIVE)) {
       node = readAssemblerDirective();
-      // This is called "hackish" in official jargon
-      if (node instanceof AssemblerDirectiveLit) {
-        address++;
-      }
     } else if (reader.peek(LABEL_DECLARATION_PATTERN)) {
       LabelDeclarationNode labelNode = readLabelDeclaration();
       SyntaxTreeNode instructionOrValue = readInstructionOrValue();
@@ -219,8 +215,10 @@ public class MiMaAssemblyParser {
       }
       case "lit":
         ConstantNode value = readValue();
+        int myAddress = address;
+        address++;
         return new AssemblerDirectiveLit(
-            address, reader, new HalfOpenIntRange(start, afterDirective), value
+            myAddress, reader, new HalfOpenIntRange(start, afterDirective), value
         );
       case "reg":
         return readRegisterDirective(start);
@@ -452,10 +450,6 @@ public class MiMaAssemblyParser {
       instructionNode.addChild(readLabelUsage());
     }
 
-    if (reader.peek(Pattern.compile("\\.lit"))) {
-      instructionNode.addChild(readAssemblerDirective());
-    }
-
     return instructionNode;
   }
 
@@ -479,7 +473,7 @@ public class MiMaAssemblyParser {
   }
 
   private void eatWhitespaceNoNewline() {
-    reader.read(Pattern.compile("[\t ]"));
+    reader.read(Pattern.compile("[\t ]*"));
   }
 
   private static class UnexpectedParseError extends Exception {
