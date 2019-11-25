@@ -1,6 +1,7 @@
 package me.ialistannen.mimadebugger.machine;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import me.ialistannen.mimadebugger.machine.memory.ImmutableRegisters;
 import me.ialistannen.mimadebugger.machine.memory.Registers;
 
@@ -8,19 +9,24 @@ import me.ialistannen.mimadebugger.machine.memory.Registers;
  * A mima register.
  */
 public enum MiMaRegister {
-  INSTRUCTION_ADDRESS_REGISTER("IAR", ImmutableRegisters::withInstructionPointer),
-  ACCUMULATOR("ACC", ImmutableRegisters::withAccumulator),
-  STACK_POINTER("SP", ImmutableRegisters::withStackPointer),
-  FRAME_POINTER("FP", ImmutableRegisters::withFramePointer),
-  RETURN_ADDRESS_REGISTER("RA", ImmutableRegisters::withReturnAddress);
+  INSTRUCTION_ADDRESS_REGISTER(
+      "IAR", ImmutableRegisters::withInstructionPointer, Registers::instructionPointer
+  ),
+  ACCUMULATOR("ACC", ImmutableRegisters::withAccumulator, Registers::accumulator),
+  STACK_POINTER("SP", ImmutableRegisters::withStackPointer, Registers::stackPointer),
+  FRAME_POINTER("FP", ImmutableRegisters::withFramePointer, Registers::framePointer),
+  RETURN_ADDRESS_REGISTER("RA", ImmutableRegisters::withReturnAddress, Registers::returnAddress);
 
   private String abbreviation;
   private BiFunction<ImmutableRegisters, Integer, ImmutableRegisters> setter;
+  private Function<Registers, Integer> getter;
 
   MiMaRegister(String abbreviation,
-      BiFunction<ImmutableRegisters, Integer, ImmutableRegisters> setter) {
+      BiFunction<ImmutableRegisters, Integer, ImmutableRegisters> setter,
+      Function<Registers, Integer> getter) {
     this.abbreviation = abbreviation;
     this.setter = setter;
+    this.getter = getter;
   }
 
   public String getAbbreviation() {
@@ -36,5 +42,15 @@ public enum MiMaRegister {
    */
   public Registers set(Registers registers, int value) {
     return setter.apply(ImmutableRegisters.copyOf(registers), value);
+  }
+
+  /**
+   * Returns the value of this register in the given Registers block.
+   *
+   * @param registers the source
+   * @return the value
+   */
+  public int get(Registers registers) {
+    return getter.apply(registers);
   }
 }

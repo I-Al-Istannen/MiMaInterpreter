@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import me.ialistannen.mimadebugger.machine.MiMaRegister;
 import me.ialistannen.mimadebugger.machine.State;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionCall;
 import me.ialistannen.mimadebugger.machine.instructions.InstructionSet;
-import me.ialistannen.mimadebugger.util.MemoryFormat;
 
 public class MimaDisassembler {
 
@@ -30,36 +30,36 @@ public class MimaDisassembler {
         .map(Entry::getValue)
         .collect(toList());
 
-    List<Optional<InstructionCall>> instructions = memoryBytes.stream()
+    String result = memoryBytes.stream()
         .map(encodedValue -> {
           Optional<InstructionCall> instructionCall = instructionSet.forEncodedValue(
               encodedValue
           );
 
           if (!instructionCall.isPresent()) {
-            throw new IllegalArgumentException(String.format(
-                "Unknown opcode or invalid instruction: 0b%s (0x%s)",
-                Integer.toHexString(encodedValue),
-                MemoryFormat.toString(encodedValue, 24, false)
-            ));
+            return String.valueOf(encodedValue.intValue());
           }
 
-          return instructionCall;
-        })
-        .collect(toList());
-
-    return instructions.stream()
-        .map(Optional::get)
-        .map(call -> {
-          // Treat all zeros as padding
-          if (call.command().opcode() == 0 && call.argument() == 0) {
-            return "0";
-          }
-          if (!call.command().hasArgument() && call.argument() == 0) {
-            return call.command().name();
-          }
-          return call.command().name() + " " + call.argument();
+          return disassembleInstructionCall(instructionCall.get());
         })
         .collect(Collectors.joining("\n"));
+
+    for (MiMaRegister value : MiMaRegister.values()) {
+      result =
+          ".reg " + value.getAbbreviation() + " " + value.get(state.registers()) + "\n" + result;
+    }
+
+    return result;
+  }
+
+  public String disassembleInstructionCall(InstructionCall call) {
+    // Treat all zeros as padding
+    if (call.command().opcode() == 0 && call.argument() == 0) {
+      return "0";
+    }
+    if (!call.command().hasArgument() && call.argument() == 0) {
+      return call.command().name();
+    }
+    return call.command().name() + " " + call.argument();
   }
 }

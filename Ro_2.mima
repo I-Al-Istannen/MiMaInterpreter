@@ -1,0 +1,71 @@
+9
+8
+7
+6
+5
+4
+3
+2
+1
+
+0x00040:
+  8
+
+0x00080: ;; tempVars
+i: 0
+k: 0
+maxIndex: 0
+max: 0
+negOne: -1
+one: 1
+temp: 0
+
+0x00100: ;start
+init:
+  LDV 0x40
+  STV i
+iHead:
+  LDV i
+  JMN end
+iBody:
+  LDV i         ;
+  STV maxIndex  ; max index is current one
+  LDIV maxIndex ; A[i]
+  STV max       ; write in max
+  LDV i
+  STV k ; init k
+kHead:
+  LDV k
+  JMN afterLoop
+kBody:
+  LDV max
+  NOT   ; ones coplement
+  ADD one ; twos complement
+  STV temp ; -max in temp
+  LDIV k   ; A[k]
+  ADD temp ; A[k] - max
+  JMN kAfter; >=0 ==> A[k] > max
+  LDV k
+  STV maxIndex
+  LDIV maxIndex
+  STV max
+kAfter: ; k--
+  LDV k
+  ADD negOne
+  STV k
+  JMP kHead ; next loop
+afterLoop:
+  ; swap
+  LDIV i
+  STV temp ; A[i] -> temp
+  LDV max
+  STIV i    ; A[i] = max
+  LDV temp
+  STIV maxIndex ; A[maxIndex] = temp
+iAfter: ; i--
+  LDV i
+  ADD negOne
+  STV i
+  JMP iHead ; next loop
+end:
+  HALT

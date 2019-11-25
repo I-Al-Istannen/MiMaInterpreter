@@ -25,8 +25,8 @@ public class AssemblerDirectiveRegister extends AbstractSyntaxTreeNode {
     return register;
   }
 
-  public static <T extends LiteralValueNode & SyntaxTreeNode> AssemblerDirectiveRegister of(
-      int address, StringReader reader, HalfOpenIntRange span, MiMaRegister register, T value) {
+  public static AssemblerDirectiveRegister of(int address, StringReader reader,
+      HalfOpenIntRange span, MiMaRegister register, LiteralValueNode value) {
 
     AssemblerDirectiveRegister node = new AssemblerDirectiveRegister(
         address, reader, span, register, value
