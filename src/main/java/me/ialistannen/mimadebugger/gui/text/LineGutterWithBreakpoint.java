@@ -85,7 +85,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
     container.getChildren().add(lineNumberLabel);
     container.getChildren().add(breakpointIndicator);
 
-    boolean sameAsBefore = findNodeAtLine(storedLineNumber - 1)
+    boolean sameAsBefore = findNodeAtLine(storedLineNumber + 1)
         .map(SyntaxTreeNode::getAddress)
         .map(it -> it.equals(lineNumber))
         .orElse(false);
@@ -96,6 +96,7 @@ public class LineGutterWithBreakpoint implements IntFunction<Node> {
     }
     if (sameAsBefore || lineNumber < 0) {
       lineNumberLabel.setText("");
+      breakpointIndicator.setFill(Color.TRANSPARENT);
     }
     return container;
   }
