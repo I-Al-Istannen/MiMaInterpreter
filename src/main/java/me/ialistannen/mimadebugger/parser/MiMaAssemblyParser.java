@@ -47,6 +47,7 @@ public class MiMaAssemblyParser {
 
   private MutableStringReader reader;
   private int address;
+  private boolean addressOccupied;
   private LabelResolver labelResolver;
   private ConstantVerification constantVerification;
   private InstructionCallResolver instructionCallResolver;
@@ -76,6 +77,7 @@ public class MiMaAssemblyParser {
   private SyntaxTreeNode parseProgramToTree(String program) {
     this.reader = new MutableStringReader(program);
     this.address = 0;
+    this.addressOccupied = false;
 
     List<SyntaxTreeNode> syntaxTreeNodes = new ArrayList<>();
 
@@ -159,16 +161,19 @@ public class MiMaAssemblyParser {
 
       if (instructionOrValue != null) {
         labelNode.addChild(instructionOrValue);
-        address++;
+        reportIfAddressOccupied(instructionOrValue, instructionOrValue.getSpan());
+        addressOccupied = true;
       }
 
       node = labelNode;
     } else if (reader.peek(INSTRUCTION_PATTERN)) {
       node = readInstruction();
-      address++;
+      reportIfAddressOccupied(node, node.getSpan());
+      addressOccupied = true;
     } else if (reader.peek(VALUE_PATTERN)) {
       node = readValue();
-      address++;
+      reportIfAddressOccupied(node, node.getSpan());
+      addressOccupied = true;
     } else if (reader.peek(NEW_LINE_PATTERN)) {
       node = null;
     } else if (reader.peek(WHITE_SPACE)) {
@@ -186,8 +191,12 @@ public class MiMaAssemblyParser {
       );
     }
 
-    eatWhitespace();
+    eatWhitespaceNoNewline();
 
+    if (addressOccupied && !reader.read(Pattern.compile("\\n")).isEmpty()) {
+      address++;
+      addressOccupied = false;
+    }
     return node;
   }
 
@@ -209,17 +218,19 @@ public class MiMaAssemblyParser {
         ConstantNode value;
         value = readValue();
         address = value.getValue();
+        addressOccupied = false;
         return new AssemblerDirectiveOrigin(
             value, address, reader, new HalfOpenIntRange(start, afterDirective)
         );
       }
       case "lit":
         ConstantNode value = readValue();
-        int myAddress = address;
-        address++;
-        return new AssemblerDirectiveLit(
-            myAddress, reader, new HalfOpenIntRange(start, afterDirective), value
+        AssemblerDirectiveLit literal = new AssemblerDirectiveLit(
+            address, reader, new HalfOpenIntRange(start, afterDirective), value
         );
+        reportIfAddressOccupied(literal, new HalfOpenIntRange(start, afterDirective));
+        addressOccupied = true;
+        return literal;
       case "reg":
         return readRegisterDirective(start);
       default:
@@ -227,6 +238,16 @@ public class MiMaAssemblyParser {
             "Invalid assembly directive '" + directive + "'",
             new HalfOpenIntRange(start, reader.getCursor())
         );
+    }
+  }
+
+  private void reportIfAddressOccupied(SyntaxTreeNode node, HalfOpenIntRange span) {
+    if (addressOccupied) {
+      node.addProblem(ImmutableParsingProblem.builder()
+          .message("This address is already occupied")
+          .approximateSpan(span)
+          .build()
+      );
     }
   }
 
@@ -363,7 +384,7 @@ public class MiMaAssemblyParser {
     int start = reader.getCursor();
     String number = assertRead(VALUE_PATTERN);
 
-    if (!reader.peek(Pattern.compile("\\s|$"))) {
+    if (!reader.peek(Pattern.compile("\\s|$")) && !reader.peek(COMMENT_PATTERN)) {
       return constantNodeWithProblem(start, "Expected a space character after a value");
     }
 
