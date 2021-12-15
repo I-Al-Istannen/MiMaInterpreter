@@ -1,3 +1,5 @@
+.reg ACC 0
+.reg IAR init
 9
 8
 7
@@ -8,19 +10,19 @@
 2
 1
 
-0x00040:
+.org 0x00040
   8
 
-0x00080: ;; tempVars
-i: 0
-k: 0
-maxIndex: 0
-max: 0
-negOne: -1
-one: 1
-temp: 0
+.org 0x00080 ;; tempVars
+i: .lit 0
+k: .lit 0
+maxIndex: .lit 0
+max: .lit 0
+negOne: .lit -1
+one: .lit 1
+temp: .lit 0
 
-0x00100: ;start
+.org 0x00100 ;start
 init:
   LDV 0x40
   STV i
