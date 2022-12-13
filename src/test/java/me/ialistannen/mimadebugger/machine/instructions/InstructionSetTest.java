@@ -1,8 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashSet;
@@ -25,10 +23,7 @@ class InstructionSetTest {
 
   @Test
   void testHasCorrectNumberOfInstructions() {
-    assertThat(
-        instructionSet.getAll().size(),
-        is(28)
-    );
+    assertThat(instructionSet.getAll().size()).isEqualTo(28);
   }
 
   @Test
@@ -53,31 +48,19 @@ class InstructionSetTest {
 
   @Test
   void getForOpcode() {
-    assertThat(
-        instructionSet.getAll().size(),
-        is(greaterThan(1))
-    );
+    assertThat(instructionSet.getAll().size()).isGreaterThan(1);
 
     for (Instruction instruction : instructionSet.getAll()) {
-      assertThat(
-          instructionSet.forOpcode(instruction.opcode()),
-          is(Optional.of(instruction))
-      );
+      assertThat(instructionSet.forOpcode(instruction.opcode())).contains(instruction);
     }
   }
 
   @Test
   void getForName() {
-    assertThat(
-        instructionSet.getAll().size(),
-        is(greaterThan(1))
-    );
+    assertThat(instructionSet.getAll().size()).isGreaterThan(1);
 
     for (Instruction instruction : instructionSet.getAll()) {
-      assertThat(
-          instructionSet.forName(instruction.name()),
-          is(Optional.of(instruction))
-      );
+      assertThat(instructionSet.forName(instruction.name())).contains(instruction);
     }
   }
 
@@ -87,10 +70,7 @@ class InstructionSetTest {
         .map(Instruction::opcode)
         .collect(Collectors.toList());
 
-    assertThat(
-        opcodes.size(),
-        is(new HashSet<>(opcodes).size())
-    );
+    assertThat(opcodes.size()).isEqualTo(new HashSet<>(opcodes).size());
   }
 
   @Test
@@ -99,10 +79,7 @@ class InstructionSetTest {
         .map(Instruction::name)
         .collect(Collectors.toList());
 
-    assertThat(
-        opcodes.size(),
-        is(new HashSet<>(opcodes).size())
-    );
+    assertThat(opcodes.size()).isEqualTo(new HashSet<>(opcodes).size());
   }
 
   @Test
@@ -113,19 +90,14 @@ class InstructionSetTest {
           .argument(20)
           .build();
 
-      assertThat(
-          instructionSet.forEncodedValue(MemoryFormat.combineInstruction(call)),
-          is(Optional.of(call))
-      );
+      assertThat(instructionSet.forEncodedValue(MemoryFormat.combineInstruction(call)))
+          .contains(call);
     }
   }
 
   @Test
   void testForInvalidEncodedValue() {
-    assertThat(
-        instructionSet.forEncodedValue(0xFF0000),
-        is(Optional.empty())
-    );
+    assertThat(instructionSet.forEncodedValue(0xFF0000)).isEqualTo(Optional.empty());
   }
 
 }

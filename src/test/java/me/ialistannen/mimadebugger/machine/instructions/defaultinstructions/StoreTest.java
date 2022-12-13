@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
@@ -17,42 +16,32 @@ class StoreTest extends InstructionTest {
   //<editor-fold desc="STV">
   @Test
   void testStoreZero() throws MiMaException {
-    assertThat(
-        storeMemoryValue(0, 20),
-        is(0)
-    );
+    assertThat(storeMemoryValue(0, 20))
+        .isEqualTo(0);
   }
 
   @Test
   void testStoreOne() throws MiMaException {
-    assertThat(
-        storeMemoryValue(1, 20),
-        is(1)
-    );
+    assertThat(storeMemoryValue(1, 20))
+        .isEqualTo(1);
   }
 
   @Test
   void testStoreMinusOne() throws MiMaException {
-    assertThat(
-        storeMemoryValue(-1, 20),
-        is(-1)
-    );
+    assertThat(storeMemoryValue(-1, 20))
+        .isEqualTo(-1);
   }
 
   @Test
   void testStoreMinimum() throws MiMaException {
-    assertThat(
-        storeMemoryValue(MemoryFormat.VALUE_MINIMUM, 20),
-        is(MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(storeMemoryValue(MemoryFormat.VALUE_MINIMUM, 20))
+        .isEqualTo(MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testStoreMaximum() throws MiMaException {
-    assertThat(
-        storeMemoryValue(MemoryFormat.VALUE_MAXIMUM, 20),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(storeMemoryValue(MemoryFormat.VALUE_MAXIMUM, 20))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
@@ -65,52 +54,40 @@ class StoreTest extends InstructionTest {
 
   @Test
   void testStoreTooBigNumber() throws MiMaException {
-    assertThat(
-        storeMemoryValue(MemoryFormat.VALUE_MAXIMUM + 1, 20),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1))
-    );
+    assertThat(storeMemoryValue(MemoryFormat.VALUE_MAXIMUM + 1, 20))
+        .isEqualTo(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1));
   }
   //</editor-fold>
 
   //<editor-fold desc="STIV">
   @Test
   void testStoreIndirectlyZero() throws MiMaException {
-    assertThat(
-        storeMemoryValueIndirect(0, 2, 20),
-        is(0)
-    );
+    assertThat(storeMemoryValueIndirect(0, 2, 20))
+        .isEqualTo(0);
   }
 
   @Test
   void testStoreIndirectlyOne() throws MiMaException {
-    assertThat(
-        storeMemoryValueIndirect(1, 2, 20),
-        is(1)
-    );
+    assertThat(storeMemoryValueIndirect(1, 2, 20))
+        .isEqualTo(1);
   }
 
   @Test
   void testStoreIndirectlyMinusOne() throws MiMaException {
-    assertThat(
-        storeMemoryValueIndirect(-1, 2, 20),
-        is(-1)
-    );
+    assertThat(storeMemoryValueIndirect(-1, 2, 20))
+        .isEqualTo(-1);
   }
 
   @Test
   void testStoreIndirectlyMinimum() throws MiMaException {
-    assertThat(
-        storeMemoryValueIndirect(MemoryFormat.VALUE_MINIMUM, 2, 20),
-        is(MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(storeMemoryValueIndirect(MemoryFormat.VALUE_MINIMUM, 2, 20))
+        .isEqualTo(MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testStoreIndirectlyMaximum() throws MiMaException {
-    assertThat(
-        storeMemoryValueIndirect(MemoryFormat.VALUE_MAXIMUM, 2, 20),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(storeMemoryValueIndirect(MemoryFormat.VALUE_MAXIMUM, 2, 20))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
@@ -131,10 +108,8 @@ class StoreTest extends InstructionTest {
 
   @Test
   void testStoreIndirectlyTooBigNumber() throws MiMaException {
-    assertThat(
-        storeMemoryValueIndirect(MemoryFormat.VALUE_MAXIMUM + 1, 2, 20),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1))
-    );
+    assertThat(storeMemoryValueIndirect(MemoryFormat.VALUE_MAXIMUM + 1, 2, 20))
+        .isEqualTo(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1));
   }
   //</editor-fold>
 

@@ -4,8 +4,7 @@ import static me.ialistannen.mimadebugger.machine.instructions.defaultinstructio
 import static me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Logical.NOT;
 import static me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Logical.OR;
 import static me.ialistannen.mimadebugger.machine.instructions.defaultinstructions.Logical.XOR;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
@@ -20,78 +19,60 @@ class LogicalTest extends InstructionTest {
   //<editor-fold desc="AND">
   @Test
   void testAndZeros() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(0, 0, AND),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(0, 0, AND))
+        .isEqualTo(0);
   }
 
   @Test
   void testAndWithItself() throws MiMaException {
     int number = getRandomValue();
-    assertThat(
-        binaryOperatorResult(number, number, AND),
-        is(number)
-    );
+    assertThat(binaryOperatorResult(number, number, AND))
+        .isEqualTo(number);
   }
 
   @Test
   void testAndWithComplement() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
-      assertThat(
-          binaryOperatorResult(number, ~number, AND),
-          is(0)
-      );
+      assertThat(binaryOperatorResult(number, ~number, AND))
+          .isEqualTo(0);
     }
   }
 
   @Test
   void testAndWithMinimum() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, AND),
-        is(MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, AND))
+        .isEqualTo(MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testAndWithMaximum() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, AND),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, AND))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
   void testAndWithMinusOne() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(-1, -1, AND),
-        is(-1)
-    );
+    assertThat(binaryOperatorResult(-1, -1, AND))
+        .isEqualTo(-1);
   }
 
   @Test
   void testAndWithGivenValue() throws MiMaException {
     int first = 0b0001110101;
     int second = 0b11011010101;
-    assertThat(
-        binaryOperatorResult(first, second, AND),
-        is(0b00001010101)
-    );
+    assertThat(binaryOperatorResult(first, second, AND))
+        .isEqualTo(0b00001010101);
   }
 
   @Test
   void testAndWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
-    assertThat(
-        binaryOperatorResult(bigger, bigger, AND),
-        is(MemoryFormat.coerceToValue(bigger))
-    );
-    assertThat(
-        binaryOperatorResult(bigger, ~bigger, AND),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(bigger, bigger, AND))
+        .isEqualTo(MemoryFormat.coerceToValue(bigger));
+    assertThat(binaryOperatorResult(bigger, ~bigger, AND))
+        .isEqualTo(0);
   }
 
   //</editor-fold>
@@ -99,78 +80,60 @@ class LogicalTest extends InstructionTest {
   //<editor-fold desc="OR">
   @Test
   void testOrZeros() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(0, 0, OR),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(0, 0, OR))
+        .isEqualTo(0);
   }
 
   @Test
   void testOrWithItself() throws MiMaException {
     int number = getRandomValue();
-    assertThat(
-        binaryOperatorResult(number, number, OR),
-        is(number)
-    );
+    assertThat(binaryOperatorResult(number, number, OR))
+        .isEqualTo(number);
   }
 
   @Test
   void testOrWithComplement() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
-      assertThat(
-          binaryOperatorResult(number, ~number, OR),
-          is(-1)
-      );
+      assertThat(binaryOperatorResult(number, ~number, OR))
+          .isEqualTo(-1);
     }
   }
 
   @Test
   void testOrWithMinimum() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, OR),
-        is(MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, OR))
+        .isEqualTo(MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testOrWithMaximum() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, OR),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, OR))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
   void testOrWithMinusOne() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(-1, -1, OR),
-        is(-1)
-    );
+    assertThat(binaryOperatorResult(-1, -1, OR))
+        .isEqualTo(-1);
   }
 
   @Test
   void testOrWithGivenValue() throws MiMaException {
     int first = 0b0001110101;
     int second = 0b11011010101;
-    assertThat(
-        binaryOperatorResult(first, second, OR),
-        is(0b11011110101)
-    );
+    assertThat(binaryOperatorResult(first, second, OR))
+        .isEqualTo(0b11011110101);
   }
 
   @Test
   void testOrWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
-    assertThat(
-        binaryOperatorResult(bigger, bigger, OR),
-        is(0b11111111100000000000000000000000)
-    );
-    assertThat(
-        binaryOperatorResult(bigger, ~bigger, OR),
-        is(-1)
-    );
+    assertThat(binaryOperatorResult(bigger, bigger, OR))
+        .isEqualTo(0b11111111100000000000000000000000);
+    assertThat(binaryOperatorResult(bigger, ~bigger, OR))
+        .isEqualTo(-1);
   }
 
   //</editor-fold>
@@ -178,142 +141,110 @@ class LogicalTest extends InstructionTest {
   //<editor-fold desc="XOR">
   @Test
   void testXorZeros() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(0, 0, XOR),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(0, 0, XOR))
+        .isEqualTo(0);
   }
 
   @Test
   void testXorWithItself() throws MiMaException {
     int number = getRandomValue();
-    assertThat(
-        binaryOperatorResult(number, number, XOR),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(number, number, XOR))
+        .isEqualTo(0);
   }
 
   @Test
   void testXorWithComplement() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
-      assertThat(
-          binaryOperatorResult(number, ~number, XOR),
-          is(-1)
-      );
+      assertThat(binaryOperatorResult(number, ~number, XOR))
+          .isEqualTo(-1);
     }
   }
 
   @Test
   void testXorWithMinimum() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, XOR),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM, XOR))
+        .isEqualTo(0);
   }
 
   @Test
   void testXorWithMaximum() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, XOR),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM, XOR))
+        .isEqualTo(0);
   }
 
   @Test
   void testXorWithMinusOne() throws MiMaException {
-    assertThat(
-        binaryOperatorResult(-1, -1, XOR),
-        is(0)
-    );
+    assertThat(binaryOperatorResult(-1, -1, XOR))
+        .isEqualTo(0);
   }
 
   @Test
   void testXorWithGivenValue() throws MiMaException {
     int first = 0b0001110101;
     int second = 0b11011010101;
-    assertThat(
-        binaryOperatorResult(first, second, XOR),
-        is(0b11010100000)
-    );
+    assertThat(binaryOperatorResult(first, second, XOR))
+        .isEqualTo(0b11010100000);
   }
 
   @Test
   void testXorWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
-    assertThat(
-        binaryOperatorResult(bigger, bigger, XOR),
-        is(0)
-    );
-    assertThat(
-        binaryOperatorResult(bigger, ~bigger, XOR),
-        is(-1)
-    );
+    assertThat(binaryOperatorResult(bigger, bigger, XOR))
+        .isEqualTo(0);
+    assertThat(binaryOperatorResult(bigger, ~bigger, XOR))
+        .isEqualTo(-1);
   }
   //</editor-fold>
 
   //<editor-fold desc="NOT">
   @Test
   void testNotZero() throws MiMaException {
-    assertThat(
-        notResult(0),
-        is(-1)
-    );
+    assertThat(notResult(0))
+        .isEqualTo(-1);
   }
 
   @Test
   void testNotRandom() throws MiMaException {
     for (int i = 0; i < 10_000; i++) {
       int number = getRandomValue();
-      assertThat(
-          notResult(number),
-          is(~number)
-      );
+      assertThat(notResult(number))
+          .isEqualTo(~number);
     }
   }
 
   @Test
   void testNotWithMinimum() throws MiMaException {
-    assertThat(
-        notResult(MemoryFormat.VALUE_MINIMUM),
-        is(~MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(notResult(MemoryFormat.VALUE_MINIMUM))
+        .isEqualTo(~MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testNotWithMaximum() throws MiMaException {
-    assertThat(
-        notResult(MemoryFormat.VALUE_MAXIMUM),
-        is(~MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(notResult(MemoryFormat.VALUE_MAXIMUM))
+        .isEqualTo(~MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
   void testNotWithMinusOne() throws MiMaException {
-    assertThat(
-        notResult(-1),
-        is(0)
-    );
+    assertThat(notResult(-1))
+        .isEqualTo(0);
   }
 
   @Test
   void testNotWithGivenValue() throws MiMaException {
     int value = 0b0001110101;
-    assertThat(
-        notResult(value),
-        is(0b11111111111111111111111110001010)
-    );
+    assertThat(notResult(value))
+        .isEqualTo(0b11111111111111111111111110001010);
   }
 
   @Test
   void testNotWithTooBigValue() throws MiMaException {
     int bigger = MemoryFormat.VALUE_MAXIMUM + 1;
     // 100000000000000000000000 is the result after the overflow
-    assertThat(
-        notResult(bigger),
-        is(0b00000000011111111111111111111111)
-    );
+    assertThat(notResult(bigger))
+        .isEqualTo(0b00000000011111111111111111111111);
   }
   //</editor-fold>
 

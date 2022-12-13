@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
+import me.ialistannen.mimadebugger.gui.util.AutoSizableTableViewSkin;
 import me.ialistannen.mimadebugger.gui.util.FxmlUtil;
 import me.ialistannen.mimadebugger.gui.util.TableHelper;
 import me.ialistannen.mimadebugger.machine.memory.Registers;
@@ -42,6 +43,7 @@ public class RegisterView extends BorderPane {
     tableView.widthProperty().addListener(
         (observable, oldValue, newValue) -> TableHelper.autoSizeColumns(tableView)
     );
+    tableView.setSkin(new AutoSizableTableViewSkin(tableView));
   }
 
   /**

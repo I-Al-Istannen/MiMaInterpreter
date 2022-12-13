@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.parser.ast;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class NodeVisitorTest {
 
   @Test
-  void constantDispatchMethodCalled() throws MiMaSyntaxError {
+  void constantDispatchMethodCalled() {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
       @Override
@@ -24,14 +23,11 @@ class NodeVisitorTest {
       }
     }.visit(new ConstantNode(1, 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
-    assertThat(
-        hit.get(),
-        is(true)
-    );
+    assertThat(hit.get()).isEqualTo(true);
   }
 
   @Test
-  void labelDispatchMethodCalled() throws MiMaSyntaxError {
+  void labelDispatchMethodCalled() {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
       @Override
@@ -40,14 +36,11 @@ class NodeVisitorTest {
       }
     }.visit(new LabelDeclarationNode("", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
-    assertThat(
-        hit.get(),
-        is(true)
-    );
+    assertThat(hit.get()).isEqualTo(true);
   }
 
   @Test
-  void instructionNodeDispatchMethodCalled() throws MiMaSyntaxError {
+  void instructionNodeDispatchMethodCalled() {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
 
@@ -57,14 +50,11 @@ class NodeVisitorTest {
       }
     }.visit(new InstructionNode("", 1, new MutableStringReader(""), HalfOpenIntRange.ZERO));
 
-    assertThat(
-        hit.get(),
-        is(true)
-    );
+    assertThat(hit.get()).isEqualTo(true);
   }
 
   @Test
-  void instructionCallNodeDispatchMethodCalled() throws MiMaSyntaxError {
+  void instructionCallNodeDispatchMethodCalled() {
     AtomicBoolean hit = new AtomicBoolean();
     new NodeVisitor() {
 
@@ -84,10 +74,7 @@ class NodeVisitorTest {
         )
     );
 
-    assertThat(
-        hit.get(),
-        is(true)
-    );
+    assertThat(hit.get()).isEqualTo(true);
   }
 
   @Test

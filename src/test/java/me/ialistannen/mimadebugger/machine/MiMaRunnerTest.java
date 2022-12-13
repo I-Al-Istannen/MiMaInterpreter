@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayDeque;
@@ -60,10 +59,7 @@ class MiMaRunnerTest {
 
   @Test
   void testStepOnce() throws MiMaException {
-    assertThat(
-        runner.nextStep(),
-        is(miMa.getCurrentState())
-    );
+    assertThat(runner.nextStep()).isEqualTo(miMa.getCurrentState());
   }
 
   @Test
@@ -86,17 +82,11 @@ class MiMaRunnerTest {
 
     State currentState = miMa.getCurrentState();
 
-    assertThat(
-        runner.isFinished(),
-        is(true)
-    );
+    assertThat(runner.isFinished()).isTrue();
 
     // Not broken when stepping back again (i.e. did not mutate state) when checking
     runner.previousStep();
-    assertThat(
-        runner.nextStep(),
-        is(currentState)
-    );
+    assertThat(runner.nextStep()).isEqualTo(currentState);
   }
 
   @Test
@@ -107,16 +97,10 @@ class MiMaRunnerTest {
     // go back
     runner.previousStep();
 
-    assertThat(
-        runner.isFinished(),
-        is(false)
-    );
+    assertThat(runner.isFinished()).isFalse();
 
     // Not broken when stepping back again (i.e. did not mutate state) when checking
-    assertThat(
-        runner.nextStep(),
-        is(lastState)
-    );
+    assertThat(runner.nextStep()).isEqualTo(lastState);
   }
 
   @Test
@@ -124,10 +108,7 @@ class MiMaRunnerTest {
     runner.nextStep();
     runner.nextStep();
 
-    assertThat(
-        runner.isFinished(),
-        is(false)
-    );
+    assertThat(runner.isFinished()).isFalse();
   }
 
   @Test
@@ -139,44 +120,27 @@ class MiMaRunnerTest {
         runner.nextStep()
     );
 
-    assertThat(
-        runner.reset(),
-        is(initialState)
-    );
-    assertThat(
-        Arrays.asList(runner.nextStep(), runner.nextStep(), runner.nextStep()),
-        is(steps)
-    );
+    assertThat(runner.reset()).isEqualTo(initialState);
+    assertThat(Arrays.asList(runner.nextStep(), runner.nextStep(), runner.nextStep())).isEqualTo(
+        steps);
   }
 
 
   @Test
   void testHasNoPrevious() {
-    assertThat(
-        runner.hasPreviousStep(),
-        is(false)
-    );
+    assertThat(runner.hasPreviousStep()).isFalse();
   }
 
   @Test
   void testHasNoCachedNext() {
-    assertThat(
-        runner.hasCachedNextStep(),
-        is(false)
-    );
+    assertThat(runner.hasCachedNextStep()).isFalse();
   }
 
   @Test
   void testPreviousOfFirstIsFirst() {
-    assertThat(
-        runner.hasPreviousStep(),
-        is(false)
-    );
+    assertThat(runner.hasPreviousStep()).isFalse();
     State initialState = miMa.getCurrentState();
-    assertThat(
-        runner.previousStep(),
-        is(initialState)
-    );
+    assertThat(runner.previousStep()).isEqualTo(initialState);
   }
 
   @Test
@@ -185,10 +149,7 @@ class MiMaRunnerTest {
         ProgramHaltException.class,
         () -> {
           for (int i = 0; i < 10; i++) {
-            assertThat(
-                runner.nextStep(),
-                is(miMa.getCurrentState())
-            );
+            assertThat(runner.nextStep()).isEqualTo(miMa.getCurrentState());
           }
         }
     );
@@ -200,16 +161,10 @@ class MiMaRunnerTest {
         ProgramHaltException.class,
         () -> {
           for (int i = 0; i < 10; i++) {
-            assertThat(
-                runner.nextStep(),
-                is(miMa.getCurrentState())
-            );
+            assertThat(runner.nextStep()).isEqualTo(miMa.getCurrentState());
 
             if (i > 0) {
-              assertThat(
-                  runner.hasPreviousStep(),
-                  is(true)
-              );
+              assertThat(runner.hasPreviousStep()).isTrue();
             }
           }
         }
@@ -231,18 +186,10 @@ class MiMaRunnerTest {
     for (int i = 0; !cachedStates.isEmpty(); i++) {
       State previousStep = runner.previousStep();
 
-      assertThat(
-          runner.hasPreviousStep(),
-          is(i != 2)
-      );
-      assertThat(
-          runner.hasCachedNextStep(),
-          is(true)
-      );
-      assertThat(
-          previousStep,
-          is(cachedStates.pop())
-      );
+      assertThat(runner.hasPreviousStep()).isEqualTo(i != 2);
+
+      assertThat(runner.hasCachedNextStep()).isTrue();
+      assertThat(previousStep).isEqualTo(cachedStates.pop());
     }
   }
 
@@ -256,28 +203,16 @@ class MiMaRunnerTest {
     }
 
     // one backwards
-    assertThat(
-        runner.previousStep(),
-        is(cachedStates.get(2))
-    );
-    assertThat(
-        runner.hasCachedNextStep(),
-        is(true)
-    );
+    assertThat(runner.previousStep()).isEqualTo(cachedStates.get(2));
+    assertThat(runner.hasCachedNextStep()).isTrue();
 
     State currentMiMaState = miMa.getCurrentState();
 
     // one forwards
-    assertThat(
-        runner.nextStep(),
-        is(cachedStates.get(3))
-    );
+    assertThat(runner.nextStep()).isEqualTo(cachedStates.get(3));
 
     // did not recompute MiMa state
-    assertThat(
-        miMa.getCurrentState(),
-        is(currentMiMaState)
-    );
+    assertThat(miMa.getCurrentState()).isEqualTo(currentMiMaState);
   }
 
   private InstructionCall toCall(Instruction instruction, int argument) {

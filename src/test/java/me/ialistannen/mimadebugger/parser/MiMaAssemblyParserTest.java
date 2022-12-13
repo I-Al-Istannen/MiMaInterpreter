@@ -1,12 +1,9 @@
 package me.ialistannen.mimadebugger.parser;
 
 import static me.ialistannen.mimadebugger.gui.state.EncodedInstructionCall.constantValue;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,10 +41,7 @@ class MiMaAssemblyParserTest {
 
   @Test
   void parseEmptyProgram() throws MiMaSyntaxError {
-    assertThat(
-        parseProgramOrThrow(""),
-        is(Collections.emptyList())
-    );
+    assertThat(parseProgramOrThrow("")).isEmpty();
   }
 
   @Test
@@ -75,10 +69,8 @@ class MiMaAssemblyParserTest {
       String program = instruction.name() + " " + argument;
 
       int argumentValue = instruction.hasArgument() ? 1 : 0;
-      assertThat(
-          parseProgramOrThrow(program),
-          is(Collections.singletonList(toValue(instruction, argumentValue, 0)))
-      );
+      assertThat(parseProgramOrThrow(program))
+          .containsExactly(toValue(instruction, argumentValue, 0));
     }
   }
 
@@ -93,10 +85,7 @@ class MiMaAssemblyParserTest {
 
       MemoryValue expectedResult = toValue(instruction, argument, 0);
 
-      assertThat(
-          parseProgramOrThrow(program),
-          is(Collections.singletonList(expectedResult))
-      );
+      assertThat(parseProgramOrThrow(program)).containsExactly(expectedResult);
     }
   }
 
@@ -146,10 +135,7 @@ class MiMaAssemblyParserTest {
       List<MemoryValue> parsed = parseProgramOrThrow(lines);
 
       for (int j = 0; j < instructions.size(); j++) {
-        assertThat(
-            toValue(instructions.get(j), argument, j),
-            is(parsed.get(j))
-        );
+        assertThat(toValue(instructions.get(j), argument, j)).isEqualTo(parsed.get(j));
       }
     }
   }
@@ -164,10 +150,7 @@ class MiMaAssemblyParserTest {
 
     MemoryValue expected = toValue(instruction, argument, 0);
 
-    assertThat(
-        parseProgramOrThrow(program),
-        is(Collections.singletonList(expected))
-    );
+    assertThat(parseProgramOrThrow(program)).containsExactly(expected);
   }
 
   @Test
@@ -189,10 +172,7 @@ class MiMaAssemblyParserTest {
 
     List<MemoryValue> values = parseProgramOrThrow(program);
 
-    assertThat(
-        values,
-        is(Collections.emptyList())
-    );
+    assertThat(values).isEmpty();
   }
 
   @Test
@@ -201,10 +181,7 @@ class MiMaAssemblyParserTest {
 
     List<MemoryValue> values = parseProgramOrThrow(program);
 
-    assertThat(
-        values,
-        is(Collections.singletonList(constantValue(12345, 0)))
-    );
+    assertThat(values).containsExactly(constantValue(12345, 0));
   }
 
   @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -240,10 +217,7 @@ class MiMaAssemblyParserTest {
 
     List<MemoryValue> values = parseProgramOrThrow(program);
 
-    assertThat(
-        values,
-        is(Collections.singletonList(constantValue(-12345, 0)))
-    );
+    assertThat(values).containsExactly(constantValue(-12345, 0));
   }
 
   @Test
@@ -271,10 +245,7 @@ class MiMaAssemblyParserTest {
     String program = Integer.toString(MemoryFormat.VALUE_MINIMUM);
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(constantValue(MemoryFormat.VALUE_MINIMUM, 0)))
-    );
+    assertThat(values).containsExactly(constantValue(MemoryFormat.VALUE_MINIMUM, 0));
   }
 
   @Test
@@ -282,10 +253,7 @@ class MiMaAssemblyParserTest {
     String program = Integer.toString(MemoryFormat.VALUE_MAXIMUM);
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(constantValue(MemoryFormat.VALUE_MAXIMUM, 0)))
-    );
+    assertThat(values).containsExactly(constantValue(MemoryFormat.VALUE_MAXIMUM, 0));
   }
 
   @Test
@@ -293,12 +261,9 @@ class MiMaAssemblyParserTest {
     String program = "hey: 0\nJMP hey";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Arrays.asList(
-            constantValue(0, 0),
-            execute(1, 0, Jump.JUMP)
-        ))
+    assertThat(values).containsExactly(
+        constantValue(0, 0),
+        execute(1, 0, Jump.JUMP)
     );
   }
 
@@ -310,12 +275,9 @@ class MiMaAssemblyParserTest {
         .stream()
         .sorted(Comparator.comparing(MemoryValue::address))
         .collect(Collectors.toList());
-    assertThat(
-        values,
-        is(Arrays.asList(
-            execute(0, 0, Load.LOAD_CONSTANT),
-            execute(1, 0, Jump.JUMP)
-        ))
+    assertThat(values).containsExactly(
+        execute(0, 0, Load.LOAD_CONSTANT),
+        execute(1, 0, Jump.JUMP)
     );
   }
 
@@ -324,12 +286,7 @@ class MiMaAssemblyParserTest {
     String program = "hey:\nJMP hey";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(
-            execute(0, 0, Jump.JUMP)
-        ))
-    );
+    assertThat(values).containsExactly(execute(0, 0, Jump.JUMP));
   }
 
   @Test
@@ -337,12 +294,7 @@ class MiMaAssemblyParserTest {
     String program = "JMP hey\nhey:";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(
-            execute(0, 1, Jump.JUMP)
-        ))
-    );
+    assertThat(values).containsExactly(execute(0, 1, Jump.JUMP));
   }
 
   @Test
@@ -351,9 +303,8 @@ class MiMaAssemblyParserTest {
 
     SyntaxTreeNode tree = parseProgramToTreeOrThrow(program);
     assertThat(
-        ((LabelDeclarationNode) tree.getChildren().get(0)).getName(),
-        is("hey-there")
-    );
+        ((LabelDeclarationNode) tree.getChildren().get(0)).getName()
+    ).isEqualTo("hey-there");
   }
 
   @Test
@@ -371,10 +322,7 @@ class MiMaAssemblyParserTest {
     String program = "heyThere2:";
 
     SyntaxTreeNode tree = parseProgramToTreeOrThrow(program);
-    assertThat(
-        ((LabelDeclarationNode) tree.getChildren().get(0)).getName(),
-        is("heyThere2")
-    );
+    assertThat(((LabelDeclarationNode) tree.getChildren().get(0)).getName()).isEqualTo("heyThere2");
   }
 
   @Test
@@ -392,10 +340,7 @@ class MiMaAssemblyParserTest {
     String program = "  ";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.emptyList())
-    );
+    assertThat(values).isEmpty();
   }
 
   @Test
@@ -408,15 +353,12 @@ class MiMaAssemblyParserTest {
         .command(Load.LOAD_CONSTANT)
         .build();
 
-    assertThat(
-        values.get(0),
-        is(
-            ImmutableEncodedInstructionCall.builder()
-                .address(0)
-                .representation(Load.LOAD_CONSTANT.opcode() | 0x0FFFFF)
-                .instructionCall(call)
-                .build()
-        )
+    assertThat(values.get(0)).isEqualTo(
+        ImmutableEncodedInstructionCall.builder()
+            .address(0)
+            .representation(Load.LOAD_CONSTANT.opcode() | 0x0FFFFF)
+            .instructionCall(call)
+            .build()
     );
   }
 
@@ -435,12 +377,7 @@ class MiMaAssemblyParserTest {
     String program = "LDC 1048575";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(
-            execute(0, 1048575, Load.LOAD_CONSTANT)
-        ))
-    );
+    assertThat(values).containsExactly(execute(0, 1048575, Load.LOAD_CONSTANT));
   }
 
   @Test
@@ -448,12 +385,7 @@ class MiMaAssemblyParserTest {
     String program = "RAR 65535";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(
-            execute(0, 65535, Other.ROTATE_RIGHT)
-        ))
-    );
+    assertThat(values).containsExactly(execute(0, 65535, Other.ROTATE_RIGHT));
   }
 
   @Test
@@ -462,10 +394,7 @@ class MiMaAssemblyParserTest {
 
     Either<List<ParsingProblem>, List<MemoryValue>> result = parser
         .parseProgramToMemoryValues(program);
-    assertThat(
-        result.isLeft(),
-        is(true)
-    );
+    assertThat(result.isLeft()).isTrue();
   }
 
   @Test
@@ -483,12 +412,7 @@ class MiMaAssemblyParserTest {
     String program = "; this is a comment\nLDC 10";
 
     List<MemoryValue> values = parseProgramOrThrow(program);
-    assertThat(
-        values,
-        is(Collections.singletonList(
-            execute(0, 10, Load.LOAD_CONSTANT)
-        ))
-    );
+    assertThat(values).containsExactly(execute(0, 10, Load.LOAD_CONSTANT));
   }
 
   @Test

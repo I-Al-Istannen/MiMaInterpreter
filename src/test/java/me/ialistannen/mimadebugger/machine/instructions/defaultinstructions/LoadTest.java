@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
@@ -21,26 +20,18 @@ class LoadTest extends InstructionTest {
 
   @Test
   void testLoadZero() throws MiMaException {
-    assertThat(
-        loadConstantResult(0),
-        is(0)
-    );
+    assertThat(loadConstantResult(0)).isEqualTo(0);
   }
 
   @Test
   void testLoadOne() throws MiMaException {
-    assertThat(
-        loadConstantResult(1),
-        is(1)
-    );
+    assertThat(loadConstantResult(1)).isEqualTo(1);
   }
 
   @Test
   void testLoadMaximumAddress() throws MiMaException {
-    assertThat(
-        loadConstantResult(1 << MemoryFormat.ADDRESS_LENGTH - 1),
-        is(1 << MemoryFormat.ADDRESS_LENGTH - 1)
-    );
+    assertThat(loadConstantResult(1 << MemoryFormat.ADDRESS_LENGTH - 1))
+        .isEqualTo(1 << MemoryFormat.ADDRESS_LENGTH - 1);
   }
 
 
@@ -64,134 +55,96 @@ class LoadTest extends InstructionTest {
   //<editor-fold desc="LDV">
   @Test
   void testLoadAddressNegativeNumber() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(-1),
-        is(-1)
-    );
+    assertThat(loadFromMemoryResult(-1)).isEqualTo(-1);
   }
 
   @Test
   void testLoadAddressMinimum() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(MemoryFormat.VALUE_MINIMUM),
-        is(MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(loadFromMemoryResult(MemoryFormat.VALUE_MINIMUM))
+        .isEqualTo(MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testLoadAddressUnderflowNoException() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(MemoryFormat.VALUE_MINIMUM - 1),
-        is(Math.floorMod(MemoryFormat.VALUE_MINIMUM - 1, 1 << MemoryFormat.VALUE_LENGTH))
-    );
+    assertThat(loadFromMemoryResult(MemoryFormat.VALUE_MINIMUM - 1))
+        .isEqualTo(Math.floorMod(MemoryFormat.VALUE_MINIMUM - 1, 1 << MemoryFormat.VALUE_LENGTH));
   }
 
   @Test
   void testLoadAddressZero() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(0),
-        is(0)
-    );
+    assertThat(loadFromMemoryResult(0)).isEqualTo(0);
   }
 
   @Test
   void testLoadAddressOne() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(1),
-        is(1)
-    );
+    assertThat(loadFromMemoryResult(1)).isEqualTo(1);
   }
 
   @Test
   void testLoadAddressMaximumAddress() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(1 << MemoryFormat.ADDRESS_LENGTH - 1),
-        is(1 << MemoryFormat.ADDRESS_LENGTH - 1)
-    );
+    assertThat(loadFromMemoryResult(1 << MemoryFormat.ADDRESS_LENGTH - 1))
+        .isEqualTo(1 << MemoryFormat.ADDRESS_LENGTH - 1);
   }
 
 
   @Test
   void testLoadAddressBiggerNumber() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(1 << MemoryFormat.ADDRESS_LENGTH),
-        is(1 << MemoryFormat.ADDRESS_LENGTH)
-    );
+    assertThat(loadFromMemoryResult(1 << MemoryFormat.ADDRESS_LENGTH))
+        .isEqualTo(1 << MemoryFormat.ADDRESS_LENGTH);
   }
 
   @Test
   void testLoadAddressMaximum() throws MiMaException {
-    assertThat(
-        loadFromMemoryResult(MemoryFormat.VALUE_MAXIMUM),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(loadFromMemoryResult(MemoryFormat.VALUE_MAXIMUM))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
   //</editor-fold>
 
   //<editor-fold desc="LDIV">
   @Test
   void testLoadAddressIndirectlyNegativeNumber() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(-1),
-        is(-1)
-    );
+    assertThat(loadFromMemoryIndirectResult(-1)).isEqualTo(-1);
   }
 
   @Test
   void testLoadAddressIndirectlyMinimum() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(MemoryFormat.VALUE_MINIMUM),
-        is(MemoryFormat.VALUE_MINIMUM)
-    );
+    assertThat(loadFromMemoryIndirectResult(MemoryFormat.VALUE_MINIMUM))
+        .isEqualTo(MemoryFormat.VALUE_MINIMUM);
   }
 
   @Test
   void testLoadAddressIndirectlyUnderflowNoException() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(MemoryFormat.VALUE_MINIMUM - 1),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(loadFromMemoryIndirectResult(MemoryFormat.VALUE_MINIMUM - 1))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
 
   @Test
   void testLoadAddressIndirectlyZero() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(0),
-        is(0)
-    );
+    assertThat(loadFromMemoryIndirectResult(0)).isEqualTo(0);
   }
 
   @Test
   void testLoadAddressIndirectlyOne() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(1),
-        is(1)
-    );
+    assertThat(loadFromMemoryIndirectResult(1)).isEqualTo(1);
   }
 
   @Test
   void testLoadAddressIndirectlyMaximumAddress() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(1 << MemoryFormat.ADDRESS_LENGTH - 1),
-        is(1 << MemoryFormat.ADDRESS_LENGTH - 1)
-    );
+    assertThat(loadFromMemoryIndirectResult(1 << MemoryFormat.ADDRESS_LENGTH - 1))
+        .isEqualTo(1 << MemoryFormat.ADDRESS_LENGTH - 1);
   }
 
 
   @Test
   void testLoadAddressIndirectlyBiggerNumber() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(1 << MemoryFormat.ADDRESS_LENGTH),
-        is(1 << MemoryFormat.ADDRESS_LENGTH)
-    );
+    assertThat(loadFromMemoryIndirectResult(1 << MemoryFormat.ADDRESS_LENGTH))
+        .isEqualTo(1 << MemoryFormat.ADDRESS_LENGTH);
   }
 
   @Test
   void testLoadAddressIndirectlyMaximum() throws MiMaException {
-    assertThat(
-        loadFromMemoryIndirectResult(MemoryFormat.VALUE_MAXIMUM),
-        is(MemoryFormat.VALUE_MAXIMUM)
-    );
+    assertThat(loadFromMemoryIndirectResult(MemoryFormat.VALUE_MAXIMUM))
+        .isEqualTo(MemoryFormat.VALUE_MAXIMUM);
   }
   //</editor-fold>
 

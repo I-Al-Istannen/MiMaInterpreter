@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
@@ -18,40 +17,28 @@ class OtherTest extends InstructionTest {
   void testRotateOne() throws MiMaException {
     int input = 1;
 
-    assertThat(
-        rotateRight(input),
-        is(1 << MemoryFormat.VALUE_LENGTH - 1)
-    );
+    assertThat(rotateRight(input)).isEqualTo(1 << MemoryFormat.VALUE_LENGTH - 1);
   }
 
   @Test
   void testRotateZero() throws MiMaException {
     int input = 0;
 
-    assertThat(
-        rotateRight(input),
-        is(0)
-    );
+    assertThat(rotateRight(input)).isEqualTo(0);
   }
 
   @Test
   void testRotateMaximumValue() throws MiMaException {
     int input = 0b00000000_011111111111111111111111;
 
-    assertThat(
-        rotateRight(input),
-        is(0b00000000_101111111111111111111111)
-    );
+    assertThat(rotateRight(input)).isEqualTo(0b00000000_101111111111111111111111);
   }
 
   @Test
   void testRotateMinimumValue() throws MiMaException {
     int input = 0b00000000_111111111111111111111111;
 
-    assertThat(
-        rotateRight(input),
-        is(input)
-    );
+    assertThat(rotateRight(input)).isEqualTo(input);
   }
 
   private int rotateRight(int input) throws MiMaException {
@@ -77,10 +64,7 @@ class OtherTest extends InstructionTest {
       "0, -32768, -32768",      // sub largest negative
   })
   void addFewConstants(int accumulator, int addition, int result) throws MiMaException {
-    assertThat(
-        addConstant(accumulator, addition),
-        is(result)
-    );
+    assertThat(addConstant(accumulator, addition)).isEqualTo(result);
   }
 
   @Test

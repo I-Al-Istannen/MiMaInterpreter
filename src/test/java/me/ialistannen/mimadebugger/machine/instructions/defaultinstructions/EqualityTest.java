@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
@@ -17,42 +16,27 @@ class EqualityTest extends InstructionTest {
 
   @Test
   void testEqual() throws MiMaException {
-    assertThat(
-        isEqual(20, 20),
-        is(EQUAL)
-    );
+    assertThat(isEqual(20, 20)).isEqualTo(EQUAL);
   }
 
   @Test
   void testNotEqual() throws MiMaException {
-    assertThat(
-        isEqual(21, 20),
-        is(DIFFERENT)
-    );
+    assertThat(isEqual(21, 20)).isEqualTo(DIFFERENT);
   }
 
   @Test
   void testZero() throws MiMaException {
-    assertThat(
-        isEqual(0, 0),
-        is(EQUAL)
-    );
+    assertThat(isEqual(0, 0)).isEqualTo(EQUAL);
   }
 
   @Test
   void testMinimum() throws MiMaException {
-    assertThat(
-        isEqual(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM),
-        is(EQUAL)
-    );
+    assertThat(isEqual(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM)).isEqualTo(EQUAL);
   }
 
   @Test
   void testMaximum() throws MiMaException {
-    assertThat(
-        isEqual(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM),
-        is(EQUAL)
-    );
+    assertThat(isEqual(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM)).isEqualTo(EQUAL);
   }
 
   @Test
@@ -60,11 +44,8 @@ class EqualityTest extends InstructionTest {
     for (int i = 0; i < 10_000; i++) {
       int accum = getRandomValue();
       int memory = getRandomValue();
-      assertThat(
-          isEqual(accum, memory),
-          is(accum == memory ? EQUAL : DIFFERENT)
-      );
-
+      assertThat(isEqual(accum, memory))
+          .isEqualTo((accum == memory ? EQUAL : DIFFERENT));
     }
   }
 

@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
@@ -29,16 +28,13 @@ class StackTest extends InstructionTest {
     );
     State resultState = Stack.LDSP.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
+    assertThat(resultState)
+        .isEqualTo(state.copy().withRegisters(
                 state.registers().copy()
                     .withStackPointer(returnAddress)
                     .withAccumulator(returnAddress)
             )
-        )
-    );
+        );
   }
 
   @ParameterizedTest(name = "Loading {0} from acc to SP")
@@ -51,16 +47,13 @@ class StackTest extends InstructionTest {
     State state = getStateWithAccumulator(accumulator);
     State resultState = Stack.STSP.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
+    assertThat(resultState)
+        .isEqualTo(state.copy().withRegisters(
                 state.registers().copy()
                     .withStackPointer(accumulator)
                     .withAccumulator(accumulator)
             )
-        )
-    );
+        );
   }
 
   @Test
@@ -89,16 +82,13 @@ class StackTest extends InstructionTest {
     );
     State resultState = Stack.LDFP.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
+    assertThat(resultState)
+        .isEqualTo(state.copy().withRegisters(
                 state.registers().copy()
                     .withFramePointer(returnAddress)
                     .withAccumulator(returnAddress)
             )
-        )
-    );
+        );
   }
 
   @ParameterizedTest(name = "Loading {0} from acc to FP")
@@ -111,16 +101,13 @@ class StackTest extends InstructionTest {
     State state = getStateWithAccumulator(accumulator);
     State resultState = Stack.STFP.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
+    assertThat(resultState)
+        .isEqualTo(state.copy().withRegisters(
                 state.registers().copy()
                     .withFramePointer(accumulator)
                     .withAccumulator(accumulator)
             )
-        )
-    );
+        );
   }
 
   @Test
@@ -155,14 +142,11 @@ class StackTest extends InstructionTest {
             getState().registers().copy().withStackPointer(stackPointerAddress)
         );
 
-    assertThat(
-        Stack.LDRS.apply(state, offset),
-        is(
-            state.copy().withRegisters(
+    assertThat(Stack.LDRS.apply(state, offset))
+        .isEqualTo(state.copy().withRegisters(
                 state.registers().copy().withAccumulator(valueToLoad)
             )
-        )
-    );
+        );
   }
 
   @Test
@@ -198,14 +182,11 @@ class StackTest extends InstructionTest {
                 .withAccumulator(valueToStore)
         );
 
-    assertThat(
-        Stack.STRS.apply(state, offset),
-        is(
-            state.copy().withMemory(
+    assertThat(Stack.STRS.apply(state, offset))
+        .isEqualTo(state.copy().withMemory(
                 MainMemory.create().set(stackPointerAddress + offset, valueToStore)
             )
-        )
-    );
+        );
   }
 
   @Test

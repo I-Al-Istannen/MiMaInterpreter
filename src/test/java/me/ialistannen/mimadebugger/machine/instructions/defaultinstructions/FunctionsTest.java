@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
@@ -29,14 +28,11 @@ class FunctionsTest extends InstructionTest {
     );
     State resultState = Functions.CALL.apply(state, callAddress);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
-                state.registers().copy()
-                    .withInstructionPointer(callAddress)
-                    .withReturnAddress(ipAddress)
-            )
+    assertThat(resultState).isEqualTo(
+        state.copy().withRegisters(
+            state.registers().copy()
+                .withInstructionPointer(callAddress)
+                .withReturnAddress(ipAddress)
         )
     );
   }
@@ -68,12 +64,9 @@ class FunctionsTest extends InstructionTest {
     );
     State resultState = Functions.RET.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
-                state.registers().copy().withInstructionPointer(retAddress)
-            )
+    assertThat(resultState).isEqualTo(
+        state.copy().withRegisters(
+            state.registers().copy().withInstructionPointer(retAddress)
         )
     );
   }
@@ -90,14 +83,11 @@ class FunctionsTest extends InstructionTest {
     );
     State resultState = Functions.LDRA.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
-                state.registers().copy()
-                    .withReturnAddress(returnAddress)
-                    .withAccumulator(returnAddress)
-            )
+    assertThat(resultState).isEqualTo(
+        state.copy().withRegisters(
+            state.registers().copy()
+                .withReturnAddress(returnAddress)
+                .withAccumulator(returnAddress)
         )
     );
   }
@@ -112,14 +102,11 @@ class FunctionsTest extends InstructionTest {
     State state = getStateWithAccumulator(accumulator);
     State resultState = Functions.STRA.apply(state, 0);
 
-    assertThat(
-        resultState,
-        is(
-            state.copy().withRegisters(
-                state.registers().copy()
-                    .withReturnAddress(accumulator)
-                    .withAccumulator(accumulator)
-            )
+    assertThat(resultState).isEqualTo(
+        state.copy().withRegisters(
+            state.registers().copy()
+                .withReturnAddress(accumulator)
+                .withAccumulator(accumulator)
         )
     );
   }

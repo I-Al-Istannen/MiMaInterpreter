@@ -1,21 +1,16 @@
 package me.ialistannen.mimadebugger.gui.util;
 
-import com.sun.javafx.scene.control.skin.TableViewSkin;
-import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import me.ialistannen.mimadebugger.gui.util.AutoSizableTableViewSkin.ColumnHeader;
 
 public final class TableHelper {
-
-  private static final Logger LOGGER = Logger.getLogger("TableHelper");
 
   private TableHelper() {
     throw new UnsupportedOperationException("No instantiation");
@@ -42,9 +37,8 @@ public final class TableHelper {
   }
 
   /**
-   * Creates a new {@link TableCell} with the given mutation function.
-   *
-   * This method takes care of all the default emptying and resetting of the cell,
+   * Creates a new {@link TableCell} with the given mutation function. This method takes care of all
+   * the default emptying and resetting of the cell,
    * <em>but does not null the graphic.</em>
    *
    * @param creation the supplier to create a graphic
@@ -57,7 +51,7 @@ public final class TableHelper {
    */
   public static <S, T, D extends Node> TableCell<S, T> cell(Function<T, D> creation,
       Consumer<D> clear, BiConsumer<T, D> set) {
-    return new TableCell<S, T>() {
+    return new TableCell<>() {
       @Override
       protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
@@ -89,15 +83,9 @@ public final class TableHelper {
    * @param tableView the table view to resize
    */
   public static void autoSizeColumns(TableView<?> tableView) {
-    try {
-      Method method = TableViewSkin.class
-          .getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-      method.setAccessible(true);
-      for (TableColumn<?, ?> column : tableView.getColumns()) {
-        method.invoke(tableView.getSkin(), column, -1);
-      }
-    } catch (ReflectiveOperationException e) {
-      LOGGER.log(Level.WARNING, "Error setting tableview size", e);
+    for (TableColumn<?, ?> column : tableView.getColumns()) {
+      ColumnHeader header = (ColumnHeader) column.getStyleableNode();
+      header.resizeColumnToFitContent();
     }
   }
 

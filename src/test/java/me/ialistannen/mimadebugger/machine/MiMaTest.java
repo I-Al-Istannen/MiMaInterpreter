@@ -1,8 +1,6 @@
 package me.ialistannen.mimadebugger.machine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.ialistannen.mimadebugger.exceptions.InstructionNotFoundException;
@@ -56,38 +54,21 @@ class MiMaTest {
   @Test
   void testCopy() throws MiMaException {
     miMa.step();
-    assertThat(
-        miMa.copy(initialState).getCurrentState(),
-        is(initialState)
-    );
-    assertThat(
-        miMa.getCurrentState(),
-        is(not(initialState))
-    );
+    assertThat(miMa.copy(initialState).getCurrentState()).isEqualTo(initialState);
+    assertThat(miMa.getCurrentState()).isNotEqualTo(initialState);
   }
 
   @Test
   void testRegistersUpdatedAfterStep() throws MiMaException {
-    assertThat(
-        miMa.step(),
-        is(miMa.getCurrentState())
-    );
+    assertThat(miMa.step()).isEqualTo(miMa.getCurrentState());
 
     Registers registers = miMa.getCurrentState().registers();
 
-    assertThat(
-        registers.accumulator(),
-        is(20)
-    );
-    assertThat(
-        registers.instructionPointer(),
-        is(1)
-    );
+    assertThat(registers.accumulator()).isEqualTo(20);
+    assertThat(registers.instructionPointer()).isEqualTo(1);
     // No new instruction is in the register yet
-    assertThat(
-        registers.instruction(),
-        is(MemoryFormat.combineInstruction(toCall(Load.LOAD_CONSTANT, 20)))
-    );
+    assertThat(registers.instruction())
+        .isEqualTo(MemoryFormat.combineInstruction(toCall(Load.LOAD_CONSTANT, 20)));
   }
 
   @Test

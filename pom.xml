@@ -6,7 +6,7 @@
 
   <groupId>me.ialistannen</groupId>
   <artifactId>MiMaDebugger</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,22 +18,22 @@
       **/me/ialistannen/mimadebugger/machine/instructions/Immutable*,
       **/me/ialistannen/mimadebugger/gui/**/*
     </sonar.coverage.exclusions>
+    <junit.version>5.9.0</junit.version>
   </properties>
 
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.10.1</version>
         <configuration>
-          <target>8</target>
-          <source>8</source>
+          <release>11</release>
         </configuration>
       </plugin>
 
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>shade</id>
@@ -50,7 +50,7 @@
             <transformer
               implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
               <manifestEntries>
-                <Main-Class>me.ialistannen.mimadebugger.gui.MiMaGui</Main-Class>
+                <Main-Class>me.ialistannen.mimadebugger.gui.Launcher</Main-Class>
               </manifestEntries>
             </transformer>
           </transformers>
@@ -59,7 +59,7 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.1</version>
+        <version>3.0.0-M7</version>
         <!--Work around ubuntu packaging a broken java version,
             see https://stackoverflow.com/a/53016532-->
         <configuration>
@@ -70,7 +70,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
+        <version>0.8.8</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -122,7 +122,7 @@
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
-      <version>2.7.1</version>
+      <version>2.9.2</version>
       <scope>provided</scope>
     </dependency>
 
@@ -130,39 +130,89 @@
     <dependency>
       <groupId>org.pcollections</groupId>
       <artifactId>pcollections</artifactId>
-      <version>3.0.3</version>
+      <version>4.0.1</version>
     </dependency>
 
     <dependency>
       <groupId>com.jfoenix</groupId>
       <artifactId>jfoenix</artifactId>
-      <version>8.0.7</version>
+      <version>9.0.10</version>
     </dependency>
 
     <dependency>
       <groupId>org.fxmisc.richtext</groupId>
       <artifactId>richtextfx</artifactId>
-      <version>0.9.1</version>
+      <version>0.11.0</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>javafx-base</artifactId>
+          <groupId>org.openjfx</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>javafx-controls</artifactId>
+          <groupId>org.openjfx</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>javafx-fxml</artifactId>
+          <groupId>org.openjfx</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>javafx-graphics</artifactId>
+          <groupId>org.openjfx</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>19</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>19</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>19</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>19</version>
+      <classifier>win</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>19</version>
+      <classifier>mac</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>19</version>
+      <classifier>linux</classifier>
     </dependency>
 
     <!--TEST-->
     <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.23.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.3.1</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>5.3.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-junit -->
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-junit</artifactId>
-      <version>2.0.0.0</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.memory;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
@@ -50,28 +49,22 @@ class MainMemoryTest {
 
   @Test
   void testSetTooLargeValue() throws NumberOverflowException, MemoryNotInitializedException {
-    assertThat(
-        memory.set(1, MemoryFormat.VALUE_MAXIMUM + 1).get(1),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1))
-    );
+    assertThat(memory.set(1, MemoryFormat.VALUE_MAXIMUM + 1).get(1))
+        .isEqualTo(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + 1));
   }
 
   @Test
   void testSetNegativeValue() throws NumberOverflowException, MemoryNotInitializedException {
-    assertThat(
-        memory.set(1, MemoryFormat.VALUE_MINIMUM).get(1),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM))
-    );
+    assertThat(memory.set(1, MemoryFormat.VALUE_MINIMUM).get(1))
+        .isEqualTo(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM));
   }
 
   @Test
   void testSetDoesNotMutateOriginalUnset()
       throws NumberOverflowException, MemoryNotInitializedException {
     MainMemory setMemory = memory.set(0, 32);
-    assertThat(
-        setMemory.get(0),
-        is(32)
-    );
+    assertThat(setMemory.get(0))
+        .isEqualTo(32);
 
     assertThrows(
         MemoryNotInitializedException.class,
@@ -88,14 +81,10 @@ class MainMemoryTest {
 
     MainMemory modifiedMemory = memory.set(0, changedValue);
 
-    assertThat(
-        modifiedMemory.get(0),
-        is(changedValue)
-    );
-    assertThat(
-        memory.get(0),
-        is(originalValue)
-    );
+    assertThat(modifiedMemory.get(0))
+        .isEqualTo(changedValue);
+    assertThat(memory.get(0))
+        .isEqualTo(originalValue);
   }
 
   @Test
@@ -104,10 +93,8 @@ class MainMemoryTest {
     map.put(2, 21);
     map.put(5, 30);
     map.put(100, -10);
-    assertThat(
-        memory.set(2, 20).set(5, 30).set(2, 21).set(100, -10).getMemory(),
-        is(map)
-    );
+    assertThat(memory.set(2, 20).set(5, 30).set(2, 21).set(100, -10).getMemory())
+        .isEqualTo(map);
   }
 
   @Test
@@ -117,18 +104,13 @@ class MainMemoryTest {
     MainMemory second = MainMemory.create()
         .set(0, 20);
 
-    assertThat(
-        first.hashCode(),
-        is(second.hashCode())
-    );
+    assertThat(first.hashCode())
+        .isEqualTo(second.hashCode());
   }
 
   @Test
   void testEqualsNull() {
-    assertThat(
-        memory.equals(null),
-        is(false)
-    );
+    assertThat(memory).isNotNull();
   }
 
   @Test
@@ -136,18 +118,15 @@ class MainMemoryTest {
     MainMemory memory = MainMemory.create()
         .set(0, 20);
 
-    assertThat(
-        memory.toString(),
-        is("                       0 (       0)  |                    010100 (   0       20)\n")
-    );
+    assertThat(memory.toString())
+        .isEqualTo(
+            "                       0 (       0)  |                    010100 (   0       20)\n");
   }
 
   private void testSetValue(int address, int value)
       throws NumberOverflowException, MemoryNotInitializedException {
-    assertThat(
-        memory.set(address, value).get(address),
-        is(value)
-    );
+    assertThat(memory.set(address, value).get(address))
+        .isEqualTo(value);
   }
 
   private int getRandomAddress() {

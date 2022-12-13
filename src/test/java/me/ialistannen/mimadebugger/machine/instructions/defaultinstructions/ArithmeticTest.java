@@ -1,7 +1,6 @@
 package me.ialistannen.mimadebugger.machine.instructions.defaultinstructions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import me.ialistannen.mimadebugger.exceptions.MiMaException;
 import me.ialistannen.mimadebugger.machine.State;
@@ -12,49 +11,40 @@ class ArithmeticTest extends InstructionTest {
 
   @Test
   void testAddZeros() throws MiMaException {
-    assertThat(
-        add(0, 0),
-        is(0)
-    );
+    assertThat(add(0, 0)).isEqualTo(0);
   }
 
   @Test
   void testAddOnes() throws MiMaException {
-    assertThat(
-        add(1, 1),
-        is(2)
-    );
+    assertThat(add(1, 1)).isEqualTo(2);
   }
 
   @Test
   void testAddMinusOne() throws MiMaException {
-    assertThat(
-        add(-1, -1),
-        is(-2)
-    );
+    assertThat(add(-1, -1)).isEqualTo(-2);
   }
 
   @Test
   void testAddOverflowMaximum() throws MiMaException {
     assertThat(
-        add(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + MemoryFormat.VALUE_MAXIMUM))
+        add(MemoryFormat.VALUE_MAXIMUM, MemoryFormat.VALUE_MAXIMUM)).isEqualTo(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM + MemoryFormat.VALUE_MAXIMUM)
     );
   }
 
   @Test
   void testOverflowMinimumPlusOne() throws MiMaException {
     assertThat(
-        add(MemoryFormat.VALUE_MINIMUM, -1),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM))
+        add(MemoryFormat.VALUE_MINIMUM, -1)).isEqualTo(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MAXIMUM)
     );
   }
 
   @Test
   void testAddMinimums() throws MiMaException {
     assertThat(
-        add(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM),
-        is(MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM + MemoryFormat.VALUE_MINIMUM))
+        add(MemoryFormat.VALUE_MINIMUM, MemoryFormat.VALUE_MINIMUM)).isEqualTo(
+        MemoryFormat.coerceToValue(MemoryFormat.VALUE_MINIMUM + MemoryFormat.VALUE_MINIMUM)
     );
   }
 
@@ -64,10 +54,8 @@ class ArithmeticTest extends InstructionTest {
       int numberOne = getRandomValue();
       int numberTwo = getRandomValue();
 
-      assertThat(
-          add(numberOne, numberTwo),
-          is(MemoryFormat.coerceToValue(numberOne + numberTwo))
-      );
+      assertThat(add(numberOne, numberTwo))
+          .isEqualTo(MemoryFormat.coerceToValue(numberOne + numberTwo));
     }
   }
 
